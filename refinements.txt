@@ -1,0 +1,37 @@
+Refine the dashboards by adding the missing required chart evidence and improving storytelling.
+
+Add the following to app.py only. Do not rewrite the whole project unnecessarily.
+
+1. Add geographic map evidence
+- Add at least one geographic visual to each role-based dashboard.
+- Sales dashboard: add a “Warm Lead Hotzone Map” showing warm leads by country. Use bubble size for warm leads and bubble colour for demo conversion rate, or a choropleth if simpler.
+- Marketing dashboard: add a “Reach by Country” map showing unique visitors or engaged sessions by country, with warm-lead context in tooltips.
+- Executive dashboard: add a “Regional Opportunity Map” / choropleth showing strategic demand or opportunity score by country.
+
+2. Add scatter chart evidence
+- Sales: scatter chart showing warm leads vs demo conversion by country, bubble size = total sessions.
+- Marketing: scatter chart showing unique visitors vs engagement rate, bubble size = warm leads, colour = bot ratio band or country.
+- Executive: scatter chart showing strategic demand vs AI Assistant share, bubble size = warm leads.
+
+3. Add donut / pie evidence
+- Sales: donut chart for lead action mix (demo_request, contact_request, event_signup, AI Assistant inquiry).
+- Marketing: donut chart for segment mix (high-intent, product-curious, general browser, bot).
+- Executive: donut chart for service demand mix.
+
+4. Add a small Insight Assistant card to each dashboard
+- This should be rule-based, not a chatbot.
+- Sales Insight Assistant: top hotzone, top service, best follow-up signal.
+- Marketing Insight Assistant: top country, strongest page/service, audience quality note.
+- Executive Insight Assistant: strongest market, AI Assistant traction note, anomaly/risk note.
+
+5. Improve geographic storytelling
+- Each map must have a clear title, legend, tooltip, and one-line interpretation below it.
+- Show hotzones meaningfully, not decoratively.
+
+6. Keep the existing structure:
+Header → KPI row → Live Pulse → Insight Narrative → Strategic Analytics → Evidence Table → Reports & Exports
+
+7. Keep the CyberNova design system:
+deep navy, electric blue, cyan, green, amber, light grey, white cards, rounded corners, soft shadows, consistent spacing.
+
+Do not remove existing calculations. Improve and extend them.

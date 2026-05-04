@@ -2,11 +2,10 @@ pandas
 numpy
 faker
 pyyaml
-streamlit
+streamlit>=1.37.0
 matplotlib
 seaborn
 openpyxl
 plotly
 reportlab
 kaleido
-# streamlit-autorefresh  # optional — app_refined.py uses st.fragment instead
