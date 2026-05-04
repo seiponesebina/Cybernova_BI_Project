@@ -95,7 +95,7 @@ SERVICE_URIS = [
 # ─────────────────────────────────────────────────────────────────
 # CSS  (injects wireframe visual shell into Streamlit)
 # ─────────────────────────────────────────────────────────────────
-def inject_css() -> None:
+def inject_css(dark: bool = False) -> None:
     st.markdown("""
 <style>
 /* ═══════════════════════════════════════════════════════════════
@@ -290,6 +290,143 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
    ANIMATIONS
 ═══════════════════════════════════════════════════════════════ */
 @keyframes live-tick{from{opacity:.55;transform:scale(.97)}to{opacity:1;transform:scale(1)}}
+
+/* ═══════════════════════════════════════════════════════════════
+   SIDEBAR DRAWER TAB  — visible pull-tab on the left edge
+═══════════════════════════════════════════════════════════════ */
+/* Collapsed-state control (shown when sidebar is hidden) */
+[data-testid="stSidebarCollapsedControl"]{
+  position:fixed !important;
+  top:50% !important;
+  left:0 !important;
+  transform:translateY(-50%) !important;
+  z-index:9999 !important;
+  padding:0 !important;
+}
+[data-testid="stSidebarCollapsedControl"] button{
+  background:linear-gradient(180deg,#2563FF 0%,#16B8C7 100%) !important;
+  border:none !important;
+  border-radius:0 14px 14px 0 !important;
+  width:28px !important;
+  height:72px !important;
+  box-shadow:4px 0 20px rgba(37,99,255,.45) !important;
+  transition:width .2s ease, box-shadow .2s ease !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  color:white !important;
+  padding:0 !important;
+}
+[data-testid="stSidebarCollapsedControl"] button:hover{
+  width:36px !important;
+  box-shadow:6px 0 28px rgba(37,99,255,.6) !important;
+}
+[data-testid="stSidebarCollapsedControl"] button svg{
+  color:white !important;
+  stroke:white !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
+    # Dark mode override block — injected on top of base styles
+    if dark:
+        st.markdown("""
+<style>
+/* ═══════════════════════════════════════════════════════════════
+   DARK MODE OVERRIDES
+═══════════════════════════════════════════════════════════════ */
+.stApp{background:#0F172A !important;}
+[data-testid="stAppViewContainer"] > section.main{background:#0F172A !important;}
+.block-container{background:transparent !important;}
+
+/* Card wrappers */
+[data-testid="stVerticalBlockBorderWrapper"]{
+  background:#1E293B !important;
+  border-color:#334155 !important;
+  box-shadow:0 4px 20px rgba(0,0,0,.5) !important;
+}
+[data-testid="stVerticalBlockBorderWrapper"]:hover{
+  box-shadow:0 6px 28px rgba(0,0,0,.6) !important;
+}
+
+/* Inline white/light HTML card backgrounds */
+[data-testid="stMarkdownContainer"] div[style*="background:white"],
+[data-testid="stMarkdownContainer"] div[style*="background: white"],
+[data-testid="stMarkdownContainer"] div[style*="background:#FFFFFF"],
+[data-testid="stMarkdownContainer"] div[style*="background: #FFFFFF"]{
+  background:#1E293B !important;
+  border-color:#334155 !important;
+}
+[data-testid="stMarkdownContainer"] div[style*="background:#F3F4F6"],
+[data-testid="stMarkdownContainer"] div[style*="background:#F8FAFC"],
+[data-testid="stMarkdownContainer"] div[style*="background:#F1F3F6"],
+[data-testid="stMarkdownContainer"] div[style*="background:#E5EAF0"],
+[data-testid="stMarkdownContainer"] div[style*="background:#DBEAFE"],
+[data-testid="stMarkdownContainer"] div[style*="background:#D1FAE5"],
+[data-testid="stMarkdownContainer"] div[style*="background:#CFFAFE"],
+[data-testid="stMarkdownContainer"] div[style*="background:#FEF3C7"]{
+  background:#253047 !important;
+  border-color:#334155 !important;
+}
+
+/* Text: make all dark-navy / dark-grey text light.
+   Accent colors (blue, cyan, green, amber, red, white) are preserved. */
+[data-testid="stMarkdownContainer"] *:not([style*="color:#2563FF"])
+  :not([style*="color:#16B8C7"]):not([style*="color:#10B981"])
+  :not([style*="color:#F59E0B"]):not([style*="color:white"])
+  :not([style*="color:#047857"]):not([style*="color:#0E7490"])
+  :not([style*="color:#EF4444"]):not([style*="color:#92400E"])
+  :not([style*="color:#1E40AF"]) {
+  color:#CBD5E1 !important;
+}
+
+/* Expanders */
+[data-testid="stExpander"]{
+  background:#1E293B !important;
+  border-color:#334155 !important;
+}
+[data-testid="stExpander"] summary{color:#E2E8F0 !important;}
+[data-testid="stExpander"] summary:hover{color:white !important;}
+
+/* Native inputs */
+input, textarea, .stTextInput input, .stDateInput input{
+  background:#1E293B !important;
+  color:#E2E8F0 !important;
+  border-color:#334155 !important;
+}
+[data-baseweb="select"] > div{
+  background:#1E293B !important;
+  border-color:#334155 !important;
+  color:#E2E8F0 !important;
+}
+[data-baseweb="menu"]{background:#1E293B !important;}
+[data-baseweb="option"]{background:#1E293B !important;color:#CBD5E1 !important;}
+[data-baseweb="option"]:hover{background:#253047 !important;}
+
+/* DataFrames */
+.stDataFrame, [data-testid="stDataFrame"]{
+  background:#1E293B !important;
+  border-color:#334155 !important;
+}
+
+/* HR dividers */
+hr{border-color:#334155 !important;}
+
+/* Plotly chart backgrounds */
+.js-plotly-plot .plotly,.plotly-graph-div{background:#1E293B !important;}
+.modebar{background:transparent !important;}
+
+/* Download buttons in dark mode */
+div[data-testid="stDownloadButton"] > button{
+  background:#1E293B !important;
+  color:#CBD5E1 !important;
+  border-color:#334155 !important;
+}
+div[data-testid="stDownloadButton"] > button:hover{
+  background:#253047 !important;
+  border-color:#2563FF !important;
+  color:#93C5FD !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -3158,6 +3295,21 @@ def show_horizon(fdf: pd.DataFrame, filters: dict, role: str) -> None:
 # ─────────────────────────────────────────────────────────────────
 def render_sidebar(df: pd.DataFrame) -> dict:
     role = st.session_state.get("role","")
+
+    # ── Dark mode toggle ──────────────────────────────────────────
+    dark = st.session_state.get("dark_mode", False)
+    dm_label = "☀️  Light Mode" if dark else "🌙  Dark Mode"
+    st.sidebar.markdown(
+        f'<div style="margin-bottom:4px;margin-top:4px;">'
+        f'<span style="font-size:10px;text-transform:uppercase;letter-spacing:.1em;'
+        f'color:#9FB2C7;font-weight:800;">Display</span></div>',
+        unsafe_allow_html=True,
+    )
+    if st.sidebar.button(dm_label, key="dm_toggle", use_container_width=True):
+        st.session_state["dark_mode"] = not dark
+        st.rerun()
+    st.sidebar.markdown("---")
+
     # Brand
     st.sidebar.markdown(f"""
 <div style="padding:.8rem 0 .5rem;">
@@ -3513,7 +3665,49 @@ div[data-testid="stTextInputRootElement"] input {
 # MAIN
 # ─────────────────────────────────────────────────────────────────
 def main() -> None:
-    inject_css()
+    dark = st.session_state.get("dark_mode", False)
+    inject_css(dark=dark)
+
+    # Floating sidebar toggle button — works from any scroll position
+    st.components.v1.html("""
+<script>
+(function() {
+  function toggle() {
+    try {
+      var d = window.parent.document;
+      var btn =
+        d.querySelector('[data-testid="stSidebarCollapsedControl"] button') ||
+        d.querySelector('button[aria-label="Close sidebar"]') ||
+        d.querySelector('button[aria-label="Open sidebar"]') ||
+        d.querySelector('[data-testid="stSidebarNavCollapseButton"]');
+      if (btn) btn.click();
+    } catch(e) {}
+  }
+  // Inject floating button into parent document
+  var d = window.parent.document;
+  if (!d.getElementById('cn-sb-fab')) {
+    var btn = d.createElement('button');
+    btn.id = 'cn-sb-fab';
+    btn.innerHTML = '&#9776;';
+    btn.title = 'Toggle sidebar';
+    btn.onclick = toggle;
+    btn.style.cssText = [
+      'position:fixed', 'bottom:32px', 'left:16px', 'z-index:99999',
+      'background:linear-gradient(135deg,#2563FF,#16B8C7)',
+      'color:white', 'border:none', 'border-radius:50%',
+      'width:48px', 'height:48px', 'font-size:20px',
+      'cursor:pointer', 'box-shadow:0 6px 20px rgba(37,99,255,.45)',
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'transition:transform .2s ease, box-shadow .2s ease',
+      'font-family:sans-serif', 'line-height:1'
+    ].join(';');
+    btn.onmouseenter = function(){ this.style.transform='scale(1.12)'; this.style.boxShadow='0 10px 28px rgba(37,99,255,.55)'; };
+    btn.onmouseleave = function(){ this.style.transform='scale(1)';    this.style.boxShadow='0 6px 20px rgba(37,99,255,.45)'; };
+    d.body.appendChild(btn);
+  }
+})();
+</script>
+""", height=0)
 
     if not st.session_state.get("logged_in"):
         render_login()
