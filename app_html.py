@@ -42,8 +42,8 @@ st.set_page_config(
 BG         = "#F3F4F6"
 CARD       = "#FFFFFF"
 TEXT       = "#102A43"
-SECONDARY  = "#52606D"
-MUTED      = "#7B8794"
+SECONDARY  = "#374151"
+MUTED      = "#4B5563"
 BORDER     = "#D9E2EC"
 NAVY       = "#0B1F3A"
 HEADER     = "#1F3A5F"
@@ -1146,14 +1146,14 @@ def render_live_section(fdf: pd.DataFrame, role: str, dashboard: str) -> None:
         )
 
     def _chart_note(text: str) -> None:
-        st.markdown(f'<p style="color:{MUTED};font-size:11px;margin:0 0 10px;padding:0 2px;">'
+        st.markdown(f'<p style="color:{SECONDARY};font-size:11px;margin:0 0 10px;padding:0 2px;">'
                     f'Simulated live view from timestamped synthetic IIS logs. {text}</p>',
                     unsafe_allow_html=True)
 
     def _collecting_state(msg: str = "Collecting enough live records to build a reliable trend…") -> None:
         st.markdown(
-            f'<div style="background:{SLATE_SOFT};border-radius:12px;padding:18px;'
-            f'text-align:center;color:{MUTED};font-size:12px;font-weight:700;">{msg}</div>',
+            f'<div style="background:white;border:1px solid {BORDER};border-radius:12px;padding:18px;'
+            f'text-align:center;color:{NAVY};font-size:12px;font-weight:700;">{msg}</div>',
             unsafe_allow_html=True,
         )
 
@@ -1489,9 +1489,9 @@ def _chart_requests_by_service(df: pd.DataFrame):
         bars = ax.barh(counts.index[::-1], counts.values[::-1], color=colors[::-1],
                        height=0.6, edgecolor="none")
         ax.bar_label(bars, fmt="%d", padding=4, fontsize=8, color="#0B1F3A", fontweight="bold")
-        ax.set_xlabel("Requests", fontsize=9, color="#52606D")
+        ax.set_xlabel("Requests", fontsize=9, color="#374151")
         ax.tick_params(axis="y", labelsize=8, colors="#0B1F3A")
-        ax.tick_params(axis="x", labelsize=8, colors="#52606D")
+        ax.tick_params(axis="x", labelsize=8, colors="#374151")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color("#D9E2EC")
@@ -1514,14 +1514,14 @@ def _chart_daily_requests(df: pd.DataFrame):
         ax.fill_between(range(len(daily)), daily.values, alpha=0.12, color="#2563FF")
         ax.set_xticks(range(0, len(daily), max(1, len(daily)//6)))
         ax.set_xticklabels([str(d) for d in list(daily.index)[::max(1, len(daily)//6)]],
-                           fontsize=7, rotation=30, ha="right", color="#52606D")
-        ax.tick_params(axis="y", labelsize=8, colors="#52606D")
+                           fontsize=7, rotation=30, ha="right", color="#374151")
+        ax.tick_params(axis="y", labelsize=8, colors="#374151")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color("#D9E2EC")
         ax.spines["bottom"].set_color("#D9E2EC")
         ax.set_facecolor("white")
-        ax.set_ylabel("Requests", fontsize=9, color="#52606D")
+        ax.set_ylabel("Requests", fontsize=9, color="#374151")
     fig.patch.set_facecolor("white")
     ax.set_title("Daily Request Volume", fontsize=11, fontweight="bold", color="#0B1F3A", pad=8)
     fig.tight_layout()
@@ -1539,9 +1539,9 @@ def _chart_top_countries(df: pd.DataFrame):
         bars = ax.barh(counts.index[::-1], counts.values[::-1], color=colors[::-1],
                        height=0.6, edgecolor="none")
         ax.bar_label(bars, fmt="%d", padding=4, fontsize=8, color="#0B1F3A", fontweight="bold")
-        ax.set_xlabel("Requests", fontsize=9, color="#52606D")
+        ax.set_xlabel("Requests", fontsize=9, color="#374151")
         ax.tick_params(axis="y", labelsize=8, colors="#0B1F3A")
-        ax.tick_params(axis="x", labelsize=8, colors="#52606D")
+        ax.tick_params(axis="x", labelsize=8, colors="#374151")
         ax.spines["top"].set_visible(False)
         ax.spines["right"].set_visible(False)
         ax.spines["left"].set_color("#D9E2EC")
