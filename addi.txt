@@ -1,0 +1,371 @@
+You are working on my existing CyberNova BI Portal Streamlit app. Do NOT rebuild the whole app from scratch unless absolutely necessary. First inspect the current file structure, then make targeted edits. Keep responses short, avoid long explanations, and output only the code/files/changes needed.
+
+IMPORTANT IMPLEMENTATION CONTEXT:
+This is a Streamlit app, not React.
+Use Streamlit + pandas/numpy + Plotly for charts + PyDeck or Plotly map layers for the SADC map.
+Use custom CSS via st.markdown(..., unsafe_allow_html=True) to achieve the premium CyberNova dashboard aesthetic.
+Use st.session_state for selected department, active tab, filters, selected market, theme, and live values.
+Use st.cache_data for expensive data loading/transformation.
+Use st.empty() containers and @st.fragment(run_every="1s") for live sections where supported.
+Live components must refresh every 1 second.
+Do not refresh the whole app every second if avoidable. Only live metric strips, live map nodes, live charts, alert counts, and sync timestamps should update every 1 second.
+If st.fragment is unavailable, use a safe auto-refresh fallback while preserving session_state.
+
+CORE OBJECTIVE:
+Build/refine the CyberNova BI Portal into a premium decision-focused Streamlit dashboard with three department views:
+1. Sales — CyberNova Pulse
+2. Marketing — CyberNova Reach
+3. Executive — CyberNova Horizon
+
+Each department must use exactly these four tabs:
+Overview | Analytics | Forecasting | Data & Export
+
+Do NOT create separate navigation tabs called Markets, Pipeline, AI Insights, Performance, Signals, Reports, or Settings. Those may exist only as cards/widgets inside the four tabs.
+
+GLOBAL VISUAL STYLE:
+Premium futuristic BI dashboard aesthetic:
+- Dark cyber theme by default.
+- Deep navy/black background: #02070A, #041014, #071820.
+- Glassmorphism cards with soft shadows, rounded corners, thin borders, subtle gradients.
+- Neon accents: cyan/teal/green/yellow/orange/red/purple.
+- Consistent card radius: 16–24px.
+- Consistent card padding: 18–28px.
+- No overlapping content.
+- All charts/tables/maps must sit inside cards.
+- Make text highly readable.
+- Use dark cards, glowing active states, and clean spacing like a premium SaaS BI product.
+
+Colour rules:
+- Cyan/teal = live intelligence, AI, strategic hubs, active data.
+- Green = positive growth, success, achieved targets, on-track.
+- Yellow/gold = emerging opportunity, monitor status, medium priority.
+- Orange = caution/proposal/moderate warning.
+- Red = risk, alerts, underperformance.
+- Purple = target/aim anchor lines.
+- Gray = previous month, baseline, inactive, secondary.
+
+GLOBAL LAYOUT:
+Use a wide dashboard layout.
+Left sidebar:
+- CyberNova logo + “BI PORTAL” or “BI Intelligence Portal”.
+- Dashboard switcher: Sales, Marketing, Executive.
+- Active department must glow teal/green.
+- Global Filters:
+  Start Date, End Date, Country / Market, Service, Audience Segment, Visit Outcome.
+- Apply and Reset buttons.
+- Prototype note: “Prototype v1.0 — Review and evaluation only. Not for production use.”
+
+Top header:
+- “Welcome back, Alex”
+- Current time “16:50” or dynamic local time with green online dot.
+- Department title:
+  Sales: CyberNova Pulse
+  Marketing: CyberNova Reach
+  Executive: CyberNova Horizon
+- Subtitle:
+  Sales: Sales Command Center • Potential Customer Intelligence
+  Marketing: Marketing Intelligence Hub • Campaign Opportunity Intelligence
+  Executive: Executive Insights Dashboard • SADC Expansion Intelligence
+- Right side:
+  department dropdown, date range selector, filter icon, status pill “All systems operational”.
+
+Main tab bar:
+Overview | Analytics | Forecasting | Data & Export
+Active tab has glowing cyan/green underline.
+
+Context chips near top:
+Period, Countries, Services, Segments, Visit Outcome, Filtered Noise, Data Quality.
+
+LANGUAGE RULE:
+Do not show raw technical log language on main dashboard surfaces.
+Avoid headline terms like IP address, HTTP status, bytes, user-agent, crawler names.
+Translate technical signals into business terms:
+Potential Customers, Engaged Visitors, Strategic Demand, Visit Outcome, Data Quality, Filtered Noise, Risk Alerts, Demo Intent, Opportunity Value.
+
+LIVE BEHAVIOUR:
+Every department must have:
+1. A live pulse strip.
+2. At least one live graph/map refreshing every 1 second.
+3. Data Sync timestamp.
+
+Live refresh should update smoothly:
+- KPI deltas
+- Live pulse values
+- Map node intensity/pulses
+- Country live bar charts
+- Alert counts
+- Sparkline latest points
+
+Use Plotly hovertemplates for charts.
+Use PyDeck/Plotly tooltips for map nodes.
+Use CSS :hover for cards/buttons.
+
+GRAPH ANCHORS:
+Trend and forecast charts must include comparison anchors:
+- Actual line: solid cyan/green.
+- Target/Aim line: dashed purple or blue.
+- Previous Month Actual: dotted gray.
+- Forecast line: dashed cyan.
+- Confidence band: transparent teal/blue.
+Include legends and hover tooltips showing actual, target, previous month, forecast, confidence range, gap, and status.
+
+Example tooltip:
+Month: May 2025
+Actual: $82.6M
+Target: $90M
+Previous Month: $78M
+Gap to Target: -$7.4M
+Status: On Watch
+
+MAP REQUIREMENTS:
+Build a premium SADC/Southern Africa map card.
+Do not use a world map.
+Map should show nodes and glowing arcs for:
+Luanda, Windhoek, Lusaka, Gaborone, Harare, Maputo, Cape Town, Durban, Lilongwe.
+Statuses:
+Core Market, Strategic Hub, High Growth, Emerging, Stable.
+Node colours:
+Strategic Hub = cyan/teal
+High Growth = yellow/gold
+Emerging = green
+Stable = gray/yellow
+Core Market = bright cyan/blue
+
+Map interactions:
+- Hover node shows tooltip:
+  City, Country, Status, Potential Customers, Demo Requests/Campaign Visits, AI Assistant Interest, Opportunity Value/Strategic Demand, Risk Level, Recommended Action.
+- Click node filters dashboard by selected market using st.session_state.
+- Selected node glows stronger.
+- Legend items can highlight/filter statuses if feasible.
+- Include zoom/fullscreen/reset style controls if feasible.
+- Nodes should pulse subtly when live values update.
+
+SALES DASHBOARD — CYBERNOVA PULSE:
+Purpose:
+Answer: Which potential customers should Sales prioritise, which services should they lead with, and where is the funnel leaking?
+
+Use “Potential Customers” instead of “Warm Leads” where possible.
+
+Sales Overview:
+KPI cards:
+1. Potential Customers — 1,248 — ▲18%
+2. Demo Requests — 312 — ▲22%
+3. AI to Demo Conversion — 24.9% — ▲3.6 pts
+4. Top Sales Market — South Africa — 36% of total potential
+5. Active SADC Markets — 9/16 — ▲2
+
+Live Sales Pulse:
+Potential Customers Now, Demo Requests Now, Potential Revenue Today, Top Active Market, Lead Velocity.
+Refresh every 1 second.
+
+Main overview visuals:
+1. Potential Customer Hotzones Map.
+2. Sales Growth Trend with Potential Customers, Demo Requests, Monthly Target, Prev. Month Actual.
+3. Pipeline Funnel:
+   Awareness 7,624 → Engaged 3,210 → Qualified 1,248 → Proposal 512 → Won 198.
+   Overall Conversion: 2.6%.
+4. Revenue / Service Mix donut.
+5. Regional Leaderboard.
+
+Sales Analytics:
+Cards:
+- Funnel by Market
+- Funnel by Service
+- Repeat Visitor Conversion
+- Potential Customer Segment Quality scatter/bubble
+- Sales Insight Assistant
+- Sales Hotzones map
+- Top Service Demand
+- Potential Customers by Country table
+- Demo Intent by Hour heatmap
+- Conversion Rate by Stage with largest drop-off highlighted
+
+Sales Forecasting:
+Cards:
+- Forecast Summary:
+  Potential Customers 1,642; Demo Requests 412; Expected Conversions 98; Forecasted Revenue $2.86M; Confidence 76%.
+- 30-Day Potential Customer Forecast with confidence band.
+- Demo Request Forecast.
+- AI-to-Demo What-If Analysis slider.
+- Forecast vs Target with target anchor and gap.
+- Sales Readiness Recommendations.
+- Market Outlook.
+- Sales Risk Outlook.
+- Forecast Signals.
+- Top Markets Outlook.
+- Alert Center.
+
+Sales Data & Export:
+Cards:
+- Sales Action Queue
+- Potential Customers table with search/filter/pagination
+- Evidence Snapshot
+- Export Center:
+  Weekly PDF, Monthly PDF, Potential Customers CSV, Filtered Data CSV, Pipeline Snapshot PDF, Data Dictionary
+- Data Quality Summary
+- Methodology & Assumptions
+- Potential Revenue by Region
+- New Potential Customers Trend
+- Top Potential Customers by Potential Revenue
+
+MARKETING DASHBOARD — CYBERNOVA REACH:
+Purpose:
+Answer: Where should Marketing spend campaign effort, which audience is engaging, and which service should be promoted?
+
+Marketing Overview KPI cards:
+1. Engaged Visitors
+2. Engagement Rate
+3. Best Campaign Market
+4. Best Landing Page
+5. Under-Promoted Service
+
+Live Marketing Pulse:
+Active Human Audience, Top Active Market, Top Content/Service, Campaign Visits Today, Audience Quality.
+Refresh every 1 second.
+
+Main overview visuals:
+1. Market Opportunity Matrix:
+   X = Visitors, Y = Engagement Rate, bubble size = Potential Customers.
+2. Campaign Hotzones Map.
+3. Service Promotion Gap:
+   Visit Share vs Conversion Share.
+   If conversion share > visit share, service is under-promoted.
+4. Content Journey Funnel:
+   Landing Page → Service Page → AI/Contact Interest → Demo/Event Action.
+5. Human Activity Timing Heatmap.
+
+Marketing Analytics:
+- Audience Segments Over Time
+- Country Engagement Breakdown
+- Landing Page Performance
+- SADC Reach Map + Ranking
+- Service Promotion Gap Detail
+- Marketing Insight Assistant
+
+Marketing Forecasting:
+- Audience Growth Forecast by Country
+- Engaged Sessions Forecast
+- Campaign What-If Scenario
+- Campaign Target Tracker
+- Marketing Alert Card
+- Campaign Recommendation
+
+Marketing Data & Export:
+- Campaign Opportunity Table
+- Filtered Audience Data
+- Evidence Pack CSV
+- Filtered Data CSV
+- Weekly PDF Report
+- Monthly PDF Report
+- Methodology Note
+- Landing Page Export
+- Campaign Performance Export
+
+EXECUTIVE DASHBOARD — CYBERNOVA HORIZON:
+Purpose:
+Answer: Is CyberNova moving in the right direction, and where should leadership invest next?
+
+Executive Overview KPI cards:
+1. Growth Direction — +42%
+2. Potential Customers Generated — 1,248
+3. AI Assistant Traction — 29.4%
+4. Active SADC Markets — 10
+5. Strategic Risk Alerts — 3
+
+Board Summary:
+“AI Assistant traction is strong across core and strategic hubs. Protect core markets while selectively testing high-growth opportunities.”
+
+Live Strategy Pulse:
+Strategic Demand, Potential Customers, AI Assistant Interest, Risk Alert.
+Refresh every 1 second.
+
+Main overview visuals:
+1. Regional Expansion Priority Map.
+2. Strategic Growth Trend:
+   Revenue, AI Solutions, Services, Target Monthly, Prev. Month Actual.
+3. AI Assistant Traction:
+   bar + line chart, target achievement badge.
+4. 90-Day Potential Customer Forecast:
+   Actual, Forecast Linear, Target Aim, Confidence Range.
+   Must show label: “Rule-based linear forecast, not predictive AI.”
+5. Right-side cards:
+   Regional Priority, Strategic Signals, Risk Outlook.
+
+Executive Analytics:
+- Regional Target Table
+- Market Contribution Analysis
+- AI Assistant by Market
+- Risk / Anomaly Trend
+- Executive Insight Assistant
+
+Executive Forecasting:
+- 90-Day Potential Customer Forecast
+- Regional Expansion Forecast
+- AI Assistant Traction Forecast
+- Risk / Anomaly Outlook
+- Executive Investment Recommendation
+- Forecast vs Target with target/aim anchor
+- Scenario cards: Invest / Monitor / Review
+
+Executive Data & Export:
+- Executive Decision Brief
+- Regional Priority Table
+- Risk / Anomaly Evidence Table
+- Filtered Strategic Data
+- Executive Summary CSV
+- Filtered Data CSV
+- Weekly PDF Report
+- Monthly PDF Report
+- Methodology Note
+
+MICROINTERACTIONS:
+- KPI hover: show short explanation tooltip.
+- Chart hover: use Plotly hovertemplate.
+- Map hover: market tooltip.
+- Map click: filter selected market.
+- Card hover: subtle lift + brighter border.
+- Table row hover: subtle teal background.
+- Buttons: glow on hover.
+- Active tabs: neon underline.
+- Stage pills:
+  Engaged = teal
+  Qualified = lime
+  Proposal = orange/gold
+  Won = green/cyan
+  Risk = red
+
+STREAMLIT IMPLEMENTATION NOTES:
+Create reusable functions/components:
+- inject_css()
+- init_session_state()
+- render_sidebar()
+- render_header()
+- render_tabs()
+- render_context_chips()
+- render_kpi_card()
+- render_live_pulse()
+- render_sadc_map()
+- render_chart_card()
+- render_forecast_chart()
+- render_funnel()
+- render_heatmap()
+- render_data_table()
+- render_export_center()
+- render_methodology_card()
+- render_status_bar()
+
+Use mock data first, but organize data clearly so it can later connect to synthetic IIS log data.
+Keep code modular and readable.
+Do not print huge explanations.
+Do not waste tokens.
+Make incremental edits and keep existing working logic where possible.
+
+FINAL ACCEPTANCE CRITERIA:
+- Streamlit app, not React.
+- 1-second refresh for live sections.
+- Three departments: Sales, Marketing, Executive.
+- Exactly four tabs: Overview, Analytics, Forecasting, Data & Export.
+- Premium dark CyberNova aesthetic.
+- SADC map with hover/click tooltips and live pulsing nodes.
+- Trend/forecast charts include target and previous-month anchors.
+- Dashboard feels simple, decision-focused, and presentation-ready.

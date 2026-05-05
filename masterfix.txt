@@ -1,0 +1,1240 @@
+MASTER FINAL REFINEMENT PROMPT — CYBERNOVA BI PORTAL
+Refine app_html.py only.
+
+Do NOT rewrite the whole project.
+Do NOT change the synthetic data generator or data outputs.
+Do NOT modify:
+- generate_logs.py
+- synthetic_log_studio.py
+- validate_dataset.py
+- config.yaml
+- data/output/*
+
+Preserve all working logic:
+- login and role-based access
+- Sales / Marketing / Executive dashboards
+- filters
+- KPI calculations
+- charts
+- maps
+- live pulse / simulated live stream
+- forecasting logic
+- PDF/CSV exports
+- insight assistant
+- statistical/evidence tables
+- methodology notes
+
+This is a final premium refinement pass.
+
+The goal is to transform the CyberNova BI Portal from a technical monitoring dashboard into a polished, role-based Business Intelligence decision engine.
+
+The dashboard must feel:
+- premium
+- clean
+- professional
+- legible
+- business-facing
+- decision-driven
+- consistent in light mode and dark mode
+- suitable for Sales, Marketing, and Executive users
+
+====================================================
+SECTION 1 — FINAL DASHBOARD INFORMATION ARCHITECTURE
+====================================================
+
+Restructure each role dashboard into exactly four main tabs:
+
+1. Overview
+2. Analytics
+3. Forecasting
+4. Data & Export
+
+Every role dashboard must follow this logic:
+
+Overview = decision story
+Analytics = explanation and diagnosis
+Forecasting = future planning
+Data & Export = evidence and reporting
+
+Do NOT keep many small navigation tabs such as:
+- Context
+- Live Pulse
+- Sales Insight
+- Lead Diagnostics
+- Action Queue
+- Campaign Matrix
+- Marketing Insight
+- Audience Diagnostics
+- Strategic Signal
+- Growth Diagnostics
+- Decision Brief
+- Export
+
+Consolidate those sections into the four final tabs.
+
+The final tab navigation for every role must be:
+
+Overview | Analytics | Forecasting | Data & Export
+
+====================================================
+SECTION 2 — UNIVERSAL DASHBOARD FLOW
+====================================================
+
+Each dashboard must use this structure:
+
+1. Sidebar
+2. Hero card
+3. Four-tab navigation
+4. Context chips
+5. KPI row
+6. Role summary banner
+7. Role-specific live pulse
+8. Main visual cards
+9. Final recommendation card
+10. Data/export/methodology sections in the correct tab
+
+Universal layout:
+
+SIDEBAR:
+- CyberNova logo
+- BI Intelligence Portal label
+- role/dashboard navigation
+- global filters
+- apply/reset buttons
+- logout
+- prototype access note
+
+MAIN AREA:
+- hero card
+- tabs
+- context chips
+- KPI cards
+- summary banner
+- live pulse
+- visual cards
+- recommendation card
+
+The sidebar should be for navigation and filters only.
+The main dashboard area should tell the story.
+
+====================================================
+SECTION 3 — OVERVIEW TAB RULES
+====================================================
+
+The Overview tab must be clean, business-facing, and decision-driven.
+
+Each Overview tab must contain:
+- hero card
+- context chips
+- 4–5 KPI cards
+- role summary banner
+- role-specific live pulse
+- exactly 4 main visual cards
+- final recommendation card
+
+The Overview tab must NOT contain:
+- raw IP addresses
+- browser/user agent strings
+- bytes served
+- HTTP method details
+- raw technical request paths
+- crawler names
+- raw activity feed
+- large anomaly tables
+- large raw data tables
+- excessive technical log details
+
+Use common business terms:
+- Visitors, not unique IP addresses
+- Visit Outcome, not HTTP Status
+- Successful Visits, not 2xx
+- Failed Visits, not 4xx/5xx
+- AI Assistant Interest, not AI hits
+- Demo Requests, not /scheduledemo.php
+- Contact Requests, not /contact.php
+- Promotional Events, not /event.php
+- AI Cyber Assistant, not /ai-assistant.php
+- Filtered Noise, not bots/crawlers
+- Live Activity Updates, not requests streamed
+
+The Overview must answer:
+“What is happening?”
+“Why does it matter?”
+“What should this department do next?”
+
+====================================================
+SECTION 4 — ANALYTICS TAB RULES
+====================================================
+
+The Analytics tab explains why the Overview numbers are happening.
+
+It should contain:
+- deeper diagnostic visuals
+- country breakdowns
+- service breakdowns
+- segment behaviour
+- funnel analysis
+- campaign or regional analysis
+- maps where useful
+- insight assistant
+- business-facing drill-down cards
+
+Analytics should still be clean and readable.
+Avoid raw technical clutter unless it is translated into business language.
+
+====================================================
+SECTION 5 — FORECASTING TAB RULES
+====================================================
+
+Create a dedicated Forecasting tab for every role.
+
+The Forecasting tab should answer:
+“What is likely to happen next?”
+“What target are we tracking against?”
+“What happens if performance improves or declines?”
+
+Forecasting must include:
+- historical trend + forecast charts
+- target comparison where possible
+- variance against target
+- simple what-if analysis
+- alert/warning cards
+- forecast explanation note
+
+Clearly label forecasts as rule-based linear forecasts, moving-average forecasts, or simple projection models.
+Do NOT overclaim predictive AI if the model is only linear regression or moving average.
+
+Forecasting should feel strategic and useful, not random.
+
+====================================================
+SECTION 6 — DATA & EXPORT TAB RULES
+====================================================
+
+The Data & Export tab is for proof, evidence, and reporting.
+
+Move evidence-heavy content here:
+- filtered data tables
+- action queues
+- anomaly/event logs
+- regional priority tables
+- statistical evidence
+- PDF reports
+- CSV exports
+- methodology notes
+- data quality explanation
+- prototype limitations
+
+This is where technical evidence can live, but it must be organised inside premium cards and expandable sections.
+
+====================================================
+SECTION 7 — SALES DASHBOARD: CYBERNOVA PULSE
+====================================================
+
+Dashboard name:
+CyberNova Pulse
+
+Role:
+Sales Command Center
+
+Main business question:
+Which leads should Sales prioritise, and where is the funnel leaking?
+
+Hero text:
+Real-time lead signals, service demand, and funnel priorities. Identify which leads to prioritise, which service to lead with, and where the pipeline needs attention.
+
+Sales Overview KPI cards:
+1. New Warm Leads
+   - current value
+   - comparison vs yesterday or previous period
+
+2. Demo Requests
+   - high-intent action count
+
+3. AI to Demo Conversion
+   - current percentage
+   - target comparison, e.g. Target: 10%
+
+4. Top Lead Market
+   - highest warm-lead country
+
+5. Peak Follow-Up Window
+   - strongest demo-request hour/day
+
+Sales Role Summary Banner:
+Title: Today’s Sales Focus
+Content should summarise the current sales priority in plain English.
+Example:
+Prioritise Botswana warm leads showing Contact, Demo, or AI Assistant interest. Main risk: prospects are reaching service pages but not always converting into demo requests.
+
+Sales Live Pulse:
+Rename to Live Sales Pulse.
+
+Only include Sales-relevant live metrics:
+- Warm Leads Now
+- Demo Requests Now
+- AI Assistant Interest Now
+- Top Active Market
+- Lead Velocity
+
+Remove from Sales Overview:
+- IP addresses
+- bytes served
+- browser/user agent
+- raw HTTP status
+- request method
+- bot/crawler names
+- raw request feed
+
+Sales Overview must include exactly 4 main visuals:
+
+1. Funnel Drop-Off
+   Title: Where are prospects dropping before becoming leads?
+   Type: Funnel chart
+   Flow:
+   Website Visit → Service Interest → AI/Contact Interest → Demo/Event Request
+   Insight banner:
+   Largest drop-off occurs between service interest and demo request. Improve calls-to-action and follow-up prompts on high-interest service pages.
+
+2. Warm Leads by Country
+   Title: Which countries are producing warm leads?
+   Type: Horizontal bar chart
+   Purpose:
+   Shows which markets Sales should prioritise.
+
+3. Warm Leads by Service
+   Title: Which service should Sales lead with?
+   Type: Horizontal bar chart
+   Use business labels:
+   Contact Request, Schedule Demo, Promotional Event, AI Cyber Assistant, Predictive Maintenance, Automated Risk Assessment, Digital Transformation, Rapid Prototyping
+   Purpose:
+   Shows which service should lead the sales conversation.
+
+4. Demo Request Timing
+   Title: When are people most likely to request demos?
+   Type: Day/hour heatmap
+   Purpose:
+   Helps Sales schedule follow-up capacity.
+
+Sales Analytics tab:
+Include:
+- Funnel by Country
+- Funnel by Service
+- Repeat Visitor Conversion
+- Lead Segment Quality
+- Sales Insight Assistant
+
+Sales Forecasting tab:
+Include:
+1. 30-Day Warm Lead Forecast
+   - historical daily warm leads + forecast line
+
+2. Demo Request Forecast
+   - expected demo demand next 30 days
+
+3. AI-to-Demo What-If Scenario
+   - example: If AI-to-demo conversion improves from 8.2% to 10%, estimated additional demo requests = X
+
+4. Sales Alert Card
+   - example: Demo requests have dropped below the 7-day average for 3 consecutive days.
+
+5. Sales Readiness Recommendation
+   - example: Prepare follow-up capacity around top markets and peak demo windows.
+
+Sales Data & Export tab:
+Include:
+- Sales Action Queue
+- Filtered Warm Leads Table
+- Weekly PDF Report
+- Monthly PDF Report
+- Warm Leads CSV
+- Filtered Data CSV
+- Methodology Note
+
+====================================================
+SECTION 8 — MARKETING DASHBOARD: CYBERNOVA REACH
+====================================================
+
+Dashboard name:
+CyberNova Reach
+
+Role:
+Marketing Intelligence Hub
+
+Main business question:
+Where should Marketing spend, and what content or service should be promoted?
+
+Hero text:
+Audience quality, campaign opportunity, content performance, and regional reach in one decision-focused view.
+
+Marketing Overview KPI cards:
+1. Engaged Visitors
+   - meaningful audience count
+
+2. Engagement Rate
+   - sessions with meaningful depth, e.g. sessions with 3+ pages
+
+3. Best Campaign Market
+   - strongest qualified audience market
+
+4. Best Landing Page
+   - highest-quality entry path
+
+5. Under-Promoted Service
+   - service where conversion share is stronger than visit share
+
+Marketing Role Summary Banner:
+Title: Today’s Marketing Focus
+Example:
+Prioritise campaign testing in Botswana, then promote services where conversion share is stronger than visit share.
+
+Marketing Live Pulse:
+Rename to Live Marketing Pulse.
+
+Only include Marketing-relevant live metrics:
+- Active Human Audience
+- Top Active Market
+- Top Content/Service
+- Campaign Visits
+- Audience Quality
+
+Do not make bot traffic a headline metric.
+Keep bot traffic only as a small Data Quality badge where necessary.
+
+Marketing Overview must include exactly 4 main visuals:
+
+1. Market Opportunity Matrix
+   Title: Where should we direct ad spend?
+   Type: Bubble/scatter chart
+   X-axis: Visitors
+   Y-axis: Engagement Rate
+   Bubble size: Warm Leads
+   Label: Country
+   Purpose:
+   Shows where audience size and audience quality overlap.
+
+2. Service Promotion Gap
+   Title: Which services are under-promoted?
+   Type: Grouped bar chart
+   Compare:
+   - Visit share
+   - Conversion share
+   Interpretation:
+   If conversion share is higher than visit share, the service is under-promoted and deserves more campaign visibility.
+
+3. Content Journey Funnel
+   Title: Which entry paths move users toward action?
+   Type: Funnel or journey chart
+   Flow:
+   Landing Page → Service Page → AI/Contact Interest → Demo/Event Action
+   Purpose:
+   Shows whether the website is working as a campaign-to-lead pathway.
+
+4. Human Activity Timing
+   Title: When are humans most active?
+   Type: Day/hour heatmap
+   Purpose:
+   Helps Marketing schedule campaigns, content releases, and promotions.
+
+Marketing Analytics tab:
+Include:
+- Audience Segments Over Time
+- Country Engagement Breakdown
+- Landing Page Performance
+- SADC Reach Map + Ranking
+- Marketing Insight Assistant
+
+Marketing Forecasting tab:
+Include:
+1. Audience Growth Forecast by Country
+   - Botswana, South Africa, Zambia, Namibia, Zimbabwe
+
+2. Engaged Sessions Forecast
+   - expected qualified audience next month
+
+3. Campaign What-If Scenario
+   - example: If campaign activity increases by 10% in Namibia, estimated warm leads increase by X
+
+4. Marketing Alert Card
+   - example: Engagement rate is declining in Botswana despite high traffic.
+
+5. Campaign Recommendation
+   - example: Scale Botswana; test Zambia and Namibia using high-conversion service pages.
+
+Marketing Data & Export tab:
+Include:
+- Campaign Opportunity Table
+- Filtered Audience Data
+- Weekly PDF Report
+- Monthly PDF Report
+- Evidence Pack CSV
+- Filtered Data CSV
+- Methodology Note
+
+====================================================
+SECTION 9 — EXECUTIVE DASHBOARD: CYBERNOVA HORIZON
+====================================================
+
+Dashboard name:
+CyberNova Horizon
+
+Role:
+Executive Insights Dashboard
+
+Main business question:
+Is CyberNova’s strategy working, and where should leadership invest next?
+
+Hero text:
+Strategic growth, regional expansion, AI Assistant traction, forecasted demand, and risk outlook for leadership decision-making.
+
+Executive Overview KPI cards:
+1. Growth Direction
+   - MoM growth or selected period trend
+   - status: Improving, Stable, or Declining
+
+2. Warm Leads Generated
+   - selected period total
+
+3. AI Assistant Traction
+   - AI Assistant share of service interest
+
+4. Active SADC Markets
+   - number of regional markets with meaningful activity
+
+5. Strategic Risk Alerts
+   - anomaly days or risk events requiring review
+
+Executive Role Summary Banner:
+Title: Board Summary
+Example:
+AI Assistant traction is strong, but growth direction requires review. Leadership should protect core markets while testing expansion markets with measured campaigns.
+
+Executive Live Pulse:
+Rename to Live Strategy Pulse.
+
+Only include Executive-relevant live metrics:
+- Strategic Demand Now
+- Warm Leads Now
+- AI Assistant Interest Now
+- Risk Alert Now
+
+Remove from Executive Overview:
+- raw live feed
+- IP addresses
+- browser/user agent
+- bytes served
+- HTTP codes
+- crawler names
+- technical request details
+
+Executive Overview must include exactly 4 main visuals:
+
+1. Strategic Growth Trend
+   Title: Are awareness, leads, and AI interest moving together?
+   Type: Multi-line trend chart
+   Lines:
+   - Visitors
+   - Warm Leads
+   - AI Assistant Interest
+   Purpose:
+   Shows whether growth is healthy or disconnected.
+
+2. Regional Expansion Priority
+   Title: Which SADC markets deserve investment?
+   Type: Horizontal bar chart with status labels
+   Statuses:
+   - Above Target
+   - On Watch
+   - Below Target
+   Purpose:
+   Supports leadership decisions about where to invest, monitor, or pause.
+
+3. AI Assistant Traction
+   Title: Is the AI Cyber Assistant gaining traction?
+   Type: Bar + line combo chart
+   Bars:
+   - AI Assistant requests
+   Line:
+   - AI Assistant share of service traffic
+   Purpose:
+   Tracks the flagship product separately.
+
+4. 90-Day Warm Lead Forecast
+   Title: What does the next quarter look like?
+   Type: Forecast line chart
+   Label clearly:
+   Rule-based linear forecast, not predictive AI.
+   Purpose:
+   Helps leadership plan capacity, campaigns, and regional investment.
+
+Executive Analytics tab:
+Include:
+- Regional Target Table
+- Market Contribution Analysis
+- AI Assistant by Market
+- Risk / Anomaly Trend
+- Executive Insight Assistant
+
+Executive Forecasting tab:
+Include:
+1. 90-Day Warm Lead Forecast
+   - historical + projected demand
+
+2. Regional Expansion Forecast
+   - show likely movement from Below Target → On Watch → Above Target
+
+3. AI Assistant Traction Forecast
+   - expected flagship product share
+
+4. Risk / Anomaly Outlook
+   - expected risk trend
+
+5. Executive Investment Recommendation
+   - Invest / Monitor / Pause recommendation by region and service
+
+Executive Data & Export tab:
+Include:
+- Executive Decision Brief
+- Regional Priority Table
+- Risk / Anomaly Evidence Table
+- Filtered Strategic Data
+- Weekly PDF Report
+- Monthly PDF Report
+- Executive Summary CSV
+- Filtered Data CSV
+- Methodology Note
+
+====================================================
+SECTION 10 — FINAL OVERVIEW GRAPH SELECTION
+====================================================
+
+Do not overload the Overview tabs.
+Each Overview must have exactly 4 main visuals.
+
+SALES — CYBERNOVA PULSE
+1. Funnel Drop-Off
+2. Warm Leads by Country
+3. Warm Leads by Service
+4. Demo Request Timing Heatmap
+
+MARKETING — CYBERNOVA REACH
+1. Market Opportunity Matrix
+2. Service Promotion Gap
+3. Content Journey Funnel
+4. Human Activity Timing Heatmap
+
+EXECUTIVE — CYBERNOVA HORIZON
+1. Strategic Growth Trend
+2. Regional Expansion Priority
+3. AI Assistant Traction
+4. 90-Day Warm Lead Forecast
+
+Additional charts must go into Analytics or Forecasting, not Overview.
+
+====================================================
+SECTION 11 — CONTEXTUAL BENCHMARKING
+====================================================
+
+Add benchmarking where safe and meaningful.
+
+Every major KPI should show context, such as:
+- current value
+- previous period comparison
+- target value
+- status indicator
+
+Example:
+AI-to-Demo Conversion
+8.2%
+Target: 10%
+Status: Amber
+Gap: -1.8 percentage points
+
+Use status colours:
+- Green = on target or improving
+- Amber = needs attention
+- Red/rose = risk or below target
+
+Do not overuse warning colours.
+Warnings should be meaningful.
+
+Formula for variance:
+Variance = ((Current Value - Target) / Target) × 100
+
+Use simple, readable text:
+- Above target
+- On watch
+- Below target
+- Improving
+- Stable
+- Declining
+
+====================================================
+SECTION 12 — ANNOTATION LAYERS
+====================================================
+
+Add annotation support where safe.
+
+Charts should include short explanation banners or annotations for major spikes/dips.
+
+Examples:
+- Campaign test launched in Botswana.
+- Demo requests dipped after Week 14.
+- AI Assistant interest increased while demo conversion stayed flat.
+- Anomaly days detected; review risk evidence table.
+
+Annotations should:
+- explain why a spike or dip matters
+- be short
+- not overlap with chart content
+- appear in chart footers, insight banners, or hover/tooltips
+
+Do not clutter charts with too many annotations.
+
+====================================================
+SECTION 13 — PROACTIVE ALERTING
+====================================================
+
+Add rule-based alert cards.
+
+This is a prototype, so real Slack/email integration is not required.
+
+Create alert cards inside Overview or Forecasting where appropriate.
+
+Sales Alert Examples:
+- Demo requests dropped below the 7-day average for 3 consecutive days.
+- AI Assistant interest is rising but demo conversion is not improving.
+
+Marketing Alert Examples:
+- Engagement rate is declining in Botswana despite high traffic.
+- A service has high conversion share but low visit share.
+
+Executive Alert Examples:
+- Growth direction is declining while AI traction remains strong.
+- Risk/anomaly events increased compared with the previous period.
+
+Alert card structure:
+- Alert title
+- Severity: Low / Medium / High
+- Plain-language explanation
+- Recommended action
+
+====================================================
+SECTION 14 — WHAT-IF ANALYSIS
+====================================================
+
+Add simple what-if analysis inside the Forecasting tabs.
+
+Sales What-If:
+If AI-to-demo conversion improves by X percentage points, estimate additional demo requests.
+
+Marketing What-If:
+If campaign activity increases by X% in a selected country, estimate additional warm leads using current engagement/conversion rates.
+
+Executive What-If:
+If a market moves from On Watch to Above Target, estimate additional warm leads or traffic contribution.
+
+Use sliders if feasible.
+If sliders are not safe, use static scenario cards.
+
+Do not overcomplicate the calculations.
+Make the assumptions visible in the card footer.
+
+====================================================
+SECTION 15 — VISUAL STORYTELLING RULES
+====================================================
+
+Every visual card must contain:
+1. Business-question title
+2. Short subtitle
+3. Chart
+4. Insight banner or one-line interpretation
+
+Example card structure:
+- Title: Where are prospects dropping before becoming leads?
+- Subtitle: Website visit to demo request funnel
+- Chart: Funnel chart
+- Insight: Largest drop-off occurs before demo request.
+
+Chart titles must be questions wherever possible.
+
+Use insight banners below charts:
+- soft blue for neutral insight
+- soft green for positive insight
+- soft amber for caution
+- soft rose only for serious warning
+
+Do not let insight banners overlap with chart areas.
+
+====================================================
+SECTION 16 — LAYOUT AND CARD CONSISTENCY
+====================================================
+
+Fix all layout inconsistencies.
+
+Requirements:
+- all charts, maps, funnels, tables, and live graphs must be placed inside proper cards
+- no floating charts directly on the page background
+- side-by-side cards must be the same height
+- chart cards in the same row must share equal height
+- use consistent border radius, padding, shadow, and spacing
+- eliminate overlap between titles, subtitles, charts, legends, banners, and footnotes
+- ensure Plotly charts stay inside their containers
+- ensure chart footers do not collide with plots
+- make chart spacing consistent across all sections
+
+Card design rules:
+- rounded corners: 18–22px
+- soft shadow
+- subtle border
+- clean padding
+- header area
+- chart area
+- footer / insight-note area
+
+Suggested heights:
+- KPI cards: 120–150px
+- live pulse cards: 160–220px
+- small live charts: 240–280px
+- standard analytics charts: 420–500px
+- large strategic cards/maps: 520–620px
+- tables/export cards: 380–520px
+
+Use a clean grid:
+- mostly 2-column layout for diagnostics
+- full-width layout for hero summaries, maps, report previews, and large tables
+- equal gaps between cards
+- equal gaps between sections
+
+====================================================
+SECTION 17 — SECTION HEADINGS
+====================================================
+
+Make section headings prominent and consistent.
+
+Use this pattern:
+1. small uppercase eyebrow label
+2. bold large title
+3. subtle divider line extending to the right
+4. optional subtle SVG icon
+5. vertical breathing room above and below
+
+Examples:
+- SALES OVERVIEW
+- LIVE SALES PULSE
+- LEAD DIAGNOSTICS
+- MARKETING ANALYTICS
+- CAMPAIGN OPPORTUNITY
+- EXECUTIVE OUTLOOK
+- REGIONAL EXPANSION
+- FORECASTING OUTLOOK
+- DATA & EXPORT
+- METHODOLOGY NOTE
+
+Do not use emojis.
+Use SVG icons only where useful.
+
+====================================================
+SECTION 18 — SVG ONLY, NO EMOJIS
+====================================================
+
+Use SVG icons only.
+Remove all emojis everywhere.
+
+Requirements:
+- replace emoji or unicode pictograms with SVG icons
+- use consistent SVG style across the app
+- prefer clean line icons
+- use inline SVG or a lightweight SVG icon approach
+- ensure SVGs inherit theme colours properly
+- SVGs must be small, elegant, and consistent
+- do not allow raw SVG code to render visibly as text
+
+Suggested icon categories:
+- dashboard
+- analytics
+- map
+- forecast
+- live pulse
+- filter
+- report/export
+- AI assistant
+- warning/info/success states
+
+====================================================
+SECTION 19 — LIGHT MODE THEME
+====================================================
+
+Refine light mode to feel richer, cleaner, and more premium.
+
+Light mode goals:
+- stronger contrast than before
+- clean white cards
+- richer accent colours
+- polished enterprise dashboard feel
+- elegant but not childish
+
+Use these light mode tokens:
+
+Background:
+- app background: #EEF3F8 or #F2F5FA
+- section strip / subtle surface: #E8EEF6
+
+Card surfaces:
+- primary card: #FFFFFF
+- secondary card: #F9FBFD
+
+Text:
+- primary heading: #0B2341
+- body text: #334A62
+- muted text: #6B7C93
+- subtle labels: #7C8EA5
+
+Accent palette:
+- deep navy: #0A2342
+- electric blue: #2563FF
+- bright cyan: #14B8D4
+- vivid green: #10B981
+- amber: #F59E0B
+- soft red/warning accent only if needed: #E76F51
+
+Use accents for:
+- active chips
+- highlights
+- KPI emphasis
+- chart lines
+- insight banners
+- status pills
+- selected navigation state
+
+Do not overuse coloured card backgrounds.
+Use mostly white cards with subtle accent highlights.
+
+====================================================
+SECTION 20 — DARK MODE THEME
+====================================================
+
+Add or refine proper dark mode.
+
+Dark mode must be:
+- fully legible
+- premium
+- high contrast
+- professional
+- not pitch black
+- not grey-on-grey
+- consistent with light mode layout
+
+Dark mode tokens:
+
+Backgrounds:
+- main background: #0B1220
+- secondary background: #111A2B
+- elevated surface: #162235
+- card surface: #18273B
+- panel/sidebar surface: #0F1B2D
+
+Text:
+- primary heading: #F5F9FF
+- secondary text: #D7E2F0
+- muted text: #9FB2C8
+- eyebrow labels: #8EA3BC
+
+Borders / dividers:
+- border: rgba(255,255,255,0.08)
+- divider: rgba(255,255,255,0.10)
+
+Accent palette:
+- electric blue: #4F83FF
+- cyan: #22D3EE
+- green: #34D399
+- amber: #FBBF24
+- soft rose warning accent: #FB7185
+- deep blue highlight: #1D4ED8
+
+Dark mode chart rules:
+- axes and grid lines must remain visible but subtle
+- chart labels must be readable
+- legends must be readable
+- tooltips must contrast clearly
+- no low-contrast grey-on-dark combinations
+- use high-contrast line colours
+
+Dark mode card rules:
+- cards must be clearly distinct from background
+- keep soft shadow and subtle border
+- do not let cards merge into background
+- maintain the same card structure as light mode
+
+====================================================
+SECTION 21 — THEME TOGGLE
+====================================================
+
+If feasible, implement a light mode / dark mode toggle.
+If not feasible globally, create a theme setting or internal state switch.
+
+Requirements:
+- both modes must keep the same layout
+- both modes must preserve role accents
+- both modes must preserve readability
+- charts must adapt to theme
+- cards, borders, backgrounds, and text must adapt consistently
+- no mode should break layout
+
+====================================================
+SECTION 22 — ROLE ACCENT IDENTITY
+====================================================
+
+Use subtle role accents:
+
+Sales:
+- blue / cyan
+- focus: lead urgency and funnel movement
+
+Marketing:
+- cyan / green
+- focus: campaign opportunity and audience quality
+
+Executive:
+- navy / amber
+- focus: strategy, investment, and risk
+
+Keep role accents subtle.
+Do not make the dashboard look like three unrelated products.
+
+====================================================
+SECTION 23 — CHART-SPECIFIC REFINEMENT
+====================================================
+
+Fix chart presentation quality.
+
+Requirements:
+- no overlap between chart, title, subtitle, banner, legend, or axes
+- all diagnosis graphs in the same row must be the same size
+- forecast and diagnostics cards must be visually consistent
+- funnels, maps, line charts, bar charts, scatter plots, and heatmaps must sit cleanly inside cards
+- axes, labels, and legends must not feel cramped
+- y-axes on count charts should start at 0
+- small live charts must remain readable
+- Plotly margins must be sufficient
+- diagnostic chart sizes and heights must be unified
+- card footer spacing must be consistent
+- long labels should wrap cleanly or be shortened
+- chart legends should not cover the chart
+
+====================================================
+SECTION 24 — TYPOGRAPHY
+====================================================
+
+Improve typography consistency.
+
+Requirements:
+- strong navy headings in light mode
+- strong light headings in dark mode
+- muted subtitles
+- readable body text
+- no awkward word-wrapping in KPI cards
+- country/service names should resize gracefully
+- no inconsistent capitalisation
+- micro-labels must remain readable
+
+Suggested hierarchy:
+- hero title: large, bold
+- section title: bold and clear
+- chart title: business-question style
+- subtitles: smaller and muted
+- KPI values: large and prominent
+- KPI labels: uppercase or semi-bold
+- insight text: readable and concise
+
+====================================================
+SECTION 25 — PREMIUM UX ADD-ONS
+====================================================
+
+Add or refine these luxury features where safe:
+
+1. Role Summary Banner
+- Sales: Today’s Sales Focus
+- Marketing: Today’s Marketing Focus
+- Executive: Board Summary
+
+2. Insight Banners
+- soft blue / green / amber / rose
+- below major visuals
+- never overlapping
+
+3. Data Quality Badge
+Display:
+- Data Quality: Good
+- or Data Quality: Review Needed
+
+4. Report Preview Card
+Preview what weekly/monthly reports include.
+
+5. Premium Export Cards
+Buttons for:
+- Weekly PDF
+- Monthly PDF
+- Evidence Pack CSV
+- Filtered Data CSV
+
+6. Methodology Note Expander
+Explain:
+- synthetic IIS logs
+- simulated live stream
+- forecasting approach
+- no real personal data
+- prototype access limitations
+
+7. Top Hotzones Ranking Panel
+Place beside or below maps in Analytics or Data & Export, not necessarily Overview.
+
+8. Empty State Cards
+Use elegant empty states instead of broken charts.
+
+9. Premium Context Chips
+Date range, countries, services, segments, bots, refresh status, and quality badge must look elegant.
+
+10. Reset Filters Button
+Make it clear and accessible.
+
+11. Tooltips / Help Text
+Add optional help for:
+- SADC
+- warm leads
+- engagement rate
+- AI Assistant traction
+- forecast assumptions
+
+====================================================
+SECTION 26 — EXPORTS AND REPORTING
+====================================================
+
+Keep all exports working.
+
+Exports should feel intentional and premium.
+
+Data & Export tab should include:
+- Weekly PDF Report
+- Monthly PDF Report
+- Evidence Pack CSV
+- Filtered Data CSV
+
+Use report preview cards explaining what each export contains.
+
+Example:
+Weekly PDF includes:
+KPI summary, live pulse snapshot, top markets, key recommendations.
+
+Monthly PDF includes:
+Trend analysis, forecast, regional analysis, strategic recommendations.
+
+Do not remove existing export functionality.
+Do not break download buttons.
+
+====================================================
+SECTION 27 — DATA QUALITY AND METHODOLOGY
+====================================================
+
+Keep methodology visible but not overwhelming.
+
+Place methodology notes in Data & Export, preferably inside an expander.
+
+Methodology note should explain:
+- data is synthetic
+- IIS W3C-style logs are simulated
+- no real personal data is used
+- live stream is replayed from timestamped synthetic records
+- forecasting is rule-based
+- dashboard is a CET333 prototype
+- production deployment would require authentication hardening, hashing, audit logging, and full RBAC
+
+Data Quality badge should be visible in context chips or overview summary.
+
+Possible data quality states:
+- Good
+- Review Needed
+- Limited Data
+- No Data for Selected Filters
+
+====================================================
+SECTION 28 — TRUST AND CONSISTENCY CHECKS
+====================================================
+
+Fix any contradictory insight text.
+
+Especially ensure:
+- the top market shown in KPI cards matches the top market shown in charts
+- the top service shown in KPI cards matches the top service shown in charts
+- captions do not contradict chart values
+- forecasts are labelled consistently
+- 30-day and 90-day forecasts are not mixed up
+- Sales dashboard does not say Botswana in one place and Tanzania in another unless the filter truly changes it
+- service labels are consistent across all dashboards
+
+If a chart is filtered, captions must reflect the filtered dataset.
+
+====================================================
+SECTION 29 — DO NOT BREAK FUNCTIONALITY
+====================================================
+
+Do not remove or break:
+- login
+- role access
+- filters
+- live graphs
+- maps
+- forecasts
+- insight assistant
+- reports
+- downloads
+- data quality card
+- statistical evidence
+- methodology note
+- existing calculations unless fixing clear inconsistencies
+
+This is a refinement and restructuring pass, not a full rebuild.
+
+If existing sections are removed from Overview, move them to Analytics, Forecasting, or Data & Export as appropriate.
+
+====================================================
+SECTION 30 — FINAL VALIDATION
+====================================================
+
+After refinement, run:
+
+python -m py_compile app_html.py
+
+Then run:
+
+streamlit run app_html.py --server.port 8505
+
+Verify:
+- the app compiles without syntax errors
+- all three dashboards load
+- each dashboard has exactly four tabs:
+  Overview | Analytics | Forecasting | Data & Export
+- Overview contains only 4 main visuals per dashboard
+- all charts are inside cards
+- no charts float directly on page background
+- no overlaps appear
+- side-by-side diagnostic charts are the same size
+- section headings are more prominent
+- no emojis remain
+- SVG icons render properly
+- no raw SVG appears as text
+- light mode looks richer and more intense
+- dark mode is legible and professional
+- charts adapt to the selected theme
+- cards remain visually consistent
+- exports still work
+- filters still work
+- live pulse still works
+- forecasts still work
+- insight assistant still works
+- no layout regressions
+- no TODO placeholders remain
+
+Implement directly.
+Do not leave unfinished placeholder sections.
+Do not remove working business logic.
+Focus on making the final CyberNova BI Portal polished, decision-driven, premium, and easy for Sales, Marketing, and Executive users to understand.

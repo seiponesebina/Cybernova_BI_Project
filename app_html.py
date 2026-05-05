@@ -39,25 +39,25 @@ st.set_page_config(
 # ─────────────────────────────────────────────────────────────────
 # DESIGN TOKENS  (mirrors wireframe CSS variables)
 # ─────────────────────────────────────────────────────────────────
-BG         = "#F3F4F6"
+BG         = "#F2F5FA"
 CARD       = "#FFFFFF"
-TEXT       = "#102A43"
-SECONDARY  = "#374151"
-MUTED      = "#4B5563"
+TEXT       = "#1E3A5F"
+SECONDARY  = "#334A62"
+MUTED      = "#6B7C93"
 BORDER     = "#D9E2EC"
-NAVY       = "#0B1F3A"
+NAVY       = "#0A2342"
 HEADER     = "#1F3A5F"
 BLUE       = "#2563FF"
 BLUE_SOFT  = "#DBEAFE"
-CYAN       = "#16B8C7"
+CYAN       = "#14B8D4"
 CYAN_SOFT  = "#CFFAFE"
 GREEN      = "#10B981"
 GREEN_SOFT = "#D1FAE5"
 AMBER      = "#F59E0B"
 AMBER_SOFT = "#FEF3C7"
-SLATE_SOFT = "#E5EAF0"
-SHADOW     = "0 18px 45px rgba(11,31,58,.08)"
-SHADOW_S   = "0 8px 24px rgba(11,31,58,.08)"
+SLATE_SOFT = "#E8EEF6"
+SHADOW     = "0 18px 45px rgba(10,35,66,.10)"
+SHADOW_S   = "0 8px 24px rgba(10,35,66,.08)"
 
 PALETTE    = [BLUE, CYAN, GREEN, AMBER, "#8B5CF6", "#EF4444", "#EC4899", "#14B8A6"]
 
@@ -107,9 +107,9 @@ html,body,[class*="css"]{
   -webkit-font-smoothing:antialiased;
 }
 .stApp{
-  background:radial-gradient(circle at 18% 0%,rgba(37,99,255,.06),transparent 28%),
-    radial-gradient(circle at 90% 8%,rgba(22,184,199,.09),transparent 28%),
-    #F1F3F6;
+  background:radial-gradient(circle at 18% 0%,rgba(37,99,255,.07),transparent 30%),
+    radial-gradient(circle at 90% 8%,rgba(20,184,212,.10),transparent 28%),
+    #F2F5FA;
 }
 .block-container{padding-top:1.8rem;padding-bottom:5rem;padding-left:2.5rem !important;padding-right:2.5rem !important;max-width:1620px;}
 
@@ -167,11 +167,11 @@ html,body,[class*="css"]{
    SECTION HEADING SYSTEM
 ═══════════════════════════════════════════════════════════════ */
 .cn-section-eyebrow{
-  font-size:13px;text-transform:uppercase;letter-spacing:.16em;
-  color:#7B8794;font-weight:900;line-height:1;
+  font-size:12px;text-transform:uppercase;letter-spacing:.18em;
+  color:#6B7C93;font-weight:900;line-height:1;
 }
 .cn-section-heading{
-  font-size:26px;font-weight:900;color:#0B1F3A;
+  font-size:28px;font-weight:900;color:#0A2342;
   letter-spacing:-.04em;line-height:1.2;margin:6px 0 0;
 }
 .cn-section-divider{
@@ -215,12 +215,13 @@ section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label > div
   color:white !important;font-weight:800 !important;font-size:.88rem !important;margin:0 !important;
 }
 section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label:has(input:checked){
-  border-color:#2563FF !important;
-  background:linear-gradient(135deg,rgba(37,99,255,.76),rgba(22,184,199,.22)) !important;
-  box-shadow:inset 4px 0 0 #16B8C7;
+  border-color:#14B8D4 !important;
+  background:linear-gradient(135deg,rgba(20,184,212,.55),rgba(16,185,129,.22)) !important;
+  box-shadow:inset 4px 0 0 #10B981, 0 0 18px rgba(20,184,212,.30) !important;
 }
 section[data-testid="stSidebar"] .stRadio > div[role="radiogroup"] > label:has(input:checked) > div:last-child p{
   color:white !important;font-weight:900 !important;
+  text-shadow:0 0 10px rgba(20,184,212,.5) !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -328,22 +329,49 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
 </style>
 """, unsafe_allow_html=True)
 
+    # ── Premium tab styling ────────────────────────────────────────
+    st.markdown("""
+<style>
+/* ═══ PREMIUM TAB BAR ═══ */
+[data-testid="stTabs"]{gap:0;}
+[data-baseweb="tab-list"]{
+  gap:4px;background:transparent;border-bottom:2px solid #D9E2EC;
+  padding-bottom:0;margin-bottom:24px;
+}
+[data-baseweb="tab"]{
+  background:transparent;border:none;border-radius:10px 10px 0 0;
+  padding:10px 20px;font-size:14px;font-weight:800;color:#6B7C93;
+  letter-spacing:-.01em;transition:.18s ease;position:relative;bottom:-2px;
+}
+[data-baseweb="tab"]:hover{color:#0A2342;background:rgba(37,99,255,.05);}
+[aria-selected="true"][data-baseweb="tab"]{
+  color:#2563FF;background:white;
+  border:2px solid #D9E2EC;border-bottom:2px solid white;
+  box-shadow:0 -4px 14px rgba(37,99,255,.10);
+}
+[data-baseweb="tab-panel"]{padding-top:4px;}
+</style>
+""", unsafe_allow_html=True)
+
     # Dark mode override block — injected on top of base styles
     if dark:
         st.markdown("""
 <style>
 /* ═══════════════════════════════════════════════════════════════
-   DARK MODE OVERRIDES
+   DARK MODE OVERRIDES — Deep Cyber Navy
 ═══════════════════════════════════════════════════════════════ */
-.stApp{background:#070E1C !important;}
-[data-testid="stAppViewContainer"] > section.main{background:#070E1C !important;}
+.stApp{background:radial-gradient(ellipse at 15% 0%,rgba(0,212,255,.08),transparent 40%),
+  radial-gradient(ellipse at 90% 10%,rgba(16,185,129,.07),transparent 35%),
+  #030C16 !important;}
+[data-testid="stAppViewContainer"] > section.main{background:transparent !important;}
 .block-container{background:transparent !important;}
 
-/* ── Dark-blue card system ── */
+/* ── Glassmorphism card system ── */
 [data-testid="stVerticalBlockBorderWrapper"]{
-  background:#0F2040 !important;
-  border:1px solid rgba(37,99,255,.22) !important;
-  box-shadow:0 4px 24px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.04) inset !important;
+  background:rgba(10,22,40,0.82) !important;
+  border:1px solid rgba(0,212,255,.14) !important;
+  box-shadow:0 4px 28px rgba(0,0,0,.70), 0 1px 0 rgba(0,212,255,.06) inset !important;
+  backdrop-filter:blur(12px) !important;
   padding:0 !important;
 }
 [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"]{
@@ -351,24 +379,25 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
   gap:1.1rem !important;
 }
 [data-testid="stVerticalBlockBorderWrapper"]:hover{
-  background:#122548 !important;
-  border-color:rgba(37,99,255,.55) !important;
-  box-shadow:0 8px 36px rgba(0,0,0,.65), 0 0 0 1px rgba(37,99,255,.4) !important;
+  background:rgba(12,26,48,0.92) !important;
+  border-color:rgba(0,212,255,.35) !important;
+  box-shadow:0 8px 36px rgba(0,0,0,.80), 0 0 20px rgba(0,212,255,.12),
+    0 0 0 1px rgba(0,212,255,.25) !important;
 }
 
 /* ── Inline HTML backgrounds: use [style*=] (no tag) to catch <div> AND <span> ──
-   Group 1: white / near-white → primary dark-blue                               */
+   Group 1: white / near-white → deep cyber card                                  */
 [data-testid="stMarkdownContainer"] [style*="background:white"],
 [data-testid="stMarkdownContainer"] [style*="background: white"],
 [data-testid="stMarkdownContainer"] [style*="background:#FFFFFF"],
 [data-testid="stMarkdownContainer"] [style*="background: #FFFFFF"],
 [data-testid="stMarkdownContainer"] [style*="background:rgba(255,255,255,.88)"],
 [data-testid="stMarkdownContainer"] [style*="background:rgba(255,255,255, .88)"]{
-  background:#0F2040 !important;
-  border-color:rgba(37,99,255,.22) !important;
+  background:rgba(10,22,40,0.88) !important;
+  border-color:rgba(0,212,255,.18) !important;
 }
 
-/* Group 2: soft-colour chips, badge pills, accent panels → slightly deeper blue */
+/* Group 2: soft-colour chips, badge pills → slightly deeper navy */
 [data-testid="stMarkdownContainer"] [style*="background:#F3F4F6"],
 [data-testid="stMarkdownContainer"] [style*="background:#F8FAFC"],
 [data-testid="stMarkdownContainer"] [style*="background:#F1F3F6"],
@@ -382,17 +411,17 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
 [data-testid="stMarkdownContainer"] [style*="background:#A5F3FC"],
 [data-testid="stMarkdownContainer"] [style*="background:#6EE7B7"],
 [data-testid="stMarkdownContainer"] [style*="background:#FECACA"]{
-  background:#0A1A35 !important;
-  border-color:rgba(37,99,255,.2) !important;
+  background:rgba(8,18,35,0.75) !important;
+  border-color:rgba(0,212,255,.15) !important;
 }
 
-/* Group 3: light 180deg gradients (story-card action panel) → dark blue */
+/* Group 3: light 180deg gradients → deep navy */
 [data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#DBEAFE"],
 [data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#D1FAE5"],
 [data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#CFFAFE"],
 [data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#FEF3C7"]{
-  background:#0A1A35 !important;
-  border-color:rgba(37,99,255,.2) !important;
+  background:rgba(8,18,35,0.75) !important;
+  border-color:rgba(0,212,255,.15) !important;
 }
 
 /* ── All text white ── */
@@ -404,57 +433,68 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
 .stMarkdown, .stMarkdown *, .stText, .stCaption,
 [data-testid="stCaptionContainer"]{ color:white !important; }
 
-/* Expanders */
-[data-testid="stExpander"]{
-  background:#0F2040 !important;
-  border-color:rgba(37,99,255,.22) !important;
-}
-[data-testid="stExpander"] summary{color:#E2E8F0 !important;}
-[data-testid="stExpander"] summary:hover{color:white !important;}
-
 /* Native inputs */
 input, textarea, .stTextInput input, .stDateInput input{
-  background:#0F2040 !important;
-  color:#E2E8F0 !important;
-  border-color:rgba(37,99,255,.3) !important;
+  background:rgba(10,22,40,0.85) !important;
+  color:#B0C4D8 !important;
+  border-color:rgba(0,212,255,.25) !important;
 }
 [data-baseweb="select"] > div{
-  background:#0F2040 !important;
-  border-color:rgba(37,99,255,.3) !important;
-  color:#E2E8F0 !important;
+  background:rgba(10,22,40,0.85) !important;
+  border-color:rgba(0,212,255,.25) !important;
+  color:#B0C4D8 !important;
 }
-[data-baseweb="menu"]{background:#0F2040 !important;}
-[data-baseweb="option"]{background:#0F2040 !important;color:#CBD5E1 !important;}
-[data-baseweb="option"]:hover{background:#122548 !important;}
+[data-baseweb="menu"]{background:#0A1628 !important;}
+[data-baseweb="option"]{background:#0A1628 !important;color:#94A3B8 !important;}
+[data-baseweb="option"]:hover{background:rgba(0,212,255,.10) !important;}
 
 /* DataFrames */
 .stDataFrame, [data-testid="stDataFrame"]{
-  background:#0F2040 !important;
-  border-color:rgba(37,99,255,.22) !important;
+  background:rgba(10,22,40,0.85) !important;
+  border-color:rgba(0,212,255,.18) !important;
 }
 
 /* HR dividers */
-hr{border-color:rgba(37,99,255,.2) !important;}
+hr{border-color:rgba(0,212,255,.15) !important;}
 
 /* Plotly — paper background, plot-area fill, axis labels, modebar */
-.js-plotly-plot .plotly,.plotly-graph-div{background:#0F2040 !important;}
-.js-plotly-plot .bg{fill:#0F2040 !important;}
-.js-plotly-plot text{fill:white !important;}
-.js-plotly-plot .gridlayer path{stroke:rgba(255,255,255,.08) !important;}
+.js-plotly-plot .plotly,.plotly-graph-div{background:rgba(10,22,40,0.85) !important;}
+.js-plotly-plot .bg{fill:rgba(8,18,35,0.95) !important;}
+.js-plotly-plot text{fill:#94A3B8 !important;}
+.js-plotly-plot .gridlayer path{stroke:rgba(0,212,255,.08) !important;}
 .modebar{background:transparent !important;}
-.modebar-btn path{fill:rgba(255,255,255,.55) !important;}
+.modebar-btn path{fill:rgba(148,163,184,.55) !important;}
 
 /* Download buttons */
 div[data-testid="stDownloadButton"] > button{
-  background:#0F2040 !important;
-  color:#93C5FD !important;
-  border-color:rgba(37,99,255,.35) !important;
+  background:rgba(10,22,40,0.85) !important;
+  color:#00D4FF !important;
+  border-color:rgba(0,212,255,.30) !important;
 }
 div[data-testid="stDownloadButton"] > button:hover{
-  background:#122548 !important;
-  border-color:#2563FF !important;
-  color:#BFDBFE !important;
-  box-shadow:0 4px 16px rgba(37,99,255,.3) !important;
+  background:rgba(0,212,255,.08) !important;
+  border-color:#00D4FF !important;
+  color:#7DF9FF !important;
+  box-shadow:0 4px 16px rgba(0,212,255,.25) !important;
+}
+
+/* Expanders dark */
+[data-testid="stExpander"]{
+  background:rgba(10,22,40,0.82) !important;
+  border-color:rgba(0,212,255,.18) !important;
+}
+[data-testid="stExpander"] summary{color:#B0C4D8 !important;}
+[data-testid="stExpander"] summary:hover{color:#00D4FF !important;}
+/* Dark mode tabs */
+[data-baseweb="tab-list"]{border-bottom-color:rgba(0,212,255,.18) !important;}
+[data-baseweb="tab"]{color:#6B8BA4 !important;}
+[data-baseweb="tab"]:hover{color:#00D4FF !important;background:rgba(0,212,255,.06) !important;}
+[aria-selected="true"][data-baseweb="tab"]{
+  color:#00D4FF !important;background:rgba(10,22,40,0.82) !important;
+  border-color:rgba(0,212,255,.28) !important;
+  border-bottom:2px solid #00D4FF !important;
+  box-shadow:0 -2px 16px rgba(0,212,255,.20) !important;
+  text-shadow:0 0 10px rgba(0,212,255,.55) !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -722,73 +762,121 @@ def generate_executive_story(fdf: pd.DataFrame, m: dict) -> tuple[list[str], str
 # CHART STYLE HELPER
 # ─────────────────────────────────────────────────────────────────
 def cs(fig: go.Figure, h: int = 420) -> go.Figure:
+    dark = st.session_state.get("dark_mode", True)
+    bg   = "rgba(8,18,35,0.70)" if dark else "rgba(249,251,253,1)"
+    grid = "rgba(0,212,255,.07)" if dark else "#EAEDF0"
+    tc   = "#7B9BB5" if dark else TEXT
     fig.update_layout(
-        height=h, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(249,251,253,1)",
-        font=dict(color=TEXT, family="Inter, Segoe UI, Arial, sans-serif", size=12),
+        height=h, paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor=bg,
+        font=dict(color=tc, family="Inter, Segoe UI, Arial, sans-serif", size=12),
         margin=dict(l=12, r=12, t=44, b=14),
-        legend=dict(bgcolor="rgba(255,255,255,0)", font=dict(size=11)),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(size=11, color=tc)),
     )
-    fig.update_xaxes(gridcolor="#EAEDF0", showline=False, zeroline=False, tickfont=dict(size=11))
-    fig.update_yaxes(gridcolor="#EAEDF0", showline=False, zeroline=False, tickfont=dict(size=11))
+    fig.update_xaxes(gridcolor=grid, showline=False, zeroline=False,
+                     tickfont=dict(size=11, color=tc))
+    fig.update_yaxes(gridcolor=grid, showline=False, zeroline=False,
+                     tickfont=dict(size=11, color=tc))
     return fig
 
 # ─────────────────────────────────────────────────────────────────
 # RENDER HELPERS — HTML COMPONENTS
 # ─────────────────────────────────────────────────────────────────
+def render_welcome_bar(dept_title: str) -> None:
+    import datetime as _dt
+    _now = _dt.datetime.now().strftime("%H:%M")
+    st.markdown(f"""
+<div style="display:flex;align-items:center;justify-content:space-between;
+  padding:10px 20px;border-radius:16px;margin-bottom:10px;
+  background:rgba(3,12,22,0.60);border:1px solid rgba(0,212,255,.12);
+  backdrop-filter:blur(8px);">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <span style="font-size:14px;font-weight:700;color:#94A3B8;">Welcome back,
+      <strong style="color:#00D4FF;">Alex</strong></span>
+    <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#64748B;">
+      <span style="width:7px;height:7px;border-radius:50%;background:#10B981;
+        box-shadow:0 0 0 3px rgba(16,185,129,.28);flex-shrink:0;"></span>
+      {_now}
+    </span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span style="font-size:12px;font-weight:800;color:#64748B;
+      text-transform:uppercase;letter-spacing:.08em;">{dept_title}</span>
+    <span style="display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;
+      background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.30);
+      font-size:11px;font-weight:800;color:#10B981;">
+      <span style="width:6px;height:6px;border-radius:50%;background:#10B981;"></span>
+      All systems operational
+    </span>
+  </div>
+</div>""", unsafe_allow_html=True)
+
 def render_hero(title: str, badge: str, subtitle: str) -> None:
     st.markdown(f"""
 <div style="position:relative;overflow:hidden;border-radius:28px;padding:36px 40px;
-  background:linear-gradient(135deg,#0B1E3D 0%,#1F3A5F 52%,#2563FF 132%);
-  color:white;box-shadow:{SHADOW};margin-bottom:18px;">
-  <div style="position:absolute;right:-80px;top:-100px;width:310px;height:310px;
-    border-radius:999px;background:rgba(22,184,199,.20);"></div>
-  <div style="position:absolute;left:-40px;bottom:-60px;width:200px;height:200px;
-    border-radius:999px;background:rgba(37,99,255,.12);"></div>
-  <!-- CN logo mark -->
+  background:linear-gradient(135deg,#041014 0%,#071820 52%,#0A2E4A 100%);
+  color:white;box-shadow:{SHADOW};margin-bottom:18px;
+  border:1px solid rgba(0,212,255,.18);">
+  <div style="position:absolute;right:-40px;top:-40px;width:280px;height:280px;
+    border-radius:999px;background:radial-gradient(circle,rgba(0,212,255,.10),transparent 70%);
+    pointer-events:none;"></div>
+  <div style="position:absolute;left:-40px;bottom:-60px;width:180px;height:180px;
+    border-radius:999px;background:radial-gradient(circle,rgba(16,185,129,.08),transparent 70%);
+    pointer-events:none;"></div>
+  <!-- CN logo mark + badge -->
   <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;position:relative;z-index:1;">
     <div style="overflow:hidden;flex-shrink:0;border-radius:14px;
-      box-shadow:0 8px 24px rgba(37,99,255,.45),0 0 0 2px rgba(255,255,255,.15);">
+      box-shadow:0 8px 24px rgba(0,212,255,.35),0 0 0 2px rgba(0,212,255,.25);">
       {_logo_html(46, 14)}
     </div>
     <div style="display:inline-flex;padding:7px 14px;border-radius:999px;
-      border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.10);
-      font-size:12px;font-weight:800;">
+      border:1px solid rgba(0,212,255,.30);background:rgba(0,212,255,.10);
+      font-size:12px;font-weight:800;color:#00D4FF;">
       {badge}
     </div>
   </div>
-  <h1 style="margin:0;font-size:46px;letter-spacing:-.055em;line-height:1.05;
-    position:relative;z-index:1;">{title}</h1>
-  <p style="max-width:920px;margin:14px 0 0;color:#E6EEF8;font-size:19px;
+  <h1 style="margin:0;font-size:42px;letter-spacing:-.055em;line-height:1.05;
+    position:relative;z-index:1;color:white;">{title}</h1>
+  <p style="max-width:920px;margin:12px 0 0;color:#7B9BB5;font-size:17px;
     line-height:1.65;position:relative;z-index:1;">{subtitle}</p>
 </div>""", unsafe_allow_html=True)
 
 def render_story_strip(stages: list[str], accent: str = BLUE) -> None:
+    dark = st.session_state.get("dark_mode", True)
     pills = ""
-    for s in stages:
-        pills += (f'<span style="padding:8px 14px;border-radius:999px;font-size:12px;'
-                  f'font-weight:800;background:{accent};color:white;border:1px solid {accent};">{s}</span> ')
+    for i, s in enumerate(stages):
+        if dark:
+            pill_style = (f'padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800;'
+                          f'background:rgba(0,212,255,.08);color:{accent};'
+                          f'border:1px solid {accent}44;letter-spacing:.04em;')
+        else:
+            pill_style = (f'padding:7px 14px;border-radius:999px;font-size:11px;font-weight:800;'
+                          f'background:{accent}22;color:{accent};border:1px solid {accent}55;')
+        pills += f'<span style="{pill_style}">{s}</span> '
     st.markdown(
-        f'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:14px 0 18px;">{pills}</div>',
+        f'<div style="display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 16px;">{pills}</div>',
         unsafe_allow_html=True,
     )
 
 def render_section_label(text: str) -> None:
+    dark = st.session_state.get("dark_mode", True)
+    accent = "#00D4FF" if dark else BLUE
+    heading_col = "rgba(0,212,255,.85)" if dark else NAVY
     if " — " in text:
         eyebrow, heading = text.split(" — ", 1)
     else:
         eyebrow, heading = text, ""
     heading_html = (
-        f'<div style="font-size:26px;font-weight:900;color:{NAVY};'
-        f'letter-spacing:-.04em;line-height:1.2;margin:7px 0 0;">{heading}</div>'
+        f'<div style="font-size:26px;font-weight:900;color:{heading_col};'
+        f'letter-spacing:-.045em;line-height:1.15;margin:8px 0 0;">{heading}</div>'
         if heading else ""
     )
     st.markdown(
-        f'<div style="margin:52px 0 22px;">'
-        f'<div style="display:flex;align-items:center;gap:14px;">'
-        f'<span style="font-size:13px;text-transform:uppercase;letter-spacing:.16em;'
-        f'color:{MUTED};font-weight:900;white-space:nowrap;">{eyebrow}</span>'
-        f'<span style="height:1.5px;background:linear-gradient(90deg,{BORDER},transparent);'
-        f'flex:1;display:block;border-radius:2px;"></span>'
+        f'<div style="margin:48px 0 20px;">'
+        f'<div style="display:flex;align-items:center;gap:12px;">'
+        f'<span style="font-size:11px;text-transform:uppercase;letter-spacing:.20em;'
+        f'color:{accent};font-weight:900;white-space:nowrap;">{eyebrow}</span>'
+        f'<span style="height:1.5px;background:linear-gradient(90deg,{accent},rgba(0,212,255,0));'
+        f'flex:1;display:block;border-radius:2px;opacity:.40;"></span>'
         f'</div>'
         + heading_html +
         f'</div>',
@@ -832,23 +920,29 @@ def _kpi_font_size(value: str) -> str:
 
 def render_kpi_card(label: str, value: str, delta: str,
                     delta_good: bool = True, accent: str = BLUE) -> None:
-    dc   = "#047857" if delta_good else "#92400E"
-    dot  = GREEN if delta_good else AMBER
+    dark  = st.session_state.get("dark_mode", True)
+    bg    = "rgba(10,22,40,0.85)" if dark else "white"
+    bdr   = f"1px solid rgba(0,212,255,.20)" if dark else f"1px solid {BORDER}"
+    vc    = accent if dark else NAVY
+    lc    = "#6B8BA4" if dark else SECONDARY
+    dc    = "#10B981" if delta_good else "#F59E0B"
+    dot   = "#10B981" if delta_good else "#F59E0B"
+    glow  = f"0 0 18px {accent}33" if dark else ""
     st.markdown(f"""
-<div style="background:white;border:1px solid {BORDER};border-radius:20px;
-  box-shadow:0 2px 4px rgba(11,31,58,.04),0 8px 22px rgba(11,31,58,.07);
+<div style="background:{bg};border:{bdr};border-radius:20px;
+  box-shadow:0 4px 20px rgba(0,0,0,.45){', ' + glow if glow else ''};
   padding:20px;min-height:160px;overflow:hidden;
   display:flex;flex-direction:column;justify-content:space-between;
-  transition:box-shadow .2s;">
+  transition:box-shadow .2s, border-color .2s;">
   <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-    <div style="font-size:13px;color:{SECONDARY};font-weight:900;
-      text-transform:uppercase;letter-spacing:.08em;line-height:1.3;">{label}</div>
-    <div style="width:8px;height:8px;border-radius:50%;background:{dot};
-      flex-shrink:0;margin-top:3px;box-shadow:0 0 0 3px {'rgba(16,185,129,.18)' if delta_good else 'rgba(245,158,11,.18)'};"></div>
+    <div style="font-size:12px;color:{lc};font-weight:900;
+      text-transform:uppercase;letter-spacing:.09em;line-height:1.3;">{label}</div>
+    <div style="width:7px;height:7px;border-radius:50%;background:{dot};
+      flex-shrink:0;margin-top:3px;box-shadow:0 0 0 3px {dot}33;"></div>
   </div>
-  <div style="font-size:{_kpi_font_size(value)};font-weight:950;color:{NAVY};letter-spacing:-.05em;
+  <div style="font-size:{_kpi_font_size(value)};font-weight:950;color:{vc};letter-spacing:-.05em;
     line-height:1.1;margin:10px 0 8px;word-break:break-word;">{value}</div>
-  <div style="font-size:14px;font-weight:700;color:{dc};">{delta}</div>
+  <div style="font-size:13px;font-weight:700;color:{dc};">{delta}</div>
 </div>""", unsafe_allow_html=True)
 
 def render_live_card(title: str, subtitle: str, value: str, caption: str,
@@ -2083,6 +2177,7 @@ country prefixes and are not traceable to any real individual. Dataset fully syn
 # DASHBOARD 1 — CYBERNOVA PULSE  (Sales)
 # ─────────────────────────────────────────────────────────────────
 def show_pulse(fdf: pd.DataFrame, filters: dict, role: str) -> None:
+    render_welcome_bar("Sales · CyberNova Pulse")
     render_hero(
         "CyberNova Pulse",
         "Sales Command Center",
@@ -2107,8 +2202,13 @@ def show_pulse(fdf: pd.DataFrame, filters: dict, role: str) -> None:
     m = calculate_sales_metrics(fdf)
     warm = fdf[fdf["is_warm_lead"]]
 
-    # ── SIGNAL — KPI row ──────────────────────────────────────────
-    render_section_label("SIGNAL — KEY METRICS")
+    # ── DASHBOARD TABS ────────────────────────────────────────────
+    _tab_ov, _tab_an, _tab_fc, _tab_de = st.tabs([
+        "Overview", "Analytics", "Forecasting", "Data & Export"
+    ])
+
+    with _tab_ov:
+     render_section_label("SIGNAL — KEY METRICS")
     k1, k2, k3, k4, k5, k6 = st.columns(6)
     max_ts   = fdf["date"].max()
     week_ago = max_ts - pd.Timedelta(days=7)
@@ -2180,9 +2280,12 @@ def show_pulse(fdf: pd.DataFrame, filters: dict, role: str) -> None:
   </div>
 </div>""", unsafe_allow_html=True)
 
-    # ── LIVE PULSE + FEED  (auto-refreshes every 3 s) ────────────
-    render_section_label("LIVE PULSE — STREAMING FROM LOG STREAM")
-    render_live_section(fdf, role, "CyberNova Pulse")
+    with _tab_fc:
+        render_section_label("LIVE PULSE — STREAMING FROM LOG STREAM")
+        render_live_section(fdf, role, "CyberNova Pulse")
+
+    with _tab_an:
+     pass
 
     # ── INSIGHT ───────────────────────────────────────────────────
     render_section_label("SALES INSIGHT")
@@ -2530,21 +2633,22 @@ def show_pulse(fdf: pd.DataFrame, filters: dict, role: str) -> None:
                            "Prioritised events — High = warm lead ready · Review = check before outreach · Medium = product-curious")
         st.dataframe(show_q, use_container_width=True, hide_index=True)
 
-    # ── REPORTS & EXPORTS ─────────────────────────────────────────
-    kpis = [
+    with _tab_de:
+      kpis = [
         {"label":"Warm Leads (24h)",     "value":str(m["leads_24h"]),     "note":f"As of {max_ts.date()}"},
         {"label":"Weekly Warm Leads",    "value":str(m["leads_7d"]),      "note":"Last 7 days"},
         {"label":"AI to Demo Conv.",     "value":f"{m['ai_conv']:.1%}",   "note":"AI sessions"},
         {"label":"Top Country",          "value":m["top_country"],        "note":"By warm leads"},
         {"label":"Hot Service",          "value":m["top_service"][:22],   "note":"Most demand"},
-    ]
-    render_report_section("CyberNova Pulse", role, filters, kpis, bullets, fdf,
-                          show_q if not show_q.empty else pd.DataFrame(), "Warm Leads")
+      ]
+      render_report_section("CyberNova Pulse", role, filters, kpis, bullets, fdf,
+                            show_q if not show_q.empty else pd.DataFrame(), "Warm Leads")
 
 # ─────────────────────────────────────────────────────────────────
 # DASHBOARD 2 — CYBERNOVA REACH  (Marketing)
 # ─────────────────────────────────────────────────────────────────
 def show_reach(fdf: pd.DataFrame, filters: dict, role: str) -> None:
+    render_welcome_bar("Marketing · CyberNova Reach")
     render_hero(
         "CyberNova Reach",
         "Marketing Intelligence Hub",
@@ -2567,28 +2671,32 @@ def show_reach(fdf: pd.DataFrame, filters: dict, role: str) -> None:
 
     m = calculate_marketing_metrics(fdf)
 
-    # ── SIGNAL ────────────────────────────────────────────────────
-    render_section_label("SIGNAL — KEY METRICS")
-    k1, k2, k3, k4, k5 = st.columns(5)
-    with k1: render_kpi_card("Unique Visitors", f"{m['uniq_vis']:,}", "Unique IP addresses", True, CYAN)
-    with k2: render_kpi_card("Engaged Session Rate", f"{m['eng_rate']:.1%}", "Sessions ≥3 pages",
-                              m["eng_rate"]>=0.18, GREEN)
-    with k3: render_kpi_card("Top Entry Page", str(m["top_entry"])[:20], "Highest avg depth", True, BLUE)
-    with k4: render_kpi_card("Geographic Reach", f"{m['geo_reach']} countries", "Countries ≥10 req.", True, AMBER)
-    with k5: render_kpi_card("Bot Ratio", f"{m['bot_ratio']:.1%}", "Of all requests",
-                              m["bot_ratio"]<=0.15, BLUE)
+    _tab_ov, _tab_an, _tab_fc, _tab_de = st.tabs([
+        "Overview", "Analytics", "Forecasting", "Data & Export"
+    ])
+    with _tab_ov:
+        # ── SIGNAL ────────────────────────────────────────────────────
+        render_section_label("SIGNAL — KEY METRICS")
+        k1, k2, k3, k4, k5 = st.columns(5)
+        with k1: render_kpi_card("Unique Visitors", f"{m['uniq_vis']:,}", "Unique IP addresses", True, CYAN)
+        with k2: render_kpi_card("Engaged Session Rate", f"{m['eng_rate']:.1%}", "Sessions ≥3 pages",
+                                  m["eng_rate"]>=0.18, GREEN)
+        with k3: render_kpi_card("Top Entry Page", str(m["top_entry"])[:20], "Highest avg depth", True, BLUE)
+        with k4: render_kpi_card("Geographic Reach", f"{m['geo_reach']} countries", "Countries ≥10 req.", True, AMBER)
+        with k5: render_kpi_card("Bot Ratio", f"{m['bot_ratio']:.1%}", "Of all requests",
+                                  m["bot_ratio"]<=0.15, BLUE)
 
-    # ── ROLE SUMMARY BANNER — TODAY'S MARKETING FOCUS ────────────
-    _ia_ctry   = m.get("top_country","—")
-    _ia_entry  = str(m.get("top_entry","—"))[:28]
-    _ia_eng    = m.get("eng_rate",0)
-    _ia_bot    = m.get("bot_ratio",0)
-    _ia_qual   = ("Strong engagement — audience quality is high." if _ia_eng>=0.35
-                  else "Moderate engagement — consider deeper content." if _ia_eng>=0.18
-                  else "Low engagement — review landing page quality.")
-    _ia_camp   = (f"Prioritise paid campaign testing in {_ia_ctry} via {_ia_entry}."
-                  if _ia_eng>=0.18 else f"Nurture {_ia_ctry} audience before scaling spend.")
-    st.markdown(f"""
+        # ── ROLE SUMMARY BANNER — TODAY'S MARKETING FOCUS ────────────
+        _ia_ctry   = m.get("top_country","—")
+        _ia_entry  = str(m.get("top_entry","—"))[:28]
+        _ia_eng    = m.get("eng_rate",0)
+        _ia_bot    = m.get("bot_ratio",0)
+        _ia_qual   = ("Strong engagement — audience quality is high." if _ia_eng>=0.35
+                      else "Moderate engagement — consider deeper content." if _ia_eng>=0.18
+                      else "Low engagement — review landing page quality.")
+        _ia_camp   = (f"Prioritise paid campaign testing in {_ia_ctry} via {_ia_entry}."
+                      if _ia_eng>=0.18 else f"Nurture {_ia_ctry} audience before scaling spend.")
+        st.markdown(f"""
 <div style="background:white;border:1px solid #A5F3FC;border-radius:22px;
   box-shadow:0 4px 6px rgba(22,184,199,.06),0 12px 32px rgba(22,184,199,.12);
   padding:24px 28px;margin-bottom:22px;position:relative;overflow:hidden;">
@@ -2635,314 +2743,320 @@ def show_reach(fdf: pd.DataFrame, filters: dict, role: str) -> None:
   </div>
 </div>""", unsafe_allow_html=True)
 
-    # ── LIVE PULSE + FEED  (auto-refreshes every 3 s) ────────────
-    render_section_label("LIVE PULSE — STREAMING FROM LOG STREAM")
-    render_live_section(fdf, role, "CyberNova Reach")
+        # ── LIVE PULSE + FEED  (auto-refreshes every 3 s) ────────────
+        render_section_label("LIVE PULSE — STREAMING FROM LOG STREAM")
+        render_live_section(fdf, role, "CyberNova Reach")
 
-    # ── INSIGHT ───────────────────────────────────────────────────
-    render_section_label("MARKETING INSIGHT")
-    bullets, action = generate_marketing_story(fdf, m)
-    render_story_card("Marketing Insight",
-                      "What current audience behaviour suggests Marketing should optimise.",
-                      bullets, action, CYAN, CYAN_SOFT)
+        # ── INSIGHT ───────────────────────────────────────────────────
+        render_section_label("MARKETING INSIGHT")
+        bullets, action = generate_marketing_story(fdf, m)
+        render_story_card("Marketing Insight",
+                          "What current audience behaviour suggests Marketing should optimise.",
+                          bullets, action, CYAN, CYAN_SOFT)
 
-    # ── DIAGNOSIS ────────────────────────────────────────────────
-    render_section_label("DIAGNOSIS — AUDIENCE QUALITY")
-    c1, c2 = st.columns(2)
-    with c1:
-        with st.container(border=True):
-            render_card_header("Where should we direct ad spend?",
-                               "Visitors vs engagement vs warm leads by country")
-            c_stats = []
-            for ctry, cdf in fdf.groupby("country"):
-                sd = cdf.drop_duplicates("session_id") if "session_id" in cdf.columns else cdf
-                c_stats.append({"country":ctry,
-                                 "visitors":cdf["ip_address"].nunique() if "ip_address" in cdf.columns else len(cdf),
-                                 "engaged_rate":float((sd["distinct_pages_session"]>=3).mean()) if "distinct_pages_session" in sd.columns else 0,
-                                 "warm_leads":int(cdf["is_warm_lead"].sum()) if "is_warm_lead" in cdf.columns else 0})
-            cst = pd.DataFrame(c_stats)
-            if not cst.empty:
-                fig = px.scatter(cst, x="visitors", y="engaged_rate", size="warm_leads",
-                                 color="country", hover_name="country", size_max=40,
-                                 color_discrete_sequence=PALETTE,
-                                 labels={"visitors":"Unique Visitors","engaged_rate":"Engaged Rate"})
-                fig.update_yaxes(tickformat=".0%")
+        # ── DIAGNOSIS ────────────────────────────────────────────────
+        render_section_label("DIAGNOSIS — AUDIENCE QUALITY")
+        c1, c2 = st.columns(2)
+        with c1:
+            with st.container(border=True):
+                render_card_header("Where should we direct ad spend?",
+                                   "Visitors vs engagement vs warm leads by country")
+                c_stats = []
+                for ctry, cdf in fdf.groupby("country"):
+                    sd = cdf.drop_duplicates("session_id") if "session_id" in cdf.columns else cdf
+                    c_stats.append({"country":ctry,
+                                     "visitors":cdf["ip_address"].nunique() if "ip_address" in cdf.columns else len(cdf),
+                                     "engaged_rate":float((sd["distinct_pages_session"]>=3).mean()) if "distinct_pages_session" in sd.columns else 0,
+                                     "warm_leads":int(cdf["is_warm_lead"].sum()) if "is_warm_lead" in cdf.columns else 0})
+                cst = pd.DataFrame(c_stats)
+                if not cst.empty:
+                    fig = px.scatter(cst, x="visitors", y="engaged_rate", size="warm_leads",
+                                     color="country", hover_name="country", size_max=40,
+                                     color_discrete_sequence=PALETTE,
+                                     labels={"visitors":"Unique Visitors","engaged_rate":"Engaged Rate"})
+                    fig.update_yaxes(tickformat=".0%")
+                    st.plotly_chart(cs(fig,420), use_container_width=True)
+                    render_insight_note("Countries in the high-engagement/high-volume zone are strongest campaign candidates.", CYAN_SOFT, "#0E7490")
+                else:
+                    render_empty_state()
+        with c2:
+            with st.container(border=True):
+                render_card_header("Which content is under-promoted?",
+                                   "Visit share vs conversion share by service")
+                total_req  = max(len(fdf),1); total_warm = max(int(fdf["is_warm_lead"].sum()),1)
+                vs   = fdf.groupby("service_name").size() / total_req
+                cs2  = fdf[fdf["is_warm_lead"]].groupby("service_name").size() / total_warm
+                idx  = vs.index.union(cs2.index)
+                gap  = pd.DataFrame({
+                    "service":          idx,
+                    "Visit Share":      vs.reindex(idx).fillna(0).values,
+                    "Conversion Share": cs2.reindex(idx).fillna(0).values,
+                }).melt(id_vars="service", var_name="metric", value_name="share")
+                fig = px.bar(gap, x="share", y="service", color="metric", orientation="h",
+                             barmode="group", color_discrete_map={"Visit Share":BLUE,"Conversion Share":GREEN})
+                fig.update_xaxes(tickformat=".0%")
                 st.plotly_chart(cs(fig,420), use_container_width=True)
-                render_insight_note("Countries in the high-engagement/high-volume zone are strongest campaign candidates.", CYAN_SOFT, "#0E7490")
-            else:
-                render_empty_state()
-    with c2:
-        with st.container(border=True):
-            render_card_header("Which content is under-promoted?",
-                               "Visit share vs conversion share by service")
-            total_req  = max(len(fdf),1); total_warm = max(int(fdf["is_warm_lead"].sum()),1)
-            vs   = fdf.groupby("service_name").size() / total_req
-            cs2  = fdf[fdf["is_warm_lead"]].groupby("service_name").size() / total_warm
-            idx  = vs.index.union(cs2.index)
-            gap  = pd.DataFrame({
-                "service":          idx,
-                "Visit Share":      vs.reindex(idx).fillna(0).values,
-                "Conversion Share": cs2.reindex(idx).fillna(0).values,
-            }).melt(id_vars="service", var_name="metric", value_name="share")
-            fig = px.bar(gap, x="share", y="service", color="metric", orientation="h",
-                         barmode="group", color_discrete_map={"Visit Share":BLUE,"Conversion Share":GREEN})
-            fig.update_xaxes(tickformat=".0%")
-            st.plotly_chart(cs(fig,420), use_container_width=True)
-            render_insight_note("Services where conversion share exceeds visit share are under-promoted opportunities.")
+                render_insight_note("Services where conversion share exceeds visit share are under-promoted opportunities.")
 
-    c3, c4 = st.columns(2)
-    with c3:
-        with st.container(border=True):
-            render_card_header("How is audience mix shifting over time?",
-                               "Segment composition by week")
-            if "session_id" in fdf.columns and "segment" in fdf.columns:
-                ss = fdf.drop_duplicates("session_id").copy()
-                ss["week"] = wk(ss["date"])
-                wseg = ss.groupby(["week","segment"]).size().reset_index(name="sessions")
-                fig = px.bar(wseg, x="week", y="sessions", color="segment",
-                             color_discrete_sequence=PALETTE, barmode="stack")
+        c3, c4 = st.columns(2)
+        with c3:
+            with st.container(border=True):
+                render_card_header("How is audience mix shifting over time?",
+                                   "Segment composition by week")
+                if "session_id" in fdf.columns and "segment" in fdf.columns:
+                    ss = fdf.drop_duplicates("session_id").copy()
+                    ss["week"] = wk(ss["date"])
+                    wseg = ss.groupby(["week","segment"]).size().reset_index(name="sessions")
+                    fig = px.bar(wseg, x="week", y="sessions", color="segment",
+                                 color_discrete_sequence=PALETTE, barmode="stack")
+                    fig.update_xaxes(tickangle=-30)
+                    st.plotly_chart(cs(fig), use_container_width=True)
+                    render_insight_note("This explains whether traffic is becoming more sales-ready over time.")
+                else:
+                    render_empty_state()
+        with c4:
+            with st.container(border=True):
+                render_card_header("How is SADC reach growing?",
+                                   "Visitors by country — SADC vs other")
+                if "is_sadc" in fdf.columns and "country" in fdf.columns:
+                    geo = fdf.groupby(["country","is_sadc"]).agg(visitors=("ip_address","nunique")).reset_index()
+                    geo["market"] = geo["is_sadc"].map({True:"SADC",False:"Other"})
+                    fig = px.bar(geo.sort_values("visitors"), x="visitors", y="country",
+                                 color="market", orientation="h",
+                                 color_discrete_map={"SADC":GREEN,"Other":BLUE})
+                    st.plotly_chart(cs(fig), use_container_width=True)
+                    render_insight_note("SADC countries represent CyberNova's primary target expansion region.", GREEN_SOFT, "#047857")
+                else:
+                    render_empty_state()
+
+        c5, c6 = st.columns(2)
+        with c5:
+            with st.container(border=True):
+                render_card_header("When are humans most active?",
+                                   "Human activity heatmap — bot traffic excluded")
+                human = fdf[~fdf["is_bot"]].copy() if "is_bot" in fdf.columns else fdf.copy()
+                if not human.empty and "hour" in human.columns and "day_of_week" in human.columns:
+                    ht  = human.groupby(["day_of_week","hour"]).size().reset_index(name="count")
+                    pv  = ht.pivot(index="hour", columns="day_of_week", values="count")
+                    pv  = pv.reindex(columns=[d for d in DAY_ORDER if d in pv.columns]).fillna(0)
+                    fig = px.imshow(pv, color_continuous_scale=[[0,"#CFFAFE"],[1,CYAN]],
+                                    labels=dict(x="Day",y="Hour",color="Sessions"), aspect="auto")
+                    fig.update_layout(height=360, paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=10,r=10,t=12,b=10))
+                    st.plotly_chart(fig, use_container_width=True)
+                    render_insight_note("Align campaign scheduling and content releases to peak human activity windows.", CYAN_SOFT, "#0E7490")
+                else:
+                    render_empty_state()
+        with c6:
+            with st.container(border=True):
+                render_card_header("Is bot traffic distorting analytics?",
+                                   "Bot vs human traffic by week")
+                fdf2 = fdf.copy()
+                fdf2["week"] = wk(fdf2["date"])
+                fdf2["type"] = fdf2["is_bot"].map({True:"Bot",False:"Human"}) if "is_bot" in fdf2.columns else "Human"
+                bw = fdf2.groupby(["week","type"]).size().reset_index(name="requests")
+                fig = px.bar(bw, x="week", y="requests", color="type",
+                             color_discrete_map={"Bot":AMBER,"Human":BLUE}, barmode="stack")
                 fig.update_xaxes(tickangle=-30)
                 st.plotly_chart(cs(fig), use_container_width=True)
-                render_insight_note("This explains whether traffic is becoming more sales-ready over time.")
-            else:
-                render_empty_state()
-    with c4:
-        with st.container(border=True):
-            render_card_header("How is SADC reach growing?",
-                               "Visitors by country — SADC vs other")
-            if "is_sadc" in fdf.columns and "country" in fdf.columns:
-                geo = fdf.groupby(["country","is_sadc"]).agg(visitors=("ip_address","nunique")).reset_index()
-                geo["market"] = geo["is_sadc"].map({True:"SADC",False:"Other"})
-                fig = px.bar(geo.sort_values("visitors"), x="visitors", y="country",
-                             color="market", orientation="h",
-                             color_discrete_map={"SADC":GREEN,"Other":BLUE})
-                st.plotly_chart(cs(fig), use_container_width=True)
-                render_insight_note("SADC countries represent CyberNova's primary target expansion region.", GREEN_SOFT, "#047857")
-            else:
-                render_empty_state()
+                br = m.get("bot_ratio",0)
+                render_insight_note(
+                    f"Bot ratio: {br:.1%}. {'Elevated — filter bots for cleaner analytics.' if br>0.15 else 'Controlled — analytics quality is sound.'}",
+                    AMBER_SOFT if br>0.15 else CYAN_SOFT,
+                    "#92400E" if br>0.15 else "#0E7490",
+                )
 
-    c5, c6 = st.columns(2)
-    with c5:
-        with st.container(border=True):
-            render_card_header("When are humans most active?",
-                               "Human activity heatmap — bot traffic excluded")
-            human = fdf[~fdf["is_bot"]].copy() if "is_bot" in fdf.columns else fdf.copy()
-            if not human.empty and "hour" in human.columns and "day_of_week" in human.columns:
-                ht  = human.groupby(["day_of_week","hour"]).size().reset_index(name="count")
-                pv  = ht.pivot(index="hour", columns="day_of_week", values="count")
-                pv  = pv.reindex(columns=[d for d in DAY_ORDER if d in pv.columns]).fillna(0)
-                fig = px.imshow(pv, color_continuous_scale=[[0,"#CFFAFE"],[1,CYAN]],
-                                labels=dict(x="Day",y="Hour",color="Sessions"), aspect="auto")
-                fig.update_layout(height=360, paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=10,r=10,t=12,b=10))
-                st.plotly_chart(fig, use_container_width=True)
-                render_insight_note("Align campaign scheduling and content releases to peak human activity windows.", CYAN_SOFT, "#0E7490")
-            else:
-                render_empty_state()
-    with c6:
-        with st.container(border=True):
-            render_card_header("Is bot traffic distorting analytics?",
-                               "Bot vs human traffic by week")
-            fdf2 = fdf.copy()
-            fdf2["week"] = wk(fdf2["date"])
-            fdf2["type"] = fdf2["is_bot"].map({True:"Bot",False:"Human"}) if "is_bot" in fdf2.columns else "Human"
-            bw = fdf2.groupby(["week","type"]).size().reset_index(name="requests")
-            fig = px.bar(bw, x="week", y="requests", color="type",
-                         color_discrete_map={"Bot":AMBER,"Human":BLUE}, barmode="stack")
-            fig.update_xaxes(tickangle=-30)
-            st.plotly_chart(cs(fig), use_container_width=True)
-            br = m.get("bot_ratio",0)
-            render_insight_note(
-                f"Bot ratio: {br:.1%}. {'Elevated — filter bots for cleaner analytics.' if br>0.15 else 'Controlled — analytics quality is sound.'}",
-                AMBER_SOFT if br>0.15 else CYAN_SOFT,
-                "#92400E" if br>0.15 else "#0E7490",
-            )
-
-    render_section_label("AUDIENCE — ENTRY PAGE DEPTH")
-    _BAD_EP = {"undefined", "null", "none", "nan", "", "/"}
-    if "entry_page" in fdf.columns and "distinct_pages_session" in fdf.columns:
-        _ep_df = (fdf.drop_duplicates("session_id")
-                    .assign(_ep=lambda d: d["entry_page"].astype(str))
-                    .loc[lambda d: ~(d["_ep"].str.lower().isin(_BAD_EP)
-                                     | d["_ep"].str.lower().str.contains("undefined", na=False))])
-        dep = (_ep_df.groupby("_ep")["distinct_pages_session"].mean()
-                     .reset_index()
-                     .rename(columns={"_ep": "entry_page", "distinct_pages_session": "avg_pages"})
-                     .sort_values("avg_pages", ascending=True)
-                     .tail(12))
-    else:
-        dep = pd.DataFrame()
-    with st.container(border=True):
-        render_card_header("Which entry pages drive the deepest sessions?",
-                           "Average pages per session by entry URL — bots excluded")
-        if not dep.empty:
-            fig = px.bar(dep, x="avg_pages", y="entry_page", orientation="h",
-                         color_discrete_sequence=[CYAN])
-            fig.update_layout(title=None)
-            st.plotly_chart(cs(fig, 420), use_container_width=True)
-            best_ep = dep["entry_page"].iloc[-1]
-            render_insight_note(
-                f"<strong>{best_ep}</strong> drives the deepest sessions — prioritise it as a campaign landing page.",
-                CYAN_SOFT, "#0E7490"
-            )
+        render_section_label("AUDIENCE — ENTRY PAGE DEPTH")
+        _BAD_EP = {"undefined", "null", "none", "nan", "", "/"}
+        if "entry_page" in fdf.columns and "distinct_pages_session" in fdf.columns:
+            _ep_df = (fdf.drop_duplicates("session_id")
+                        .assign(_ep=lambda d: d["entry_page"].astype(str))
+                        .loc[lambda d: ~(d["_ep"].str.lower().isin(_BAD_EP)
+                                         | d["_ep"].str.lower().str.contains("undefined", na=False))])
+            dep = (_ep_df.groupby("_ep")["distinct_pages_session"].mean()
+                         .reset_index()
+                         .rename(columns={"_ep": "entry_page", "distinct_pages_session": "avg_pages"})
+                         .sort_values("avg_pages", ascending=True)
+                         .tail(12))
         else:
-            render_empty_state("No entry page data in current filters")
-
-    # ── EVIDENCE — CAMPAIGN OPPORTUNITY MATRIX ────────────────────
-    render_section_label("EVIDENCE — CAMPAIGN OPPORTUNITY MATRIX")
-    rows = []
-    for ctry, cdf in fdf.groupby("country"):
-        uv  = cdf["ip_address"].nunique() if "ip_address" in cdf.columns else len(cdf)
-        sd  = cdf.drop_duplicates("session_id") if "session_id" in cdf.columns else cdf
-        eng = int((sd["distinct_pages_session"]>=3).sum()) if "distinct_pages_session" in sd.columns else 0
-        wl  = int(cdf["is_warm_lead"].sum()) if "is_warm_lead" in cdf.columns else 0
-        br  = float(cdf["is_bot"].mean()) if "is_bot" in cdf.columns else 0.0
-        rows.append({"country":ctry,"unique_visitors":uv,"engaged_sessions":eng,"warm_leads":wl,"bot_ratio":br})
-    mx = pd.DataFrame(rows).sort_values("unique_visitors", ascending=False)
-    if not mx.empty:
-        mx["uv_rank"]  = mx["unique_visitors"].rank(pct=True)
-        mx["eng_rank"] = mx["engaged_sessions"].rank(pct=True)
-        mx["wl_rank"]  = mx["warm_leads"].rank(pct=True)
-        mx["bot_pen"]  = mx["bot_ratio"].clip(0,1)*0.5
-        mx["opportunity_score"] = (mx["uv_rank"]+mx["eng_rank"]+mx["wl_rank"]-mx["bot_pen"]).round(2)
-        def _oact(s):
-            if s>=2.0: return "Prioritise campaign test"
-            if s>=1.2: return "Retarget and nurture"
-            return "Monitor before spending"
-        mx["recommended_action"] = mx["opportunity_score"].apply(_oact)
-        mx["bot_ratio"] = mx["bot_ratio"].map("{:.1%}".format)
-        show_mx = mx[["country","unique_visitors","engaged_sessions","warm_leads","bot_ratio","opportunity_score","recommended_action"]]
+            dep = pd.DataFrame()
         with st.container(border=True):
-            render_card_header("Campaign Opportunity Matrix",
-                               "Country-level scoring for campaign prioritisation — ranked by visitor volume and engagement quality.")
-            st.dataframe(show_mx, use_container_width=True, hide_index=True)
+            render_card_header("Which entry pages drive the deepest sessions?",
+                               "Average pages per session by entry URL — bots excluded")
+            if not dep.empty:
+                fig = px.bar(dep, x="avg_pages", y="entry_page", orientation="h",
+                             color_discrete_sequence=[CYAN])
+                fig.update_layout(title=None)
+                st.plotly_chart(cs(fig, 420), use_container_width=True)
+                best_ep = dep["entry_page"].iloc[-1]
+                render_insight_note(
+                    f"<strong>{best_ep}</strong> drives the deepest sessions — prioritise it as a campaign landing page.",
+                    CYAN_SOFT, "#0E7490"
+                )
+            else:
+                render_empty_state("No entry page data in current filters")
 
-    # ── FR12 — COUNTRY-LEVEL ENGAGEMENT STATISTICS ───────────────
-    render_section_label("STATISTICAL EVIDENCE — COUNTRY-LEVEL ENGAGEMENT STATISTICS")
-    if "country" in fdf.columns:
-        _ce_rows = []
-        for ctry, cg in fdf.groupby("country"):
-            _cg_tot = len(cg)
-            _cg_uv  = cg["ip_address"].nunique() if "ip_address" in cg.columns else _cg_tot
-            _cg_sd  = cg.drop_duplicates("session_id") if "session_id" in cg.columns else cg
-            _cg_eng = int((_cg_sd["distinct_pages_session"] >= 3).sum()) if "distinct_pages_session" in _cg_sd.columns else 0
-            _dp_col = "distinct_pages_session"
-            _cg_mean = round(_cg_sd[_dp_col].mean(), 2) if _dp_col in _cg_sd.columns else "—"
-            _cg_med  = round(_cg_sd[_dp_col].median(), 2) if _dp_col in _cg_sd.columns else "—"
-            _cg_std  = round(_cg_sd[_dp_col].std(), 2) if _dp_col in _cg_sd.columns else "—"
-            _cg_bot  = f"{float(cg['is_bot'].mean()):.1%}" if "is_bot" in cg.columns else "—"
-            _cg_wl   = int(cg["is_warm_lead"].sum()) if "is_warm_lead" in cg.columns else 0
-            _ce_rows.append({"Country": ctry, "Total Requests": _cg_tot, "Unique Visitors": _cg_uv,
-                              "Engaged Sessions": _cg_eng, "Mean Pages/Session": _cg_mean,
-                              "Median Pages/Session": _cg_med, "Std Dev Pages": _cg_std,
-                              "Bot Ratio": _cg_bot, "Warm Leads": _cg_wl})
-        _ce_df = pd.DataFrame(_ce_rows).sort_values("Unique Visitors", ascending=False)
-        if not _ce_df.empty:
+        # ── EVIDENCE — CAMPAIGN OPPORTUNITY MATRIX ────────────────────
+        render_section_label("EVIDENCE — CAMPAIGN OPPORTUNITY MATRIX")
+        rows = []
+        for ctry, cdf in fdf.groupby("country"):
+            uv  = cdf["ip_address"].nunique() if "ip_address" in cdf.columns else len(cdf)
+            sd  = cdf.drop_duplicates("session_id") if "session_id" in cdf.columns else cdf
+            eng = int((sd["distinct_pages_session"]>=3).sum()) if "distinct_pages_session" in sd.columns else 0
+            wl  = int(cdf["is_warm_lead"].sum()) if "is_warm_lead" in cdf.columns else 0
+            br  = float(cdf["is_bot"].mean()) if "is_bot" in cdf.columns else 0.0
+            rows.append({"country":ctry,"unique_visitors":uv,"engaged_sessions":eng,"warm_leads":wl,"bot_ratio":br})
+        mx = pd.DataFrame(rows).sort_values("unique_visitors", ascending=False)
+        if not mx.empty:
+            mx["uv_rank"]  = mx["unique_visitors"].rank(pct=True)
+            mx["eng_rank"] = mx["engaged_sessions"].rank(pct=True)
+            mx["wl_rank"]  = mx["warm_leads"].rank(pct=True)
+            mx["bot_pen"]  = mx["bot_ratio"].clip(0,1)*0.5
+            mx["opportunity_score"] = (mx["uv_rank"]+mx["eng_rank"]+mx["wl_rank"]-mx["bot_pen"]).round(2)
+            def _oact(s):
+                if s>=2.0: return "Prioritise campaign test"
+                if s>=1.2: return "Retarget and nurture"
+                return "Monitor before spending"
+            mx["recommended_action"] = mx["opportunity_score"].apply(_oact)
+            mx["bot_ratio"] = mx["bot_ratio"].map("{:.1%}".format)
+            show_mx = mx[["country","unique_visitors","engaged_sessions","warm_leads","bot_ratio","opportunity_score","recommended_action"]]
             with st.container(border=True):
-                render_card_header("Country-Level Engagement Statistics",
-                                   "Mean, median, and standard deviation of pages per session per country — with bot ratio and warm lead count.")
-                st.dataframe(_ce_df, use_container_width=True, hide_index=True)
-                _top_ce = _ce_df.iloc[0]["Country"]
-                render_insight_note(
-                    f"<strong>{_top_ce}</strong> is the largest audience market — prioritise campaigns here for maximum reach.",
-                    CYAN_SOFT, "#0E7490"
-                )
+                render_card_header("Campaign Opportunity Matrix",
+                                   "Country-level scoring for campaign prioritisation — ranked by visitor volume and engagement quality.")
+                st.dataframe(show_mx, use_container_width=True, hide_index=True)
 
-    # ── FR12 — TIME-OF-DAY × SERVICE HEATMAP (Marketing view) ────
-    render_section_label("STATISTICAL EVIDENCE — WHEN IS EACH SERVICE MOST REQUESTED?")
-    with st.container(border=True):
-        render_card_header("When are humans most active on each service?",
-                           "Hour × service heatmap — human traffic only, bots excluded")
-        if "hour" in fdf.columns and "service_name" in fdf.columns:
-            _human_fdf = fdf[~fdf["is_bot"]] if "is_bot" in fdf.columns else fdf
-            _tod_mk = _human_fdf.groupby(["hour","service_name"]).size().reset_index(name="requests")
-            _tod_mk_pv = _tod_mk.pivot(index="service_name", columns="hour", values="requests").fillna(0)
-            if not _tod_mk_pv.empty:
-                _tod_mk_fig = px.imshow(_tod_mk_pv,
-                                         color_continuous_scale=[[0,"#CFFAFE"],[0.5,CYAN],[1,"#0E7490"]],
-                                         labels=dict(x="Hour of Day", y="Service", color="Human Requests"),
-                                         aspect="auto")
-                _tod_mk_fig.update_layout(height=360, paper_bgcolor="rgba(0,0,0,0)",
-                    font=dict(color=TEXT, family="Inter,Segoe UI,Arial,sans-serif", size=11),
-                    margin=dict(l=10,r=10,t=12,b=10))
-                st.plotly_chart(_tod_mk_fig, use_container_width=True)
-                _mk_pk = _tod_mk.loc[_tod_mk["requests"].idxmax()]
-                render_insight_note(
-                    f"Peak human demand: <strong>{_mk_pk['service_name']}</strong> at <strong>{int(_mk_pk['hour']):02d}:00</strong>. "
-                    "Service demand is concentrated around 10:00–14:00, suggesting time-of-day affects "
-                    "service interest patterns — align campaign activity to these windows.",
-                    CYAN_SOFT, "#0E7490"
-                )
-            else:
-                render_empty_state("No heatmap data available")
-        else:
-            render_empty_state("Hour or service data not available")
+        # ── FR12 — COUNTRY-LEVEL ENGAGEMENT STATISTICS ───────────────
+        render_section_label("STATISTICAL EVIDENCE — COUNTRY-LEVEL ENGAGEMENT STATISTICS")
+        if "country" in fdf.columns:
+            _ce_rows = []
+            for ctry, cg in fdf.groupby("country"):
+                _cg_tot = len(cg)
+                _cg_uv  = cg["ip_address"].nunique() if "ip_address" in cg.columns else _cg_tot
+                _cg_sd  = cg.drop_duplicates("session_id") if "session_id" in cg.columns else cg
+                _cg_eng = int((_cg_sd["distinct_pages_session"] >= 3).sum()) if "distinct_pages_session" in _cg_sd.columns else 0
+                _dp_col = "distinct_pages_session"
+                _cg_mean = round(_cg_sd[_dp_col].mean(), 2) if _dp_col in _cg_sd.columns else "—"
+                _cg_med  = round(_cg_sd[_dp_col].median(), 2) if _dp_col in _cg_sd.columns else "—"
+                _cg_std  = round(_cg_sd[_dp_col].std(), 2) if _dp_col in _cg_sd.columns else "—"
+                _cg_bot  = f"{float(cg['is_bot'].mean()):.1%}" if "is_bot" in cg.columns else "—"
+                _cg_wl   = int(cg["is_warm_lead"].sum()) if "is_warm_lead" in cg.columns else 0
+                _ce_rows.append({"Country": ctry, "Total Requests": _cg_tot, "Unique Visitors": _cg_uv,
+                                  "Engaged Sessions": _cg_eng, "Mean Pages/Session": _cg_mean,
+                                  "Median Pages/Session": _cg_med, "Std Dev Pages": _cg_std,
+                                  "Bot Ratio": _cg_bot, "Warm Leads": _cg_wl})
+            _ce_df = pd.DataFrame(_ce_rows).sort_values("Unique Visitors", ascending=False)
+            if not _ce_df.empty:
+                with st.container(border=True):
+                    render_card_header("Country-Level Engagement Statistics",
+                                       "Mean, median, and standard deviation of pages per session per country — with bot ratio and warm lead count.")
+                    st.dataframe(_ce_df, use_container_width=True, hide_index=True)
+                    _top_ce = _ce_df.iloc[0]["Country"]
+                    render_insight_note(
+                        f"<strong>{_top_ce}</strong> is the largest audience market — prioritise campaigns here for maximum reach.",
+                        CYAN_SOFT, "#0E7490"
+                    )
 
-    # ── MARKETING FORECAST — engaged sessions ─────────────────────
-    render_section_label("MARKETING FORECAST — 30-DAY ENGAGED SESSION PROJECTION")
-    with st.container(border=True):
-        render_card_header(
-            "What does audience engagement look like over the next 30 days?",
-            "Daily engaged sessions (>=3 pages) — historical + 30-day forecast"
-        )
-        if "session_id" in fdf.columns and "distinct_pages_session" in fdf.columns:
-            _mf_sess = fdf.drop_duplicates("session_id").copy()
-            _mf_sess["d"] = _mf_sess["date"].dt.date
-            _mf_dl = _mf_sess[_mf_sess["distinct_pages_session"] >= 3].groupby("d").size()
-            _mf_dl.index = pd.to_datetime(_mf_dl.index)
-            if len(_mf_dl) >= 7:
-                _mf_x, _mf_y = np.arange(len(_mf_dl), dtype=float), _mf_dl.values.astype(float)
-                _mf_mm, _mf_b = np.polyfit(_mf_x, _mf_y, 1)
-                _mf_fx     = np.arange(len(_mf_x), len(_mf_x)+30, dtype=float)
-                _mf_fdates = pd.date_range(_mf_dl.index[-1]+pd.Timedelta(days=1), periods=30)
-                _mf_fc     = pd.Series(np.maximum(_mf_mm*_mf_fx+_mf_b, 0), index=_mf_fdates)
-                _mf_fig    = go.Figure()
-                _mf_fig.add_trace(go.Scatter(x=_mf_dl.index, y=_mf_dl.values,
-                    mode="lines+markers", name="Historical",
-                    line=dict(color=CYAN, width=2.5), marker=dict(size=5)))
-                _mf_fig.add_trace(go.Scatter(x=_mf_fc.index, y=_mf_fc.values,
-                    mode="lines", name="Forecast (30d)",
-                    line=dict(color=AMBER, width=2.5, dash="dash")))
-                _mf_fig.update_xaxes(tickangle=-30)
-                st.plotly_chart(cs(_mf_fig, 380), use_container_width=True)
-                _mf_total = max(int(sum(_mf_fc)), 0)
-                _mf_dir   = "growing" if _mf_mm > 0.05 else ("declining" if _mf_mm < -0.05 else "stable")
-                render_insight_note(
-                    f"30-day engaged-session forecast: ~<strong>{_mf_total:,}</strong> sessions. "
-                    f"Engagement trend is <strong>{_mf_dir}</strong>. "
-                    "Blue = historical, amber dashed = forecast.",
-                    AMBER_SOFT, "#92400E"
-                )
-            else:
-                render_empty_state("Insufficient history for marketing forecast")
-        else:
-            render_empty_state("Session data not available for forecast")
-
-    # Segment detail
-    render_section_label("EVIDENCE — VISITOR SEGMENT DETAIL")
-    seg_tbl = fdf.drop_duplicates("session_id")[
-        ["country","segment","session_id","distinct_pages_session","converted_to_lead","campaign_name"]
-    ].sort_values("distinct_pages_session", ascending=False) if "session_id" in fdf.columns else pd.DataFrame()
-    if not seg_tbl.empty:
+        # ── FR12 — TIME-OF-DAY × SERVICE HEATMAP (Marketing view) ────
+        render_section_label("STATISTICAL EVIDENCE — WHEN IS EACH SERVICE MOST REQUESTED?")
         with st.container(border=True):
-            render_card_header("Visitor Segment Detail",
-                               "Session-level breakdown by country, segment, pages visited, lead status, and campaign.")
-            st.dataframe(seg_tbl.head(200), use_container_width=True, hide_index=True)
+            render_card_header("When are humans most active on each service?",
+                               "Hour × service heatmap — human traffic only, bots excluded")
+            if "hour" in fdf.columns and "service_name" in fdf.columns:
+                _human_fdf = fdf[~fdf["is_bot"]] if "is_bot" in fdf.columns else fdf
+                _tod_mk = _human_fdf.groupby(["hour","service_name"]).size().reset_index(name="requests")
+                _tod_mk_pv = _tod_mk.pivot(index="service_name", columns="hour", values="requests").fillna(0)
+                if not _tod_mk_pv.empty:
+                    _tod_mk_fig = px.imshow(_tod_mk_pv,
+                                             color_continuous_scale=[[0,"#CFFAFE"],[0.5,CYAN],[1,"#0E7490"]],
+                                             labels=dict(x="Hour of Day", y="Service", color="Human Requests"),
+                                             aspect="auto")
+                    _tod_mk_fig.update_layout(height=360, paper_bgcolor="rgba(0,0,0,0)",
+                        font=dict(color=TEXT, family="Inter,Segoe UI,Arial,sans-serif", size=11),
+                        margin=dict(l=10,r=10,t=12,b=10))
+                    st.plotly_chart(_tod_mk_fig, use_container_width=True)
+                    _mk_pk = _tod_mk.loc[_tod_mk["requests"].idxmax()]
+                    render_insight_note(
+                        f"Peak human demand: <strong>{_mk_pk['service_name']}</strong> at <strong>{int(_mk_pk['hour']):02d}:00</strong>. "
+                        "Service demand is concentrated around 10:00–14:00, suggesting time-of-day affects "
+                        "service interest patterns — align campaign activity to these windows.",
+                        CYAN_SOFT, "#0E7490"
+                    )
+                else:
+                    render_empty_state("No heatmap data available")
+            else:
+                render_empty_state("Hour or service data not available")
 
-    # ── REPORTS ───────────────────────────────────────────────────
-    kpis = [
-        {"label":"Unique Visitors",     "value":f"{m['uniq_vis']:,}",    "note":"Unique IPs"},
-        {"label":"Engaged Session Rate","value":f"{m['eng_rate']:.1%}",  "note":"Sessions ≥3 pages"},
-        {"label":"Top Entry Page",      "value":str(m["top_entry"])[:22],"note":"Best depth"},
-        {"label":"Geographic Reach",    "value":f"{m['geo_reach']} ctry","note":"Countries ≥10 req"},
-        {"label":"Bot Ratio",           "value":f"{m['bot_ratio']:.1%}", "note":"Of all requests"},
-    ]
-    render_report_section("CyberNova Reach", role, filters, kpis, bullets, fdf,
-                          show_mx if not mx.empty else pd.DataFrame(), "Campaign Matrix")
+        # ── MARKETING FORECAST — engaged sessions ─────────────────────
+        render_section_label("MARKETING FORECAST — 30-DAY ENGAGED SESSION PROJECTION")
+        with st.container(border=True):
+            render_card_header(
+                "What does audience engagement look like over the next 30 days?",
+                "Daily engaged sessions (>=3 pages) — historical + 30-day forecast"
+            )
+            if "session_id" in fdf.columns and "distinct_pages_session" in fdf.columns:
+                _mf_sess = fdf.drop_duplicates("session_id").copy()
+                _mf_sess["d"] = _mf_sess["date"].dt.date
+                _mf_dl = _mf_sess[_mf_sess["distinct_pages_session"] >= 3].groupby("d").size()
+                _mf_dl.index = pd.to_datetime(_mf_dl.index)
+                if len(_mf_dl) >= 7:
+                    _mf_x, _mf_y = np.arange(len(_mf_dl), dtype=float), _mf_dl.values.astype(float)
+                    _mf_mm, _mf_b = np.polyfit(_mf_x, _mf_y, 1)
+                    _mf_fx     = np.arange(len(_mf_x), len(_mf_x)+30, dtype=float)
+                    _mf_fdates = pd.date_range(_mf_dl.index[-1]+pd.Timedelta(days=1), periods=30)
+                    _mf_fc     = pd.Series(np.maximum(_mf_mm*_mf_fx+_mf_b, 0), index=_mf_fdates)
+                    _mf_fig    = go.Figure()
+                    _mf_fig.add_trace(go.Scatter(x=_mf_dl.index, y=_mf_dl.values,
+                        mode="lines+markers", name="Historical",
+                        line=dict(color=CYAN, width=2.5), marker=dict(size=5)))
+                    _mf_fig.add_trace(go.Scatter(x=_mf_fc.index, y=_mf_fc.values,
+                        mode="lines", name="Forecast (30d)",
+                        line=dict(color=AMBER, width=2.5, dash="dash")))
+                    _mf_fig.update_xaxes(tickangle=-30)
+                    st.plotly_chart(cs(_mf_fig, 380), use_container_width=True)
+                    _mf_total = max(int(sum(_mf_fc)), 0)
+                    _mf_dir   = "growing" if _mf_mm > 0.05 else ("declining" if _mf_mm < -0.05 else "stable")
+                    render_insight_note(
+                        f"30-day engaged-session forecast: ~<strong>{_mf_total:,}</strong> sessions. "
+                        f"Engagement trend is <strong>{_mf_dir}</strong>. "
+                        "Blue = historical, amber dashed = forecast.",
+                        AMBER_SOFT, "#92400E"
+                    )
+                else:
+                    render_empty_state("Insufficient history for marketing forecast")
+            else:
+                render_empty_state("Session data not available for forecast")
+
+        # Segment detail
+        render_section_label("EVIDENCE — VISITOR SEGMENT DETAIL")
+        seg_tbl = fdf.drop_duplicates("session_id")[
+            ["country","segment","session_id","distinct_pages_session","converted_to_lead","campaign_name"]
+        ].sort_values("distinct_pages_session", ascending=False) if "session_id" in fdf.columns else pd.DataFrame()
+        if not seg_tbl.empty:
+            with st.container(border=True):
+                render_card_header("Visitor Segment Detail",
+                                   "Session-level breakdown by country, segment, pages visited, lead status, and campaign.")
+                st.dataframe(seg_tbl.head(200), use_container_width=True, hide_index=True)
+
+    with _tab_an:
+        st.info("Analytics — coming soon")
+    with _tab_fc:
+        st.info("Forecasting — coming soon")
+    with _tab_de:
+        # ── REPORTS ───────────────────────────────────────────────────
+        kpis = [
+            {"label":"Unique Visitors",     "value":f"{m['uniq_vis']:,}",    "note":"Unique IPs"},
+            {"label":"Engaged Session Rate","value":f"{m['eng_rate']:.1%}",  "note":"Sessions ≥3 pages"},
+            {"label":"Top Entry Page",      "value":str(m["top_entry"])[:22],"note":"Best depth"},
+            {"label":"Geographic Reach",    "value":f"{m['geo_reach']} ctry","note":"Countries ≥10 req"},
+            {"label":"Bot Ratio",           "value":f"{m['bot_ratio']:.1%}", "note":"Of all requests"},
+        ]
+        render_report_section("CyberNova Reach", role, filters, kpis, bullets, fdf,
+                              show_mx if not mx.empty else pd.DataFrame(), "Campaign Matrix")
 
 # ─────────────────────────────────────────────────────────────────
 # DASHBOARD 3 — CYBERNOVA HORIZON  (Executive)
 # ─────────────────────────────────────────────────────────────────
 def show_horizon(fdf: pd.DataFrame, filters: dict, role: str) -> None:
+    render_welcome_bar("Executive · CyberNova Horizon")
     render_hero(
         "CyberNova Horizon",
         "Executive Insights Dashboard",
@@ -2967,37 +3081,41 @@ def show_horizon(fdf: pd.DataFrame, filters: dict, role: str) -> None:
     ym_series = mo(fdf["date"])
     months    = sorted(ym_series.unique())
 
-    # ── SIGNAL ────────────────────────────────────────────────────
-    render_section_label("SIGNAL — KEY METRICS")
-    k1, k2, k3, k4, k5 = st.columns(5)
-    with k1: render_kpi_card("MoM Visitor Growth", f"{m['mom_growth']:+.1f}%",
-                              f"{m['prev_vis']:,} to {m['curr_vis']:,}", m["mom_growth"]>=0)
-    with k2: render_kpi_card("AI Assistant Traction", f"{m['ai_share']:.1%}",
-                              "Service traffic share", m["ai_share"]>=0.10, CYAN)
-    with k3: render_kpi_card("SADC Active Markets", str(m["sadc_total"]),
-                              "Countries with traffic", True, GREEN)
-    with k4: render_kpi_card("30-Day Lead Forecast", f"~{m['forecast']:,}",
-                              "Linear projection", True, AMBER)
-    with k5: render_kpi_card("Anomaly Days", str(m["anom_days"]),
-                              "Days flagged", m["anom_days"]==0, BLUE)
+    _tab_ov, _tab_an, _tab_fc, _tab_de = st.tabs([
+        "Overview", "Analytics", "Forecasting", "Data & Export"
+    ])
+    with _tab_ov:
+        # ── SIGNAL ────────────────────────────────────────────────────
+        render_section_label("SIGNAL — KEY METRICS")
+        k1, k2, k3, k4, k5 = st.columns(5)
+        with k1: render_kpi_card("MoM Visitor Growth", f"{m['mom_growth']:+.1f}%",
+                                  f"{m['prev_vis']:,} to {m['curr_vis']:,}", m["mom_growth"]>=0)
+        with k2: render_kpi_card("AI Assistant Traction", f"{m['ai_share']:.1%}",
+                                  "Service traffic share", m["ai_share"]>=0.10, CYAN)
+        with k3: render_kpi_card("SADC Active Markets", str(m["sadc_total"]),
+                                  "Countries with traffic", True, GREEN)
+        with k4: render_kpi_card("30-Day Lead Forecast", f"~{m['forecast']:,}",
+                                  "Linear projection", True, AMBER)
+        with k5: render_kpi_card("Anomaly Days", str(m["anom_days"]),
+                                  "Days flagged", m["anom_days"]==0, BLUE)
 
-    # ── ROLE SUMMARY BANNER — BOARD SUMMARY ─────────────────────
-    _ia_mg    = m.get("mom_growth",0)
-    _ia_ai    = m.get("ai_share",0)
-    _ia_fc    = m.get("forecast",0)
-    _ia_anom  = m.get("anom_days",0)
-    _ia_mkt   = (fdf.groupby("country")["ip_address"].nunique().idxmax()
-                 if "ip_address" in fdf.columns and "country" in fdf.columns else "—")
-    _ia_trend = "Accelerating" if _ia_mg>=5 else ("Stable" if _ia_mg>=-2 else "Declining")
-    _ia_ai_note = ("Strong traction — scale AI positioning." if _ia_ai>=0.15
-                   else "Emerging — increase AI visibility." if _ia_ai>=0.08 else "Low — promote AI Assistant.")
-    _ia_risk   = (f"{_ia_anom} anomaly days — review security log." if _ia_anom>0
-                  else "No anomalies detected — operations nominal.")
-    _ia_risk_col = "#EF4444" if _ia_anom > 0 else NAVY
-    _ia_lead_rec = ("Scale AI Assistant positioning across high-performing SADC markets."
-                    if _ia_ai>=0.12 else "Strengthen campaign activity around high-intent services."
-                    if _ia_mg>=0 else "Investigate traffic decline — review campaign performance.")
-    st.markdown(f"""
+        # ── ROLE SUMMARY BANNER — BOARD SUMMARY ─────────────────────
+        _ia_mg    = m.get("mom_growth",0)
+        _ia_ai    = m.get("ai_share",0)
+        _ia_fc    = m.get("forecast",0)
+        _ia_anom  = m.get("anom_days",0)
+        _ia_mkt   = (fdf.groupby("country")["ip_address"].nunique().idxmax()
+                     if "ip_address" in fdf.columns and "country" in fdf.columns else "—")
+        _ia_trend = "Accelerating" if _ia_mg>=5 else ("Stable" if _ia_mg>=-2 else "Declining")
+        _ia_ai_note = ("Strong traction — scale AI positioning." if _ia_ai>=0.15
+                       else "Emerging — increase AI visibility." if _ia_ai>=0.08 else "Low — promote AI Assistant.")
+        _ia_risk   = (f"{_ia_anom} anomaly days — review security log." if _ia_anom>0
+                      else "No anomalies detected — operations nominal.")
+        _ia_risk_col = "#EF4444" if _ia_anom > 0 else NAVY
+        _ia_lead_rec = ("Scale AI Assistant positioning across high-performing SADC markets."
+                        if _ia_ai>=0.12 else "Strengthen campaign activity around high-intent services."
+                        if _ia_mg>=0 else "Investigate traffic decline — review campaign performance.")
+        st.markdown(f"""
 <div style="background:white;border:1px solid #6EE7B7;border-radius:22px;
   box-shadow:0 4px 6px rgba(16,185,129,.06),0 12px 32px rgba(16,185,129,.12);
   padding:24px 28px;margin-bottom:22px;position:relative;overflow:hidden;">
@@ -3050,274 +3168,279 @@ def show_horizon(fdf: pd.DataFrame, filters: dict, role: str) -> None:
   </div>
 </div>""", unsafe_allow_html=True)
 
-    # ── EXECUTIVE PULSE + FEED  (auto-refreshes every 3 s) ──────
-    render_section_label("EXECUTIVE PULSE — STREAMING FROM LOG STREAM")
-    render_live_section(fdf, role, "CyberNova Horizon")
+        # ── EXECUTIVE PULSE + FEED  (auto-refreshes every 3 s) ──────
+        render_section_label("EXECUTIVE PULSE — STREAMING FROM LOG STREAM")
+        render_live_section(fdf, role, "CyberNova Horizon")
 
-    # ── INSIGHT ───────────────────────────────────────────────────
-    render_section_label("EXECUTIVE INSIGHT")
-    bullets, action = generate_executive_story(fdf, m)
-    render_story_card("This Month at a Glance",
-                      "Board-level summary generated from the selected dataset.",
-                      bullets, action, GREEN, GREEN_SOFT)
+        # ── INSIGHT ───────────────────────────────────────────────────
+        render_section_label("EXECUTIVE INSIGHT")
+        bullets, action = generate_executive_story(fdf, m)
+        render_story_card("This Month at a Glance",
+                          "Board-level summary generated from the selected dataset.",
+                          bullets, action, GREEN, GREEN_SOFT)
 
-    # ── DIAGNOSIS ────────────────────────────────────────────────
-    render_section_label("DIAGNOSIS — STRATEGIC DIRECTION")
-    # Full-width: growth trend
-    with st.container(border=True):
-        render_card_header("Are we on track for strategic growth?",
-                           "Weekly visitors, warm leads, and AI interest — the three growth signals")
-        fdf2 = fdf.copy(); fdf2["week"] = wk(fdf2["date"])
-        weekly = fdf2.groupby("week").agg(
-            unique_visitors=("ip_address","nunique"),
-            warm_leads=("is_warm_lead","sum"),
-            ai_requests=("uri", lambda x: int((x=="/ai-assistant.php").sum())),
-        ).reset_index()
-        fig = go.Figure()
-        for col, colour, name in [
-            ("unique_visitors",BLUE, "Unique Visitors"),
-            ("warm_leads",     GREEN,"Warm Leads"),
-            ("ai_requests",    CYAN, "AI Requests"),
-        ]:
-            fig.add_trace(go.Scatter(x=weekly["week"], y=weekly[col],
-                                     mode="lines+markers", name=name,
-                                     line=dict(color=colour,width=3), marker=dict(size=6)))
-        fig.update_xaxes(tickangle=-30)
-        st.plotly_chart(cs(fig,460), use_container_width=True)
-        render_insight_note("This shows whether awareness, demand, and AI Assistant interest are moving together.", GREEN_SOFT, "#047857")
-
-    c1, c2 = st.columns(2)
-    with c1:
+        # ── DIAGNOSIS ────────────────────────────────────────────────
+        render_section_label("DIAGNOSIS — STRATEGIC DIRECTION")
+        # Full-width: growth trend
         with st.container(border=True):
-            render_card_header("Where is regional expansion concentrating?",
-                               "Country demand with MoM growth signal")
-            fdf3 = fdf.copy(); fdf3["ym"] = ym_series.values
-            mc   = fdf3.groupby(["country","ym"]).agg(visitors=("ip_address","nunique")).reset_index()
-            lm   = months[-1] if months else None
-            pm   = months[-2] if len(months)>=2 else None
-            cc_  = mc[mc["ym"]==lm].set_index("country")["visitors"] if lm else pd.Series(dtype=int)
-            pc_  = mc[mc["ym"]==pm].set_index("country")["visitors"] if pm else pd.Series(dtype=int)
-            all_ = cc_.index.union(pc_.index)
-            if len(all_):
-                reg = pd.DataFrame({
-                    "country":   all_,
-                    "visitors":  cc_.reindex(all_).fillna(0).astype(int).values,
-                    "warm_leads":fdf[fdf["is_warm_lead"]].groupby("country").size().reindex(all_).fillna(0).astype(int).values,
-                    "growth_pct":((cc_.reindex(all_).fillna(0)-pc_.reindex(all_).fillna(0))
-                                  /pc_.reindex(all_).replace(0,np.nan)*100).fillna(0).round(1).values,
-                }).sort_values("visitors", ascending=False)
-                fig = px.bar(reg.sort_values("visitors"), x="visitors", y="country",
-                             orientation="h", color="growth_pct",
-                             color_continuous_scale=[[0,AMBER],[0.5,"#F3F4F6"],[1,GREEN]],
-                             labels={"growth_pct":"MoM Growth %"})
-                st.plotly_chart(cs(fig,420), use_container_width=True)
-                render_insight_note("This shows which SADC markets are becoming commercially meaningful.", GREEN_SOFT, "#047857")
-            else:
-                render_empty_state()
-    with c2:
-        with st.container(border=True):
-            render_card_header("Is the AI Cyber Assistant gaining traction?",
-                               "AI request volume and service share by month")
-            fdf4 = fdf.copy(); fdf4["ym"] = ym_series.values
-            mai  = fdf4.groupby("ym").agg(
-                ai_reqs=("uri", lambda x: int((x=="/ai-assistant.php").sum())),
-                svc_reqs=("uri", lambda x: int(x.isin(SERVICE_URIS).sum())),
+            render_card_header("Are we on track for strategic growth?",
+                               "Weekly visitors, warm leads, and AI interest — the three growth signals")
+            fdf2 = fdf.copy(); fdf2["week"] = wk(fdf2["date"])
+            weekly = fdf2.groupby("week").agg(
+                unique_visitors=("ip_address","nunique"),
+                warm_leads=("is_warm_lead","sum"),
+                ai_requests=("uri", lambda x: int((x=="/ai-assistant.php").sum())),
             ).reset_index()
-            mai["ai_share"] = mai["ai_reqs"] / mai["svc_reqs"].clip(lower=1)
             fig = go.Figure()
-            fig.add_trace(go.Bar(x=mai["ym"], y=mai["ai_reqs"],
-                                 name="AI Requests", marker_color=CYAN, opacity=0.8))
-            fig.add_trace(go.Scatter(x=mai["ym"], y=mai["ai_share"],
-                                     mode="lines+markers", name="AI Share %",
-                                     line=dict(color=BLUE,width=3), yaxis="y2",
-                                     marker=dict(size=7)))
-            fig.update_layout(
-                yaxis2=dict(overlaying="y", side="right", tickformat=".0%", showgrid=False),
-                height=420, paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=12,r=44,t=44,b=12),
-                legend=dict(bgcolor="rgba(0,0,0,0)"),
-            )
-            st.plotly_chart(fig, use_container_width=True)
-            render_insight_note(f"AI share of service traffic: <strong>{m['ai_share']:.1%}</strong>. "
-                                + ("Strong momentum — scale positioning." if m["ai_share"]>=0.15 else "Emerging signal — increase AI Assistant visibility."),
-                                CYAN_SOFT, "#0E7490")
-
-    # Forecast chart
-    with st.container(border=True):
-        render_card_header("What does the next 3 months look like?",
-                           "90-day warm-lead forecast with anomaly markers")
-        wc2 = fdf[fdf["is_warm_lead"]].copy()
-        wc2["d"] = wc2["date"].dt.date
-        dl  = wc2.groupby("d").size()
-        dl.index = pd.to_datetime(dl.index)
-        if len(dl)>=7:
-            x, y = np.arange(len(dl),dtype=float), dl.values.astype(float)
-            mm, b = np.polyfit(x, y, 1)
-            fx = np.arange(len(x),len(x)+90,dtype=float)
-            fdates = pd.date_range(dl.index[-1]+pd.Timedelta(days=1), periods=90)
-            fc = pd.Series(np.maximum(mm*fx+b,0), index=fdates)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=dl.index, y=dl.values, mode="lines+markers",
-                                     name="Historical", line=dict(color=BLUE,width=2), marker=dict(size=5)))
-            fig.add_trace(go.Scatter(x=fc.index, y=fc.values, mode="lines",
-                                     name="Forecast (90d / 3 months)", line=dict(color=AMBER,width=2,dash="dash")))
-            if "is_anomaly" in fdf.columns:
-                for ad in fdf[fdf["is_anomaly"]]["date"].dt.date.unique():
-                    adt = pd.Timestamp(ad)
-                    if adt in dl.index:
-                        fig.add_vline(x=adt, line_width=1, line_dash="dot",
-                                      line_color="#EF4444", opacity=0.5)
+            for col, colour, name in [
+                ("unique_visitors",BLUE, "Unique Visitors"),
+                ("warm_leads",     GREEN,"Warm Leads"),
+                ("ai_requests",    CYAN, "AI Requests"),
+            ]:
+                fig.add_trace(go.Scatter(x=weekly["week"], y=weekly[col],
+                                         mode="lines+markers", name=name,
+                                         line=dict(color=colour,width=3), marker=dict(size=6)))
             fig.update_xaxes(tickangle=-30)
             st.plotly_chart(cs(fig,460), use_container_width=True)
-            render_insight_note(f"90-day forecast (3 months): ~{m['forecast']:,} warm leads. Red lines = anomaly days. Rule-based linear projection.", AMBER_SOFT, "#92400E")
-        else:
-            render_empty_state("Insufficient history for forecast — need at least 7 days of data")
+            render_insight_note("This shows whether awareness, demand, and AI Assistant interest are moving together.", GREEN_SOFT, "#047857")
 
-    # Anomaly log
-    render_section_label("OPERATIONAL — ANOMALY LOG")
-    anom_tbl = fdf[fdf["is_anomaly"]][
-        ["timestamp","country","service_name","anomaly_name","response_time_ms","status_class"]
-    ].sort_values("timestamp",ascending=False) if "is_anomaly" in fdf.columns else pd.DataFrame()
-    with st.container(border=True):
-        render_card_header("Anomaly Event Log",
-                           "Flagged events with anomaly type, country, service, and HTTP status for operational review.")
-        if not anom_tbl.empty:
-            st.dataframe(anom_tbl.head(100), use_container_width=True, hide_index=True)
-            render_insight_note(
-                f"<strong>{len(anom_tbl):,}</strong> anomaly events detected. Review service and response time columns for operational or security patterns.",
-                AMBER_SOFT, "#92400E"
-            )
-        else:
-            render_empty_state("No anomalies detected in current filter range — operations nominal.")
+        c1, c2 = st.columns(2)
+        with c1:
+            with st.container(border=True):
+                render_card_header("Where is regional expansion concentrating?",
+                                   "Country demand with MoM growth signal")
+                fdf3 = fdf.copy(); fdf3["ym"] = ym_series.values
+                mc   = fdf3.groupby(["country","ym"]).agg(visitors=("ip_address","nunique")).reset_index()
+                lm   = months[-1] if months else None
+                pm   = months[-2] if len(months)>=2 else None
+                cc_  = mc[mc["ym"]==lm].set_index("country")["visitors"] if lm else pd.Series(dtype=int)
+                pc_  = mc[mc["ym"]==pm].set_index("country")["visitors"] if pm else pd.Series(dtype=int)
+                all_ = cc_.index.union(pc_.index)
+                if len(all_):
+                    reg = pd.DataFrame({
+                        "country":   all_,
+                        "visitors":  cc_.reindex(all_).fillna(0).astype(int).values,
+                        "warm_leads":fdf[fdf["is_warm_lead"]].groupby("country").size().reindex(all_).fillna(0).astype(int).values,
+                        "growth_pct":((cc_.reindex(all_).fillna(0)-pc_.reindex(all_).fillna(0))
+                                      /pc_.reindex(all_).replace(0,np.nan)*100).fillna(0).round(1).values,
+                    }).sort_values("visitors", ascending=False)
+                    fig = px.bar(reg.sort_values("visitors"), x="visitors", y="country",
+                                 orientation="h", color="growth_pct",
+                                 color_continuous_scale=[[0,AMBER],[0.5,"#F3F4F6"],[1,GREEN]],
+                                 labels={"growth_pct":"MoM Growth %"})
+                    st.plotly_chart(cs(fig,420), use_container_width=True)
+                    render_insight_note("This shows which SADC markets are becoming commercially meaningful.", GREEN_SOFT, "#047857")
+                else:
+                    render_empty_state()
+        with c2:
+            with st.container(border=True):
+                render_card_header("Is the AI Cyber Assistant gaining traction?",
+                                   "AI request volume and service share by month")
+                fdf4 = fdf.copy(); fdf4["ym"] = ym_series.values
+                mai  = fdf4.groupby("ym").agg(
+                    ai_reqs=("uri", lambda x: int((x=="/ai-assistant.php").sum())),
+                    svc_reqs=("uri", lambda x: int(x.isin(SERVICE_URIS).sum())),
+                ).reset_index()
+                mai["ai_share"] = mai["ai_reqs"] / mai["svc_reqs"].clip(lower=1)
+                fig = go.Figure()
+                fig.add_trace(go.Bar(x=mai["ym"], y=mai["ai_reqs"],
+                                     name="AI Requests", marker_color=CYAN, opacity=0.8))
+                fig.add_trace(go.Scatter(x=mai["ym"], y=mai["ai_share"],
+                                         mode="lines+markers", name="AI Share %",
+                                         line=dict(color=BLUE,width=3), yaxis="y2",
+                                         marker=dict(size=7)))
+                fig.update_layout(
+                    yaxis2=dict(overlaying="y", side="right", tickformat=".0%", showgrid=False),
+                    height=420, paper_bgcolor="rgba(0,0,0,0)", margin=dict(l=12,r=44,t=44,b=12),
+                    legend=dict(bgcolor="rgba(0,0,0,0)"),
+                )
+                st.plotly_chart(fig, use_container_width=True)
+                render_insight_note(f"AI share of service traffic: <strong>{m['ai_share']:.1%}</strong>. "
+                                    + ("Strong momentum — scale positioning." if m["ai_share"]>=0.15 else "Emerging signal — increase AI Assistant visibility."),
+                                    CYAN_SOFT, "#0E7490")
 
-    # ── FR6 — REGIONAL EXPANSION TARGET CHECK ────────────────────
-    render_section_label("REGIONAL EXPANSION TARGET CHECK")
-    if "country" in fdf.columns:
-        _total_reqs = max(len(fdf), 1)
-        _sadc_set   = {"Botswana","South Africa","Zambia","Namibia","Zimbabwe",
-                       "Lesotho","Eswatini","Mozambique","Malawi","Tanzania"}
-        _reg_rows   = []
-        for ctry, cg in fdf.groupby("country"):
-            if ctry not in _sadc_set:
-                continue
-            _r_tot  = len(cg)
-            _r_wl   = int(cg["is_warm_lead"].sum()) if "is_warm_lead" in cg.columns else 0
-            _r_pct  = _r_tot / _total_reqs
-            if _r_pct >= 0.10:
-                _r_status = "Above target"
-            elif _r_pct >= 0.05:
-                _r_status = "On watch"
-            else:
-                _r_status = "Below expansion target"
-            _reg_rows.append({"Country": ctry, "Total Requests": _r_tot, "Warm Leads": _r_wl,
-                               "Share of Traffic": f"{_r_pct:.1%}", "Target Status": _r_status})
-        _reg_df = pd.DataFrame(_reg_rows).sort_values("Total Requests", ascending=False)
-        if not _reg_df.empty:
-            # Colour-coded status column using custom HTML table
-            def _status_badge(s):
-                if s == "Above target":
-                    return (f'<span style="background:{GREEN_SOFT};color:#047857;font-size:11px;'
-                            f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
-                if s == "On watch":
-                    return (f'<span style="background:{CYAN_SOFT};color:#0E7490;font-size:11px;'
-                            f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
-                return (f'<span style="background:{AMBER_SOFT};color:#92400E;font-size:11px;'
-                        f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
-            rows_html = "".join(
-                f'<tr style="border-bottom:1px solid {BORDER};">'
-                f'<td style="padding:10px 12px;font-weight:800;color:{NAVY};font-size:13px;">{r["Country"]}</td>'
-                f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Total Requests"]:,}</td>'
-                f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Warm Leads"]}</td>'
-                f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Share of Traffic"]}</td>'
-                f'<td style="padding:10px 12px;">{_status_badge(r["Target Status"])}</td>'
-                f'</tr>'
-                for _, r in _reg_df.iterrows()
-            )
-            st.markdown(f"""
-<div style="background:white;border:1px solid {BORDER};border-radius:18px;
-  box-shadow:{SHADOW_S};padding:20px;margin-bottom:18px;">
-  <h3 style="margin:0 0 4px;color:{NAVY};font-size:17px;">Regional Expansion Target Check</h3>
-  <p style="margin:0 0 14px;color:{MUTED};font-size:13px;">
-    SADC market performance against traffic share targets.
-    Above target ≥10% &nbsp;&middot;&nbsp; On watch 5–10% &nbsp;&middot;&nbsp; Below target &lt;5%.
-  </p>
-  <table style="width:100%;border-collapse:collapse;">
-    <thead><tr style="background:{SLATE_SOFT};">
-      <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
-        text-transform:uppercase;letter-spacing:.07em;">Country</th>
-      <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
-        text-transform:uppercase;letter-spacing:.07em;">Total Requests</th>
-      <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
-        text-transform:uppercase;letter-spacing:.07em;">Warm Leads</th>
-      <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
-        text-transform:uppercase;letter-spacing:.07em;">Traffic Share</th>
-      <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
-        text-transform:uppercase;letter-spacing:.07em;">Target Status</th>
-    </tr></thead>
-    <tbody>{rows_html}</tbody>
-  </table>
-</div>""", unsafe_allow_html=True)
-            _below = _reg_df[_reg_df["Target Status"] == "Below expansion target"]["Country"].tolist()
-            _above = _reg_df[_reg_df["Target Status"] == "Above target"]["Country"].tolist()
-            render_insight_note(
-                ("Underperforming markets indicate where CyberNova may need more campaign activity or regional outreach. "
-                 f"<strong>{', '.join(_below) if _below else 'No markets'}</strong> are below expansion target. "
-                 f"<strong>{', '.join(_above[:2]) if _above else 'None'}</strong> "
-                 f"{'are' if len(_above) > 1 else 'is'} above target."),
-                AMBER_SOFT if _below else GREEN_SOFT,
-                "#92400E" if _below else "#047857",
-            )
-
-    # ── EVIDENCE — EXECUTIVE DECISION BRIEF ─────────────────────
-    render_section_label("EVIDENCE — EXECUTIVE DECISION BRIEF")
-    brief_rows = [
-        {"Strategic Signal":     "Growth improving" if m["mom_growth"]>=0 else "Growth declining",
-         "Evidence":             f"MoM visitor change: {m['mom_growth']:+.1f}%",
-         "Leadership Action":    "Sustain current acquisition momentum." if m["mom_growth"]>=0 else "Investigate and address traffic decline.",
-         "Risk / Dependency":    "Seasonal variation may affect trend reliability."},
-        {"Strategic Signal":     "AI Assistant gaining traction" if m["ai_share"]>=0.10 else "AI needs promotion",
-         "Evidence":             f"AI share: {m['ai_share']:.1%} of service traffic",
-         "Leadership Action":    "Scale AI positioning in SADC markets." if m["ai_share"]>=0.10 else "Increase AI Assistant campaign visibility.",
-         "Risk / Dependency":    "Conversion quality must be tracked alongside volume."},
-        {"Strategic Signal":     "Regional reach broadening" if m["sadc_total"]>=7 else "Regional penetration limited",
-         "Evidence":             f"{m['sadc_total']} SADC markets active",
-         "Leadership Action":    "Activate targeted content per SADC market." if m["sadc_total"]>=7 else "Focus on top 3 SADC markets first.",
-         "Risk / Dependency":    "Country-specific regulatory and compliance factors."},
-        {"Strategic Signal":     "Operational review required" if m["anom_days"]>0 else "Operations nominal",
-         "Evidence":             f"{m['anom_days']} anomaly days flagged",
-         "Leadership Action":    "Review anomaly log for security or infrastructure issues." if m["anom_days"]>0 else "Continue standard monitoring.",
-         "Risk / Dependency":    "Anomaly patterns may require IT security team review." if m["anom_days"]>0 else "No elevated risk identified."},
-    ]
-    brief_df = pd.DataFrame(brief_rows)
-    with st.container(border=True):
-        render_card_header("Executive Decision Brief",
-                           "Board-level strategic signals with recommended leadership actions and risk notes.")
-        st.dataframe(brief_df, use_container_width=True, hide_index=True)
-
-    # Regional priority table
-    render_section_label("EVIDENCE — REGIONAL PRIORITY TABLE")
-    if "country" in fdf.columns and "is_sadc" in fdf.columns:
-        rpt = fdf.groupby(["country","is_sadc"]).agg(
-            visitors=("ip_address","nunique"),
-            warm_leads=("is_warm_lead","sum"),
-            sessions=("session_id","nunique"),
-        ).reset_index().sort_values("visitors",ascending=False)
-        rpt["is_sadc"] = rpt["is_sadc"].map({True:"SADC",False:"Other"})
-        rpt.columns = ["Country","Region","Visitors","Warm Leads","Sessions"]
+        # Forecast chart
         with st.container(border=True):
-            render_card_header("Regional Priority Table",
-                               "SADC vs other markets — ranked by unique visitors, warm leads, and session count.")
-            st.dataframe(rpt, use_container_width=True, hide_index=True)
+            render_card_header("What does the next 3 months look like?",
+                               "90-day warm-lead forecast with anomaly markers")
+            wc2 = fdf[fdf["is_warm_lead"]].copy()
+            wc2["d"] = wc2["date"].dt.date
+            dl  = wc2.groupby("d").size()
+            dl.index = pd.to_datetime(dl.index)
+            if len(dl)>=7:
+                x, y = np.arange(len(dl),dtype=float), dl.values.astype(float)
+                mm, b = np.polyfit(x, y, 1)
+                fx = np.arange(len(x),len(x)+90,dtype=float)
+                fdates = pd.date_range(dl.index[-1]+pd.Timedelta(days=1), periods=90)
+                fc = pd.Series(np.maximum(mm*fx+b,0), index=fdates)
+                fig = go.Figure()
+                fig.add_trace(go.Scatter(x=dl.index, y=dl.values, mode="lines+markers",
+                                         name="Historical", line=dict(color=BLUE,width=2), marker=dict(size=5)))
+                fig.add_trace(go.Scatter(x=fc.index, y=fc.values, mode="lines",
+                                         name="Forecast (90d / 3 months)", line=dict(color=AMBER,width=2,dash="dash")))
+                if "is_anomaly" in fdf.columns:
+                    for ad in fdf[fdf["is_anomaly"]]["date"].dt.date.unique():
+                        adt = pd.Timestamp(ad)
+                        if adt in dl.index:
+                            fig.add_vline(x=adt, line_width=1, line_dash="dot",
+                                          line_color="#EF4444", opacity=0.5)
+                fig.update_xaxes(tickangle=-30)
+                st.plotly_chart(cs(fig,460), use_container_width=True)
+                render_insight_note(f"90-day forecast (3 months): ~{m['forecast']:,} warm leads. Red lines = anomaly days. Rule-based linear projection.", AMBER_SOFT, "#92400E")
+            else:
+                render_empty_state("Insufficient history for forecast — need at least 7 days of data")
 
-    # ── REPORTS ───────────────────────────────────────────────────
-    kpis = [
-        {"label":"MoM Visitor Growth",    "value":f"{m['mom_growth']:+.1f}%",  "note":f"{m['prev_vis']:,} to {m['curr_vis']:,}"},
-        {"label":"AI Traction",           "value":f"{m['ai_share']:.1%}",      "note":"Service share"},
-        {"label":"SADC Active Markets",   "value":str(m["sadc_total"]),         "note":"Countries"},
-        {"label":"30-Day Lead Forecast",  "value":f"~{m['forecast']:,}",        "note":"Linear projection"},
-        {"label":"Anomaly Days",          "value":str(m["anom_days"]),          "note":"Days flagged"},
-    ]
-    render_report_section("CyberNova Horizon", role, filters, kpis, bullets, fdf,
-                          brief_df, "Executive Summary")
+        # Anomaly log
+        render_section_label("OPERATIONAL — ANOMALY LOG")
+        anom_tbl = fdf[fdf["is_anomaly"]][
+            ["timestamp","country","service_name","anomaly_name","response_time_ms","status_class"]
+        ].sort_values("timestamp",ascending=False) if "is_anomaly" in fdf.columns else pd.DataFrame()
+        with st.container(border=True):
+            render_card_header("Anomaly Event Log",
+                               "Flagged events with anomaly type, country, service, and HTTP status for operational review.")
+            if not anom_tbl.empty:
+                st.dataframe(anom_tbl.head(100), use_container_width=True, hide_index=True)
+                render_insight_note(
+                    f"<strong>{len(anom_tbl):,}</strong> anomaly events detected. Review service and response time columns for operational or security patterns.",
+                    AMBER_SOFT, "#92400E"
+                )
+            else:
+                render_empty_state("No anomalies detected in current filter range — operations nominal.")
+
+        # ── FR6 — REGIONAL EXPANSION TARGET CHECK ────────────────────
+        render_section_label("REGIONAL EXPANSION TARGET CHECK")
+        if "country" in fdf.columns:
+            _total_reqs = max(len(fdf), 1)
+            _sadc_set   = {"Botswana","South Africa","Zambia","Namibia","Zimbabwe",
+                           "Lesotho","Eswatini","Mozambique","Malawi","Tanzania"}
+            _reg_rows   = []
+            for ctry, cg in fdf.groupby("country"):
+                if ctry not in _sadc_set:
+                    continue
+                _r_tot  = len(cg)
+                _r_wl   = int(cg["is_warm_lead"].sum()) if "is_warm_lead" in cg.columns else 0
+                _r_pct  = _r_tot / _total_reqs
+                if _r_pct >= 0.10:
+                    _r_status = "Above target"
+                elif _r_pct >= 0.05:
+                    _r_status = "On watch"
+                else:
+                    _r_status = "Below expansion target"
+                _reg_rows.append({"Country": ctry, "Total Requests": _r_tot, "Warm Leads": _r_wl,
+                                   "Share of Traffic": f"{_r_pct:.1%}", "Target Status": _r_status})
+            _reg_df = pd.DataFrame(_reg_rows).sort_values("Total Requests", ascending=False)
+            if not _reg_df.empty:
+                # Colour-coded status column using custom HTML table
+                def _status_badge(s):
+                    if s == "Above target":
+                        return (f'<span style="background:{GREEN_SOFT};color:#047857;font-size:11px;'
+                                f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
+                    if s == "On watch":
+                        return (f'<span style="background:{CYAN_SOFT};color:#0E7490;font-size:11px;'
+                                f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
+                    return (f'<span style="background:{AMBER_SOFT};color:#92400E;font-size:11px;'
+                            f'font-weight:800;padding:3px 9px;border-radius:999px;">{s}</span>')
+                rows_html = "".join(
+                    f'<tr style="border-bottom:1px solid {BORDER};">'
+                    f'<td style="padding:10px 12px;font-weight:800;color:{NAVY};font-size:13px;">{r["Country"]}</td>'
+                    f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Total Requests"]:,}</td>'
+                    f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Warm Leads"]}</td>'
+                    f'<td style="padding:10px 12px;color:{TEXT};font-size:13px;">{r["Share of Traffic"]}</td>'
+                    f'<td style="padding:10px 12px;">{_status_badge(r["Target Status"])}</td>'
+                    f'</tr>'
+                    for _, r in _reg_df.iterrows()
+                )
+                st.markdown(f"""
+    <div style="background:white;border:1px solid {BORDER};border-radius:18px;
+      box-shadow:{SHADOW_S};padding:20px;margin-bottom:18px;">
+      <h3 style="margin:0 0 4px;color:{NAVY};font-size:17px;">Regional Expansion Target Check</h3>
+      <p style="margin:0 0 14px;color:{MUTED};font-size:13px;">
+        SADC market performance against traffic share targets.
+        Above target ≥10% &nbsp;&middot;&nbsp; On watch 5–10% &nbsp;&middot;&nbsp; Below target &lt;5%.
+      </p>
+      <table style="width:100%;border-collapse:collapse;">
+        <thead><tr style="background:{SLATE_SOFT};">
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
+            text-transform:uppercase;letter-spacing:.07em;">Country</th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
+            text-transform:uppercase;letter-spacing:.07em;">Total Requests</th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
+            text-transform:uppercase;letter-spacing:.07em;">Warm Leads</th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
+            text-transform:uppercase;letter-spacing:.07em;">Traffic Share</th>
+          <th style="padding:10px 12px;text-align:left;font-size:11px;font-weight:900;color:{SECONDARY};
+            text-transform:uppercase;letter-spacing:.07em;">Target Status</th>
+        </tr></thead>
+        <tbody>{rows_html}</tbody>
+      </table>
+    </div>""", unsafe_allow_html=True)
+                _below = _reg_df[_reg_df["Target Status"] == "Below expansion target"]["Country"].tolist()
+                _above = _reg_df[_reg_df["Target Status"] == "Above target"]["Country"].tolist()
+                render_insight_note(
+                    ("Underperforming markets indicate where CyberNova may need more campaign activity or regional outreach. "
+                     f"<strong>{', '.join(_below) if _below else 'No markets'}</strong> are below expansion target. "
+                     f"<strong>{', '.join(_above[:2]) if _above else 'None'}</strong> "
+                     f"{'are' if len(_above) > 1 else 'is'} above target."),
+                    AMBER_SOFT if _below else GREEN_SOFT,
+                    "#92400E" if _below else "#047857",
+                )
+
+        # ── EVIDENCE — EXECUTIVE DECISION BRIEF ─────────────────────
+        render_section_label("EVIDENCE — EXECUTIVE DECISION BRIEF")
+        brief_rows = [
+            {"Strategic Signal":     "Growth improving" if m["mom_growth"]>=0 else "Growth declining",
+             "Evidence":             f"MoM visitor change: {m['mom_growth']:+.1f}%",
+             "Leadership Action":    "Sustain current acquisition momentum." if m["mom_growth"]>=0 else "Investigate and address traffic decline.",
+             "Risk / Dependency":    "Seasonal variation may affect trend reliability."},
+            {"Strategic Signal":     "AI Assistant gaining traction" if m["ai_share"]>=0.10 else "AI needs promotion",
+             "Evidence":             f"AI share: {m['ai_share']:.1%} of service traffic",
+             "Leadership Action":    "Scale AI positioning in SADC markets." if m["ai_share"]>=0.10 else "Increase AI Assistant campaign visibility.",
+             "Risk / Dependency":    "Conversion quality must be tracked alongside volume."},
+            {"Strategic Signal":     "Regional reach broadening" if m["sadc_total"]>=7 else "Regional penetration limited",
+             "Evidence":             f"{m['sadc_total']} SADC markets active",
+             "Leadership Action":    "Activate targeted content per SADC market." if m["sadc_total"]>=7 else "Focus on top 3 SADC markets first.",
+             "Risk / Dependency":    "Country-specific regulatory and compliance factors."},
+            {"Strategic Signal":     "Operational review required" if m["anom_days"]>0 else "Operations nominal",
+             "Evidence":             f"{m['anom_days']} anomaly days flagged",
+             "Leadership Action":    "Review anomaly log for security or infrastructure issues." if m["anom_days"]>0 else "Continue standard monitoring.",
+             "Risk / Dependency":    "Anomaly patterns may require IT security team review." if m["anom_days"]>0 else "No elevated risk identified."},
+        ]
+        brief_df = pd.DataFrame(brief_rows)
+        with st.container(border=True):
+            render_card_header("Executive Decision Brief",
+                               "Board-level strategic signals with recommended leadership actions and risk notes.")
+            st.dataframe(brief_df, use_container_width=True, hide_index=True)
+
+        # Regional priority table
+        render_section_label("EVIDENCE — REGIONAL PRIORITY TABLE")
+        if "country" in fdf.columns and "is_sadc" in fdf.columns:
+            rpt = fdf.groupby(["country","is_sadc"]).agg(
+                visitors=("ip_address","nunique"),
+                warm_leads=("is_warm_lead","sum"),
+                sessions=("session_id","nunique"),
+            ).reset_index().sort_values("visitors",ascending=False)
+            rpt["is_sadc"] = rpt["is_sadc"].map({True:"SADC",False:"Other"})
+            rpt.columns = ["Country","Region","Visitors","Warm Leads","Sessions"]
+            with st.container(border=True):
+                render_card_header("Regional Priority Table",
+                                   "SADC vs other markets — ranked by unique visitors, warm leads, and session count.")
+                st.dataframe(rpt, use_container_width=True, hide_index=True)
+
+    with _tab_an:
+        st.info("Analytics — coming soon")
+    with _tab_fc:
+        st.info("Forecasting — coming soon")
+    with _tab_de:
+        # ── REPORTS ───────────────────────────────────────────────────
+        kpis = [
+            {"label":"MoM Visitor Growth",    "value":f"{m['mom_growth']:+.1f}%",  "note":f"{m['prev_vis']:,} to {m['curr_vis']:,}"},
+            {"label":"AI Traction",           "value":f"{m['ai_share']:.1%}",      "note":"Service share"},
+            {"label":"SADC Active Markets",   "value":str(m["sadc_total"]),         "note":"Countries"},
+            {"label":"30-Day Lead Forecast",  "value":f"~{m['forecast']:,}",        "note":"Linear projection"},
+            {"label":"Anomaly Days",          "value":str(m["anom_days"]),          "note":"Days flagged"},
+        ]
+        render_report_section("CyberNova Horizon", role, filters, kpis, bullets, fdf,
+                              brief_df, "Executive Summary")
 
 # ─────────────────────────────────────────────────────────────────
 # SIDEBAR
@@ -3326,7 +3449,7 @@ def render_sidebar(df: pd.DataFrame) -> dict:
     role = st.session_state.get("role","")
 
     # ── Dark mode toggle ──────────────────────────────────────────
-    dark = st.session_state.get("dark_mode", False)
+    dark = st.session_state.get("dark_mode", True)
     dm_label = "☀️  Light Mode" if dark else "🌙  Dark Mode"
     st.sidebar.markdown(
         f'<div style="margin-bottom:4px;margin-top:4px;">'
@@ -3400,11 +3523,11 @@ def render_sidebar(df: pd.DataFrame) -> dict:
     all_s = sorted(df["service_name"].dropna().unique().tolist())
     all_t = sorted(df["status_class"].dropna().unique().tolist())
     all_g = sorted(df["segment"].dropna().unique().tolist())
-    countries = st.sidebar.multiselect("Countries",    all_c, default=[],      key=f"co_{v}")
-    services  = st.sidebar.multiselect("Services",     all_s, default=[],      key=f"sv_{v}")
-    status_cl = st.sidebar.multiselect("HTTP Status",  all_t, default=["2xx"], key=f"sc_{v}")
-    segments  = st.sidebar.multiselect("Segments",     all_g, default=[],      key=f"sg_{v}")
-    inc_bots  = st.sidebar.toggle("Include bot traffic", value=False,           key=f"bt_{v}")
+    countries = st.sidebar.multiselect("Market / Country", all_c, default=[],      key=f"co_{v}")
+    services  = st.sidebar.multiselect("Service",         all_s, default=[],      key=f"sv_{v}")
+    status_cl = st.sidebar.multiselect("Visit Outcome",   all_t, default=["2xx"], key=f"sc_{v}")
+    segments  = st.sidebar.multiselect("Audience Segment",all_g, default=[],      key=f"sg_{v}")
+    inc_bots  = st.sidebar.toggle("Include filtered traffic", value=False,         key=f"bt_{v}")
     cf1, cf2 = st.sidebar.columns(2)
     with cf1:
         if st.button("Apply", key="filter_apply", use_container_width=True):
@@ -3418,9 +3541,10 @@ def render_sidebar(df: pd.DataFrame) -> dict:
         for k in ["logged_in","role","nav","fv"]: st.session_state.pop(k,None)
         st.rerun()
     st.sidebar.markdown(
-        f'<div style="color:#9FB2C7;font-size:11px;line-height:1.5;margin-top:12px;">'
-        f'Prototype access layer only. Production deployment requires authentication, '
-        f'password hashing, audit logging, and full RBAC.</div>',
+        f'<div style="color:#64748B;font-size:11px;line-height:1.5;margin-top:12px;'
+        f'padding:10px 12px;border-radius:10px;border:1px solid rgba(0,212,255,.10);'
+        f'background:rgba(0,0,0,.15);">'
+        f'Prototype v1.0 — Review and evaluation only. Not for production use.</div>',
         unsafe_allow_html=True,
     )
     st.sidebar.caption(f"CET333 · v3.0 · {pd.Timestamp.now().strftime('%H:%M')}")
@@ -3694,7 +3818,7 @@ div[data-testid="stTextInputRootElement"] input {
 # MAIN
 # ─────────────────────────────────────────────────────────────────
 def main() -> None:
-    dark = st.session_state.get("dark_mode", False)
+    dark = st.session_state.get("dark_mode", True)
     inject_css(dark=dark)
 
     # Floating sidebar toggle button — works from any scroll position

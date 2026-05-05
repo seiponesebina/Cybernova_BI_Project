@@ -1,0 +1,815 @@
+You are working on my CyberNova BI Project.
+
+Task: Modify generate_logs.py so that it generates a richer Business Intelligence decision-engine dataset for the new CyberNova dashboards.
+
+Important:
+Do NOT rewrite the whole project from scratch.
+Do NOT remove existing working fields.
+Do NOT break the current synthetic IIS log generation.
+Do NOT change the dashboard yet.
+Only update generate_logs.py so the generated Excel output includes enriched BI fields and supporting sheets.
+
+Current purpose:
+The old dataset mainly supports web log analytics.
+The new dashboard is a role-based BI decision engine for:
+1. Sales — CyberNova Pulse
+2. Marketing — CyberNova Reach
+3. Executive — CyberNova Horizon
+
+Each dashboard has four tabs:
+Overview | Analytics | Forecasting | Data & Export
+
+The generator must now support:
+- Potential Customers instead of Warm Leads
+- Sales action queue
+- Marketing campaign opportunity
+- Executive regional investment decisions
+- SADC map nodes and market statuses
+- Forecasting and targets
+- Data quality badges
+- Estimated value/revenue fields
+- Alerts and recommendations
+
+====================================================
+1. PRESERVE EXISTING FUNCTIONALITY
+====================================================
+
+Keep all existing generated columns and logic if they exist, such as:
+- timestamp
+- date
+- time
+- hour
+- day_of_week
+- week_of_year
+- country
+- is_sadc
+- ip_address
+- uri
+- service_name
+- service_category
+- request_type
+- status_code
+- status_class
+- response_time_ms
+- bytes_transferred
+- user_agent
+- browser
+- device_type
+- is_bot
+- session_id
+- session_number_for_ip
+- request_count_session
+- distinct_pages_session
+- entry_page
+- exit_page
+- segment
+- is_warm_lead
+- event_type
+- converted_to_lead
+- campaign_name
+- is_campaign_period
+- is_anomaly
+- anomaly_name
+
+Do not remove them.
+
+Instead, add new enriched fields.
+
+====================================================
+2. OUTPUT WORKBOOK STRUCTURE
+====================================================
+
+Update the Excel output so it contains these sheets:
+
+1. Raw_IIS_Logs
+2. Enriched_BI_Logs
+3. Potential_Customers
+4. Market_Reference
+5. Targets_and_Assumptions
+6. Forecast_Outputs
+7. Data_Quality_Summary
+
+If the current script already writes sheets, extend it safely.
+If it only writes one sheet, keep that base data as Raw_IIS_Logs and add the new sheets.
+
+Output file name:
+data/output/cybernova_decision_engine_dataset.xlsx
+
+Also keep the old output if the script currently creates it:
+data/output/cybernova_web_logs.xlsx
+
+====================================================
+3. ENRICHED_BI_LOGS SHEET
+====================================================
+
+This sheet should contain all original log columns plus the following enriched business columns.
+
+A. Time fields:
+- day_name
+- week_start_date
+- month
+- month_name
+- quarter
+- is_weekend
+- is_business_hours
+
+B. Business-friendly service fields:
+- business_service_name
+- service_group
+- business_page_type
+- is_service_page
+- is_landing_page
+- is_conversion_page
+- is_ai_assistant_page
+
+Map URI/service names into business-friendly labels.
+
+Suggested mapping:
+- /index.html → Homepage
+- /ai-assistant.php → AI Cyber Assistant
+- /scheduledemo.php → Demo Requests
+- /contact.php → Contact Requests
+- /event.php → Promotional Events
+- /prototype.php → AI Prototype Interest
+- /risk-assessment.php → Automated Risk Assessment
+- /predictive-maintenance.php → Predictive Maintenance
+- /digital-transformation.php → Digital Transformation
+- /rapid-prototyping.php → Rapid Prototyping
+
+Page type mapping:
+- Homepage → Landing Page
+- AI Cyber Assistant, Automated Risk Assessment, Predictive Maintenance, Digital Transformation, Rapid Prototyping, AI Prototype Interest → Service Page
+- Demo Requests, Contact Requests, Promotional Events → Conversion Page
+
+C. Potential customer fields:
+Replace the dashboard-facing idea of “warm leads” with “potential customers”.
+
+Add:
+- potential_customer_signal
+- potential_customer_id
+- potential_customer_type
+- potential_customer_score
+- intent_score
+- engagement_score
+- conversion_score
+- service_value_score
+- recency_score
+- potential_customer_reason
+
+Definition:
+A potential customer is a unique session or visitor showing meaningful commercial intent.
+
+Set potential_customer_signal = 1 if any of these are true:
+- event_type is demo_request
+- event_type is contact_request
+- event_type is event_signup
+- converted_to_lead = 1
+- is_warm_lead = 1
+- segment is High-intent
+- business_service_name is AI Cyber Assistant and distinct_pages_session >= 3
+- service page visited and session duration/request depth is above average
+
+Potential customer score should be 0–100.
+
+Suggested score:
+- Demo request: +35
+- Contact request: +30
+- Event signup: +25
+- AI Assistant page: +20
+- Service page: +15
+- 3+ pages in session: +10
+- Repeat visitor/session: +10
+- Business hours: +5
+- Failed request: -10
+- Bot: exclude or very low score
+
+Then clamp score between 0 and 100.
+
+potential_customer_id:
+Create a stable ID for potential customer rows, for example:
+PC-000001, PC-000002, etc.
+Only assign it to rows/sessions with potential_customer_signal = 1.
+For non-potential-customer rows, leave blank or None.
+
+potential_customer_type values:
+- Demo Interested
+- Contact Interested
+- AI Assistant Interested
+- Event Interested
+- Service Interested
+- High-Intent Visitor
+- General Visitor
+
+D. Funnel and conversion fields:
+Add:
+- conversion_stage
+- funnel_stage_order
+- has_landed
+- has_service_interest
+- has_ai_interest
+- has_contact_interest
+- has_demo_request
+- has_event_signup
+- converted_to_potential_customer
+- conversion_path
+- dropoff_stage
+
+Funnel stages:
+1. Website Visit
+2. Service Interest
+3. AI / Contact Interest
+4. Demo / Event Request
+
+Mapping:
+- If only homepage/general page: Website Visit
+- If service page visited: Service Interest
+- If AI Assistant/contact page visited: AI / Contact Interest
+- If demo/contact/event submitted: Demo / Event Request
+
+E. Session quality fields:
+Add:
+- session_quality
+- session_depth_category
+- session_duration_category
+- is_engaged_session
+- is_repeat_visitor
+- session_count_bucket
+- visitor_type
+
+Rules:
+- is_engaged_session = True if distinct_pages_session >= 3 or request_count_session >= 4
+- session_depth_category:
+  Single page
+  2 pages
+  3–5 pages
+  6+ pages
+- session_quality:
+  Low
+  Medium
+  High
+  Very High
+- visitor_type:
+  First-time visitor
+  Returning visitor
+  Repeat high-intent visitor
+
+F. Campaign and marketing fields:
+Add:
+- source_channel
+- campaign_objective
+- campaign_target_country
+- campaign_target_service
+- campaign_period
+- campaign_week
+- campaign_cost_estimate
+- campaign_impression_estimate
+- campaign_click_estimate
+- campaign_roi_estimate
+- campaign_quality_score
+- landing_page_group
+- content_group
+- visit_share
+- conversion_share
+- promotion_gap_score
+
+source_channel values:
+- Organic Search
+- Paid Search
+- Paid Social
+- Email Campaign
+- Referral
+- Direct
+- Event Campaign
+- Partner Referral
+
+campaign_objective values:
+- Awareness
+- Lead Generation
+- AI Assistant Promotion
+- Demo Conversion
+- Event Registration
+- Regional Expansion
+
+G. Geography and map fields:
+Add:
+- city
+- latitude
+- longitude
+- region_group
+- market_node_type
+- market_status
+- regional_priority
+- node_size_metric
+- node_color_metric
+- linked_market
+- connection_strength
+
+Use realistic Southern Africa/SADC city mapping.
+
+Example mapping:
+Botswana → Gaborone, -24.6282, 25.9231
+South Africa → Johannesburg, -26.2041, 28.0473
+South Africa can also include Cape Town, -33.9249, 18.4241 and Durban, -29.8587, 31.0218
+Zambia → Lusaka, -15.3875, 28.3228
+Zimbabwe → Harare, -17.8252, 31.0335
+Namibia → Windhoek, -22.5609, 17.0658
+Mozambique → Maputo, -25.9692, 32.5732
+Malawi → Lilongwe, -13.9626, 33.7741
+Angola → Luanda, -8.8390, 13.2894
+Tanzania → Dar es Salaam, -6.7924, 39.2083
+Lesotho → Maseru, -29.3158, 27.4869
+Eswatini → Mbabane, -26.3054, 31.1367
+
+market_node_type values:
+- Core Market
+- Strategic Hub
+- High Growth
+- Emerging
+- Stable
+- Low Traction
+
+regional_priority values:
+- Invest
+- Monitor
+- Review
+- Pause
+
+H. Executive strategy fields:
+Add:
+- target_traffic_share
+- target_potential_customer_share
+- actual_traffic_share
+- actual_potential_customer_share
+- traffic_share_variance
+- potential_customer_share_variance
+- market_growth_rate
+- strategic_score
+- investment_recommendation
+- executive_note
+
+market_status values:
+- Above Target
+- On Watch
+- Below Target
+
+Logic:
+Above Target if actual_potential_customer_share >= target_potential_customer_share
+On Watch if actual_potential_customer_share is between 70% and 99% of target
+Below Target if actual_potential_customer_share < 70% of target
+
+investment_recommendation:
+- Invest if Above Target and growth is positive
+- Monitor if On Watch
+- Review if Below Target but still has some potential customer activity
+- Pause if Below Target and low activity
+
+I. Risk and anomaly fields:
+Add:
+- anomaly_category
+- risk_score
+- risk_level
+- risk_reason
+- requires_review
+- operational_note
+
+anomaly_category values:
+- Traffic Spike
+- Traffic Drop
+- High Error Rate
+- Slow Response
+- Bot Noise
+- Suspicious Pattern
+- Data Quality Issue
+
+risk_level values:
+- Low
+- Medium
+- High
+- Critical
+
+J. Data quality fields:
+Add:
+- data_quality_flag
+- data_quality_score
+- missing_required_fields
+- invalid_status_flag
+- duplicate_session_flag
+- bot_noise_level
+- data_freshness_status
+- quality_note
+
+data_quality_flag values:
+- Good
+- Review Needed
+- Limited Data
+- No Data
+
+K. Estimated value fields:
+Add:
+- estimated_deal_value
+- estimated_monthly_value
+- expected_conversion_value
+- pipeline_value
+- service_value_band
+
+Use synthetic estimated values. These are not real revenue.
+
+Suggested value ranges:
+- AI Cyber Assistant: 40000–120000
+- Cybersecurity Monitoring: 50000–150000
+- Automated Risk Assessment: 35000–100000
+- Predictive Maintenance: 45000–130000
+- Digital Transformation: 80000–250000
+- Rapid Prototyping: 20000–70000
+- Contact Request: 30000–90000
+- Demo Requests: 40000–140000
+- Promotional Events: 15000–60000
+- Homepage/General Website: 5000–25000
+
+Add a methodology note in the workbook stating:
+Estimated values are synthetic and based on service-value assumptions for BI demonstration.
+
+====================================================
+4. POTENTIAL_CUSTOMERS SHEET
+====================================================
+
+Create a session-level table where one row represents one potential customer/session.
+
+Only include rows where potential_customer_signal = 1.
+
+Fields:
+- potential_customer_id
+- session_id
+- first_seen_timestamp
+- last_seen_timestamp
+- country
+- city
+- latitude
+- longitude
+- service_interest
+- primary_service
+- secondary_service
+- segment
+- potential_customer_type
+- potential_customer_score
+- intent_score
+- engagement_score
+- conversion_stage
+- pipeline_stage
+- estimated_deal_value
+- estimated_monthly_value
+- expected_conversion_value
+- sales_owner
+- recommended_action
+- follow_up_due_date
+- lead_age_days
+- priority_level
+- status
+- last_activity_summary
+
+pipeline_stage values:
+- New
+- Engaged
+- Qualified
+- Demo Requested
+- Proposal
+- Won
+- Lost
+- Nurture
+
+priority_level values:
+- High
+- Medium
+- Low
+- Review
+
+sales_owner values:
+- Alex M.
+- Adele Johnson
+- Mark Smith
+- Sarah Jacobs
+- Tom Nhamo
+
+recommended_action examples:
+- Follow up within 24 hours
+- Send AI Assistant case study
+- Invite to demo
+- Review failed request before outreach
+- Nurture with campaign content
+- Escalate to Sales Manager
+
+The Sales dashboard will use this sheet for:
+- Sales Action Queue
+- Potential Customer Table
+- Potential Customer Score
+- Pipeline Stage
+- Estimated Value
+- Follow-up Due Date
+
+====================================================
+5. MARKET_REFERENCE SHEET
+====================================================
+
+Create one row per market/country/city.
+
+Fields:
+- market_id
+- country
+- city
+- latitude
+- longitude
+- is_sadc
+- region_group
+- market_node_type
+- market_status
+- regional_priority
+- target_traffic_share
+- target_potential_customer_share
+- target_ai_share
+- market_maturity
+- market_notes
+- recommended_department_action
+
+Example market rows:
+Botswana, Gaborone, Core Market, Above Target, Invest
+South Africa, Johannesburg, Core Market, Above Target, Invest
+Zambia, Lusaka, Strategic Hub, On Watch, Monitor
+Namibia, Windhoek, Emerging, On Watch, Monitor
+Zimbabwe, Harare, High Growth, On Watch, Monitor
+Mozambique, Maputo, Emerging, Below Target, Review
+Malawi, Lilongwe, Emerging, Below Target, Review
+Tanzania, Dar es Salaam, Emerging, Below Target, Review
+Lesotho, Maseru, Stable, Below Target, Review
+Eswatini, Mbabane, Stable, Below Target, Review
+Angola, Luanda, Emerging, On Watch, Monitor
+
+This sheet powers:
+- Sales Potential Customer Hotzones Map
+- Marketing Campaign Hotzones Map
+- Executive Regional Expansion Priority Map
+- Regional Leaderboards
+- Investment Recommendations
+
+====================================================
+6. TARGETS_AND_ASSUMPTIONS SHEET
+====================================================
+
+Create a sheet with targets and thresholds.
+
+Fields:
+- metric_name
+- department
+- target_value
+- warning_threshold
+- critical_threshold
+- unit
+- calculation_note
+- business_reason
+
+Add rows for:
+
+Sales:
+- Potential Customers per Week
+- Demo Requests per Week
+- AI-to-Demo Conversion
+- Potential Customer Score
+- Follow-up Aging Days
+
+Marketing:
+- Engagement Rate
+- Campaign Conversion Rate
+- Campaign ROI Estimate
+- Service Promotion Gap
+- Human Audience Share
+
+Executive:
+- AI Assistant Share
+- Active SADC Markets
+- Regional Potential Customer Share
+- Growth Direction
+- Anomaly Days
+- Strategic Risk Score
+
+Example targets:
+AI-to-Demo Conversion, Sales, 10%, 7%, 5%
+Demo Requests per Week, Sales, 50, 35, 20
+Engagement Rate, Marketing, 35%, 25%, 15%
+Campaign Conversion Rate, Marketing, 4%, 2.5%, 1%
+AI Assistant Share, Executive, 25%, 15%, 10%
+SADC Active Markets, Executive, 8, 5, 3
+Anomaly Days, Executive, 0, 3, 7
+
+====================================================
+7. FORECAST_OUTPUTS SHEET
+====================================================
+
+Create forecast-ready output rows.
+
+Fields:
+- forecast_id
+- department
+- metric_name
+- forecast_date
+- forecast_period
+- actual_value
+- forecast_value
+- forecast_lower_bound
+- forecast_upper_bound
+- target_value
+- variance_to_target
+- forecast_confidence
+- forecast_model
+- forecast_note
+
+metric_name examples:
+- Potential Customers
+- Demo Requests
+- AI-to-Demo Conversion
+- Engaged Sessions
+- Campaign Leads
+- AI Assistant Traction
+- Regional Risk Score
+
+forecast_model values:
+- Linear Trend
+- Moving Average
+- Rule-Based Projection
+- Simple Regression
+
+Generate simple rule-based forecasts from the existing date/time trends.
+Do not overcomplicate the model.
+Use rolling averages or simple linear trend.
+Make sure forecast_lower_bound and forecast_upper_bound exist.
+
+This sheet powers:
+- Sales Forecasting
+- Marketing Forecasting
+- Executive Forecasting
+- Forecast vs Target
+- Confidence bands
+- Alerts
+
+====================================================
+8. DATA_QUALITY_SUMMARY SHEET
+====================================================
+
+Create a data quality summary sheet.
+
+Fields:
+- check_name
+- check_category
+- result
+- score
+- status
+- affected_rows
+- last_checked
+- recommended_action
+
+Example checks:
+- Missing country values
+- Missing service values
+- Duplicate sessions
+- Bot noise level
+- Failed visit rate
+- Forecast data sufficiency
+- Potential customer scoring completeness
+- Coordinate mapping completeness
+- Campaign field completeness
+
+status values:
+- Good
+- Review Needed
+- Limited Data
+- Critical
+
+This sheet powers:
+- Data Quality Badge
+- Methodology Note
+- Data & Export page
+- Trust and transparency
+
+====================================================
+9. DASHBOARD ALIGNMENT REQUIREMENTS
+====================================================
+
+The generated dataset must support these dashboard elements.
+
+Sales — CyberNova Pulse:
+Overview:
+- Potential Customers
+- Demo Requests
+- AI-to-Demo Conversion
+- Top Sales Market
+- Peak Follow-Up Window
+- Potential Customer Hotzones Map
+- Funnel Drop-Off
+- Potential Customers by Country
+- Potential Customers by Service
+- Demo Timing Heatmap
+
+Analytics:
+- Funnel by Market
+- Funnel by Service
+- Repeat Visitor Conversion
+- Potential Customer Segment Quality
+- Sales Insight Assistant
+
+Forecasting:
+- 30-Day Potential Customer Forecast
+- Demo Request Forecast
+- AI-to-Demo What-If
+- Sales Alert Card
+- Sales Readiness Recommendation
+
+Data & Export:
+- Sales Action Queue
+- Potential Customer Table
+- Export Cards
+- Data Quality
+- Methodology
+
+Marketing — CyberNova Reach:
+Overview:
+- Engaged Audience
+- Engagement Rate
+- Best Campaign Market
+- Best Landing Page
+- Under-Promoted Service
+- Market Opportunity Matrix
+- Service Promotion Gap
+- Content Journey Funnel
+- Human Activity Timing
+
+Analytics:
+- Audience Segments Over Time
+- Country Engagement Breakdown
+- Landing Page Performance
+- SADC Reach Map + Ranking
+- Marketing Insight Assistant
+
+Forecasting:
+- Audience Growth Forecast
+- Engaged Sessions Forecast
+- Campaign What-If
+- Marketing Alert Card
+- Campaign Recommendation
+
+Executive — CyberNova Horizon:
+Overview:
+- Growth Direction
+- Potential Customers Generated
+- AI Assistant Traction
+- Active SADC Markets
+- Strategic Risk Alerts
+- Strategic Growth Trend
+- Regional Expansion Priority
+- AI Assistant Traction
+- 90-Day Potential Customer Forecast
+
+Analytics:
+- Regional Target Table
+- Market Contribution Analysis
+- AI Assistant by Market
+- Risk / Anomaly Trend
+- Executive Insight Assistant
+
+Forecasting:
+- 90-Day Potential Customer Forecast
+- Regional Expansion Forecast
+- AI Assistant Traction Forecast
+- Risk / Anomaly Outlook
+- Executive Investment Recommendation
+
+====================================================
+10. VALIDATION REQUIREMENTS
+====================================================
+
+After modifying generate_logs.py, run:
+
+python -m py_compile generate_logs.py
+
+Then run the generator.
+
+Verify:
+- The old output still exists if it was previously generated.
+- The new output exists:
+  data/output/cybernova_decision_engine_dataset.xlsx
+- The workbook contains:
+  Raw_IIS_Logs
+  Enriched_BI_Logs
+  Potential_Customers
+  Market_Reference
+  Targets_and_Assumptions
+  Forecast_Outputs
+  Data_Quality_Summary
+- Enriched_BI_Logs has all original fields plus enriched fields.
+- Potential_Customers has one row per potential-customer session.
+- No raw technical route names are used as business labels.
+- City, latitude, longitude are populated for mapped countries.
+- Forecast outputs have lower and upper bounds.
+- Targets exist for Sales, Marketing, and Executive.
+- Data quality summary has readable statuses.
+- The script runs without errors.
+- Do not leave TODO placeholders.
+
+Implement directly and carefully.
