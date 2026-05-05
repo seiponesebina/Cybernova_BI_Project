@@ -346,46 +346,63 @@ hr{border:none;border-top:1px solid #D9E2EC;margin:1.6rem 0;}
   box-shadow:0 4px 24px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.04) inset !important;
   padding:0 !important;
 }
-/* Consistent inner padding */
 [data-testid="stVerticalBlockBorderWrapper"] > [data-testid="stVerticalBlock"]{
   padding:26px 28px 36px !important;
   gap:1.1rem !important;
 }
-/* Hover: lift + blue border glow */
 [data-testid="stVerticalBlockBorderWrapper"]:hover{
   background:#122548 !important;
   border-color:rgba(37,99,255,.55) !important;
   box-shadow:0 8px 36px rgba(0,0,0,.65), 0 0 0 1px rgba(37,99,255,.4) !important;
 }
 
-/* Inline white/light HTML card backgrounds → dark blue variants */
-[data-testid="stMarkdownContainer"] div[style*="background:white"],
-[data-testid="stMarkdownContainer"] div[style*="background: white"],
-[data-testid="stMarkdownContainer"] div[style*="background:#FFFFFF"],
-[data-testid="stMarkdownContainer"] div[style*="background: #FFFFFF"]{
+/* ── Inline HTML backgrounds: use [style*=] (no tag) to catch <div> AND <span> ──
+   Group 1: white / near-white → primary dark-blue                               */
+[data-testid="stMarkdownContainer"] [style*="background:white"],
+[data-testid="stMarkdownContainer"] [style*="background: white"],
+[data-testid="stMarkdownContainer"] [style*="background:#FFFFFF"],
+[data-testid="stMarkdownContainer"] [style*="background: #FFFFFF"],
+[data-testid="stMarkdownContainer"] [style*="background:rgba(255,255,255,.88)"],
+[data-testid="stMarkdownContainer"] [style*="background:rgba(255,255,255, .88)"]{
   background:#0F2040 !important;
   border-color:rgba(37,99,255,.22) !important;
 }
-[data-testid="stMarkdownContainer"] div[style*="background:#F3F4F6"],
-[data-testid="stMarkdownContainer"] div[style*="background:#F8FAFC"],
-[data-testid="stMarkdownContainer"] div[style*="background:#F1F3F6"],
-[data-testid="stMarkdownContainer"] div[style*="background:#E5EAF0"],
-[data-testid="stMarkdownContainer"] div[style*="background:#DBEAFE"],
-[data-testid="stMarkdownContainer"] div[style*="background:#D1FAE5"],
-[data-testid="stMarkdownContainer"] div[style*="background:#CFFAFE"],
-[data-testid="stMarkdownContainer"] div[style*="background:#FEF3C7"]{
+
+/* Group 2: soft-colour chips, badge pills, accent panels → slightly deeper blue */
+[data-testid="stMarkdownContainer"] [style*="background:#F3F4F6"],
+[data-testid="stMarkdownContainer"] [style*="background:#F8FAFC"],
+[data-testid="stMarkdownContainer"] [style*="background:#F1F3F6"],
+[data-testid="stMarkdownContainer"] [style*="background:#E5EAF0"],
+[data-testid="stMarkdownContainer"] [style*="background:#DBEAFE"],
+[data-testid="stMarkdownContainer"] [style*="background:#D1FAE5"],
+[data-testid="stMarkdownContainer"] [style*="background:#CFFAFE"],
+[data-testid="stMarkdownContainer"] [style*="background:#FEF3C7"],
+[data-testid="stMarkdownContainer"] [style*="background:#EDE9FE"],
+[data-testid="stMarkdownContainer"] [style*="background:#BFDBFE"],
+[data-testid="stMarkdownContainer"] [style*="background:#A5F3FC"],
+[data-testid="stMarkdownContainer"] [style*="background:#6EE7B7"],
+[data-testid="stMarkdownContainer"] [style*="background:#FECACA"]{
   background:#0A1A35 !important;
-  border-color:rgba(37,99,255,.18) !important;
+  border-color:rgba(37,99,255,.2) !important;
 }
 
-/* All text white in dark mode */
+/* Group 3: light 180deg gradients (story-card action panel) → dark blue */
+[data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#DBEAFE"],
+[data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#D1FAE5"],
+[data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#CFFAFE"],
+[data-testid="stMarkdownContainer"] [style*="linear-gradient(180deg,#FEF3C7"]{
+  background:#0A1A35 !important;
+  border-color:rgba(37,99,255,.2) !important;
+}
+
+/* ── All text white ── */
 [data-testid="stMarkdownContainer"],
 [data-testid="stMarkdownContainer"] *,
-[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] * {
+[data-testid="stVerticalBlockBorderWrapper"] [data-testid="stMarkdownContainer"] *{
   color:white !important;
 }
 .stMarkdown, .stMarkdown *, .stText, .stCaption,
-[data-testid="stCaptionContainer"] { color:white !important; }
+[data-testid="stCaptionContainer"]{ color:white !important; }
 
 /* Expanders */
 [data-testid="stExpander"]{
@@ -419,11 +436,15 @@ input, textarea, .stTextInput input, .stDateInput input{
 /* HR dividers */
 hr{border-color:rgba(37,99,255,.2) !important;}
 
-/* Plotly chart backgrounds — match card */
+/* Plotly — paper background, plot-area fill, axis labels, modebar */
 .js-plotly-plot .plotly,.plotly-graph-div{background:#0F2040 !important;}
+.js-plotly-plot .bg{fill:#0F2040 !important;}
+.js-plotly-plot text{fill:white !important;}
+.js-plotly-plot .gridlayer path{stroke:rgba(255,255,255,.08) !important;}
 .modebar{background:transparent !important;}
+.modebar-btn path{fill:rgba(255,255,255,.55) !important;}
 
-/* Download buttons in dark mode */
+/* Download buttons */
 div[data-testid="stDownloadButton"] > button{
   background:#0F2040 !important;
   color:#93C5FD !important;
