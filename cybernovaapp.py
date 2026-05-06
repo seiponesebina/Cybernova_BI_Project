@@ -6,7 +6,7 @@ import datetime, pathlib, random, base64
 
 # Sales views — imported after page_config so Streamlit doesn't complain
 try:
-    from sales_views import (inject_sales_css, render_sales_drawer,
+    from sales_views import (inject_sales_css,
                               render_sales_analytics, render_sales_forecasting,
                               render_sales_data)
     _SALES_VIEWS_OK = True
@@ -311,37 +311,6 @@ def _top_value(df, col, fallback="--"):
     vc = df[col].dropna().astype(str).value_counts()
     return vc.index[0] if not vc.empty else fallback
 
-def _live_enriched_df(df, key="global"):
-    """Append a small rolling simulated live stream, sampled from the selected real data."""
-    base = df.copy() if df is not None and not df.empty else pd.DataFrame()
-    buf_key = f"_live_rows_{key}"
-    now = pd.Timestamp.now().floor("s")
-
-    if buf_key not in st.session_state:
-        st.session_state[buf_key] = pd.DataFrame(columns=base.columns if not base.empty else None)
-
-    if not base.empty:
-        n = random.randint(2, 7)
-        sample = base.sample(n=min(n, len(base)), replace=len(base) < n).copy()
-        sample["timestamp"] = now
-        sample["date"] = now.date()
-        sample["time"] = now.strftime("%H:%M:%S")
-        if "request_id" in sample.columns:
-            sample["request_id"] = [f"live-{int(now.timestamp())}-{i}" for i in range(len(sample))]
-        if "response_time_ms" in sample.columns:
-            sample["response_time_ms"] = np.random.randint(80, 2200, len(sample))
-        if "bytes_transferred" in sample.columns:
-            sample["bytes_transferred"] = np.random.randint(1200, 85000, len(sample))
-        st.session_state[buf_key] = pd.concat(
-            [st.session_state[buf_key], sample], ignore_index=True
-        ).tail(350)
-
-    live = st.session_state.get(buf_key, pd.DataFrame())
-    if live is None or live.empty:
-        return base, 0
-    combined = pd.concat([base, live], ignore_index=True, sort=False)
-    return combined, len(live)
-
 def _date_series(df):
     if df is None or df.empty:
         return pd.Series(dtype="object")
@@ -356,12 +325,6 @@ def _today_reference_date(df):
     if not dates.empty and (dates == today).any():
         return today
     return dates.max() if not dates.empty and dates.notna().any() else today
-
-def _day_slice(df, day):
-    if df is None or df.empty:
-        return pd.DataFrame()
-    dates = _date_series(df)
-    return df[dates == day]
 
 def _today_slice(df):
     if df is None or df.empty:
@@ -914,23 +877,6 @@ def render_admin_drawer():
 # CONTEXT CHIPS
 # ═══════════════════════════════════════════════════════════════════════════════
 def render_chips(df):
-    v     = st.session_state
-    noise = int(_truthy_series(df, "is_bot").sum()) if df is not None and "is_bot" in df.columns else 0
-    st.markdown(f"""
-<div style="margin-bottom:12px;">
-  <span class="chip">Period: Jan–Apr 2025</span>
-  <span class="chip">Market: {v.selected_market}</span>
-  <span class="chip">Service: {v.svc_filter}</span>
-  <span class="chip">Segment: {v.seg_filter}</span>
-  <span class="chip">Outcome: {v.outcome_filter}</span>
-  <span class="chip">Filtered Noise: {noise:,}</span>
-  <span class="chip">Quality: 96.4%</span>
-</div>""", unsafe_allow_html=True)
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# LIVE PULSE  (1-second fragment)
-# ═══════════════════════════════════════════════════════════════════════════════
-def render_chips(df):
     v = st.session_state
     noise = int(_truthy_series(df, "is_bot").sum()) if df is not None and "is_bot" in df.columns else 0
     period = f"{v.date_start} to {v.date_end}" if v.get("date_start") and v.get("date_end") else "Selected period"
@@ -1060,7 +1006,7 @@ def _live_map_nodes(df):
     df_m["last_seen"] = pd.to_datetime(df_m["last_seen"], errors="coerce").dt.strftime("%H:%M:%S").fillna("--")
     return df_m
 
-def render_sadc_map(mode="sales", height=400, df=None, live_rows=0):
+def render_sadc_map(mode="sales", height=400, df=None):
     df_m = _live_map_nodes(df)
     max_customers = max(1, int(df_m["customers"].max()))
     df_m["sz"] = 10 + (df_m["customers"] / max_customers * 46)
@@ -1113,47 +1059,6 @@ def ph_grid(cards, n=3):
 # ═══════════════════════════════════════════════════════════════════════════════
 # SALES OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _sales_kpis(df):
-    # Derive all values from today's live stream; filters do not apply to KPI cards.
-    human_df = _human_df(df)
-    stats = _kpi_stats(df)
-    baseline, baseline_label = _baseline_stats(st.session_state.get("_sales_df_cache"))
-
-    pot_cust = int(_truthy_series(human_df, "potential_customer_signal").sum()) if len(human_df) > 0 else 0
-    demo_req = int(_truthy_series(human_df, "has_demo_request").sum()) if len(human_df) > 0 else 0
-    pot_rev_m = round(_num_series(human_df, "estimated_deal_value").sum() / 1e6, 1) if len(human_df) > 0 else 0.0
-
-    if "country" in human_df.columns and len(human_df) > 0:
-        vc = human_df["country"].value_counts()
-        top_market = vc.index[0] if len(vc) > 0 else "South Africa"
-        top_pct    = int(vc.iloc[0] / len(human_df) * 100) if len(vc) > 0 else 36
-    else:
-        top_market, top_pct = "South Africa", 36
-
-    # ISO code for flagcdn
-    _ISO = {"South Africa":"za","Zambia":"zm","Mozambique":"mz","Botswana":"bw",
-            "Angola":"ao","Zimbabwe":"zw","Namibia":"na","Malawi":"mw",
-            "Democratic Republic of the Congo":"cd"}
-    iso = _ISO.get(top_market, "za")
-    flag_img = f'<img src="https://flagcdn.com/20x15/{iso}.png" alt="{top_market}" style="height:16px;width:auto;border-radius:2px;margin-right:5px;vertical-align:middle;" />'
-
-    pipeline_pct = min(99, int(pot_rev_m / 95 * 100)) if pot_rev_m else 87
-
-    kpis = [
-        ("Pipeline Target Attainment", f"{pipeline_pct}%", f"${pot_rev_m}M / $95M target", "On Watch", "watch", "anchor"),
-        ("Potential Customers",        f"{pot_cust:,}",    "vs last period",               f"▲ {max(1, pot_cust//6)}%",  "up", ""),
-        ("Demo Requests",              f"{demo_req:,}",    "vs last period",               f"▲ {max(1, demo_req//5)}%",  "up", ""),
-        ("Potential Opportunity Value", f"${pot_rev_m}M",  "modelled, not booked revenue", "",  "", ""),
-        ("Top Sales Market",           f"{flag_img}{top_market}", f"{top_pct}% of total potential", "", "", ""),
-    ]
-    cols = st.columns(5, gap="small")
-    cls_map = {"up":"delta-up","watch":"delta-watch","down":"delta-down"}
-    for col, (lbl, val, sub, chg, cls, extra) in zip(cols, kpis):
-        with col:
-            delta = f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            anchor_style = "border-color:rgba(34,211,238,0.45);box-shadow:0 0 22px rgba(34,211,238,0.15);" if extra == "anchor" else ""
-            st.markdown(f'<div class="kpi-card" style="min-height:132px;{anchor_style}"><div class="kpi-label">{lbl}</div><div class="kpi-value" style="font-size:1.75rem;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
-
 def _sales_growth(df):
     # Group df by month to derive monthly trend
     if df is not None and "date" in df.columns and len(df) > 0:
@@ -1261,13 +1166,6 @@ def _service_donut(df):
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
 
-def _leaderboard():
-    data=[("South Africa","450","$18.2M","▲22%"),("Zambia","180","$9.5M","▲14%"),
-          ("Mozambique","140","$7.2M","▲18%"),("Botswana","95","$4.8M","▲8%"),("Angola","72","$3.1M","▲31%")]
-    rows="".join(f'<div class="lb-row"><span style="flex:1;color:#F0F4F8;font-weight:500;">{n}</span><span style="color:#22D3EE;margin-right:10px;">{c}</span><span style="color:#6B7FA3;margin-right:10px;">{r}</span><span style="color:#4ADE80;font-weight:600;">{ch}</span></div>' for n,c,r,ch in data)
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Regional Leaderboard</div><div style="font-size:9px;color:#3A4A5E;display:flex;margin-bottom:6px;"><span style="flex:1;"></span><span style="margin-right:10px;">Customers</span><span style="margin-right:10px;">Revenue</span><span>vs 30d</span></div>{rows}</div>', unsafe_allow_html=True)
-
-
 def _live_country_leaderboard(df):
     """Data-driven country leaderboard table from filtered df."""
     _ISO = {"South Africa":"za","Zambia":"zm","Mozambique":"mz","Botswana":"bw",
@@ -1338,27 +1236,6 @@ def _live_country_leaderboard(df):
     </thead>
     <tbody>{rows_html}</tbody>
   </table>
-</div>""", unsafe_allow_html=True)
-
-def _sales_right():
-    st.markdown("""
-<div class="cn-card">
-  <div class="sec-label">Regional Priority</div>
-  <div style="font-size:18px;font-weight:800;color:#22D3EE;margin-bottom:4px;">South Africa</div>
-  <div style="font-size:10px;color:#6B7FA3;">Largest opportunity pool · High impact focus</div>
-  <div style="margin-top:8px;font-size:11px;color:#4ADE80;font-weight:600;">→ Scale outreach now</div>
-</div>
-<div class="cn-card">
-  <div class="sec-label">Strategic Signals</div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> New Solution Interest — <b>High</b></div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> Digital Transformation — <b>Accelerating</b></div>
-  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#FBBF24;">●</span> Budget Confidence — <b>Positive</b></div>
-</div>
-<div class="cn-card">
-  <div class="sec-label">Sales Risk Outlook</div>
-  <div style="font-size:28px;font-weight:800;color:#4ADE80;text-align:center;padding:6px 0;
-    text-shadow:0 0 20px rgba(74,222,128,0.3);">LOW</div>
-  <div style="font-size:10px;color:#6B7FA3;text-align:center;">Stable outlook across SADC region</div>
 </div>""", unsafe_allow_html=True)
 
 def _sales_kpis(df):
@@ -1445,7 +1322,7 @@ def render_sales_overview(df):
 
     map_col, tbl_col = st.columns([2.2, 1], gap="small")
     with map_col:
-        render_sadc_map("sales", 420, None, 0)
+        render_sadc_map("sales", 420)
     with tbl_col:
         try:
             @st.fragment(run_every=1)
@@ -1473,19 +1350,6 @@ def render_sales_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # MARKETING OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _mkt_kpis():
-    kpis=[("Engaged Visitors","3,840","vs last 30 days","▲ 24%","up"),
-          ("Engagement Rate","28.4%","across SADC","▲ 4.2 pts","up"),
-          ("Best Campaign Market","South Africa","31% engagement rate","",""),
-          ("Best Landing Page","AI Solutions","42% of conversions","",""),
-          ("Under-Promoted","Cybersecurity","High conv, low visits","⚠ Opportunity","watch")]
-    cols=st.columns(5,gap="small")
-    cls_map={"up":"delta-up","watch":"delta-watch"}
-    for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
-        with col:
-            delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
-
 def _opportunity_matrix():
     countries=["South Africa","Zambia","Mozambique","Botswana","Angola","Zimbabwe","Namibia","Malawi"]
     fig=go.Figure(go.Scatter(x=[4200,1800,1400,950,720,1100,550,480],y=[31,28,25,22,24,27,20,18],
@@ -1584,7 +1448,7 @@ def render_marketing_overview(df):
     render_live_pulse()
     ml,mr=st.columns([1.7,1],gap="small")
     with ml:
-        render_sadc_map("marketing", 380, None, 0)
+        render_sadc_map("marketing", 380)
     with mr:
         if _MARKETING_VIEWS_OK:
             st.markdown(render_marketing_drawer(), unsafe_allow_html=True)
@@ -1599,28 +1463,6 @@ def render_marketing_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXECUTIVE OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _exec_kpis():
-    kpis=[("Growth Direction","+42%","vs same period last year","▲ Strong","up"),
-          ("Potential Customers","1,248","generated this period","▲ 18%","up"),
-          ("AI Assistant Traction","29.4%","of sessions engage AI","▲ 4.1 pts","up"),
-          ("Active SADC Markets","10/16","target markets active","▲ 2 new","up"),
-          ("Strategic Risk Alerts","3","requires executive review","⚠ Monitor","watch")]
-    cols=st.columns(5,gap="small")
-    cls_map={"up":"delta-up","watch":"delta-watch"}
-    for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
-        with col:
-            delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm" style="color:#A855F7;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
-    st.markdown("""
-<div style="background:linear-gradient(90deg,rgba(168,85,247,0.07),rgba(34,211,238,0.04));
-  border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:10px 16px;margin:8px 0;">
-  <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A855F7;">Board Summary · </span>
-  <span style="font-size:12px;color:#F0F4F8;">
-    AI Assistant traction is strong across core and strategic hubs.
-    Protect core markets while selectively testing high-growth opportunities.
-  </span>
-</div>""", unsafe_allow_html=True)
-
 def _strategic_growth():
     mo=["Jan","Feb","Mar","Apr","May","Jun"]
     fig=go.Figure()
@@ -1727,7 +1569,7 @@ def render_executive_overview(df):
     render_live_pulse()
     ml,mr=st.columns([1.7,1],gap="small")
     with ml:
-        render_sadc_map("executive", 380, None, 0)
+        render_sadc_map("executive", 380)
     with mr:
         if _EXECUTIVE_VIEWS_OK:
             st.markdown(render_executive_drawer(), unsafe_allow_html=True)
@@ -1741,7 +1583,7 @@ def render_executive_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # ANALYTICS / FORECASTING / DATA TABS
 # ═══════════════════════════════════════════════════════════════════════════════
-def render_analytics_tab(dash,df):
+def render_analytics_tab(dash):
     CARDS={"Sales":[("Funnel by Market","📊"),("Funnel by Service","📊"),("Repeat Visitor Conversion","🔄"),
                     ("Potential Customer Segment Quality","💎"),("Sales Insight Assistant","🤖"),("Sales Hotzones Map","🗺️"),
                     ("Top Service Demand","📈"),("Potential Customers by Country","🌍"),("Demo Intent by Hour","⏰"),("Conversion Rate by Stage","🎯")],
@@ -1896,7 +1738,7 @@ def main():
             elif dash=="Executive" and _EXECUTIVE_VIEWS_OK:
                 render_executive_analytics(df_f)
             else:
-                render_analytics_tab(dash, df_f)
+                render_analytics_tab(dash)
         with t_fc:
             if dash=="Sales" and _SALES_VIEWS_OK:
                 render_sales_forecasting(df_f)
