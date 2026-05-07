@@ -742,11 +742,7 @@ def render_header():
     hdr_col1, hdr_col2 = st.columns([8, 2])
     with hdr_col1:
         st.markdown(f"""
-<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
-  background:linear-gradient(135deg,rgba(9,20,36,0.97),rgba(7,16,28,0.94));
-  border:1px solid rgba(34,211,238,0.12);border-radius:14px;
-  padding:14px 22px;margin-bottom:14px;
-  box-shadow:0 2px 24px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.03);">
+<div class="app-shell-header">
 
   <div style="display:flex;align-items:center;gap:14px;">
     {logo_img(h=34)}
@@ -764,12 +760,10 @@ def render_header():
   </div>
 
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-    <div style="background:rgba(9,20,36,0.8);border:1px solid rgba(34,211,238,0.15);
-      border-radius:8px;padding:5px 12px;font-size:11px;color:#6B7FA3;">
+    <div class="header-chip">
       {dash} View &nbsp;▾
     </div>
-    <div style="background:rgba(9,20,36,0.8);border:1px solid rgba(34,211,238,0.15);
-      border-radius:8px;padding:5px 12px;font-size:11px;color:#6B7FA3;">
+    <div class="header-chip">
       Live Data Active
     </div>
     <span style="background:rgba(74,222,128,0.1);color:#4ADE80;
@@ -1380,8 +1374,7 @@ def render_sales_overview(df):
 
     # ── Live KPI Section ──
     st.markdown("""
-<div style="padding:16px 20px;border-radius:20px;border:1px solid rgba(255,255,255,0.10);
-  background:rgba(7,14,22,0.74);margin-bottom:14px;">
+<div class="headline-strip" style="margin-bottom:14px;">
   <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
     color:#00F5D4;margin-bottom:4px;">What is currently going on</div>
   <div style="font-size:12px;color:rgba(245,247,250,0.55);margin-bottom:14px;">
@@ -1856,4 +1849,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
