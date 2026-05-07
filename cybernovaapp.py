@@ -103,6 +103,11 @@ DASH_CFG = {
     "Executive": {"title":"CyberNova Horizon", "sub":"Executive Insights Dashboard • SADC Expansion Intelligence",   "accent":"#A855F7","icon":"Horizon"},
 }
 COLOR_MAP = {"Core Market":"#22D3EE","Strategic Hub":"#14B8A6","High Growth":"#FFD84A","Emerging":"#7CFF4F","Stable":"#8A98A6"}
+PANEL_DASHBOARD_TITLES = {
+    "Sales": "Sales Pulse Dashboard",
+    "Marketing": "Marketing Reach Dashboard",
+    "Executive": "Executive Horizon Dashboard",
+}
 
 def allowed(role): return ROLE_DASHBOARDS.get(role,["Sales"])
 
@@ -166,6 +171,33 @@ div[data-testid="element-container"]{height:100%!important;}
 .delta-watch{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.2);}
 .delta-down{background:rgba(248,113,113,0.12);color:var(--red);border:1px solid rgba(248,113,113,0.2);}
 .kpi-sub{font-size:10px;color:var(--muted);}
+.marketing-kpi-card{display:flex;flex-direction:column;justify-content:flex-start;}
+.marketing-kpi-card .kpi-label,
+.marketing-kpi-card .kpi-value,
+.marketing-kpi-card .kpi-delta,
+.marketing-kpi-card .kpi-sub{
+  max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.marketing-kpi-card .kpi-delta{display:block;width:max-content;max-width:100%;}
+.pulse-wrap-compact{min-height:0;padding:2px 8px;margin-bottom:5px;}
+.pulse-wrap-compact .pulse-item{padding:0 8px;}
+.pulse-wrap-compact .pl{font-size:7.5px;margin-bottom:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.pulse-wrap-compact .pv{font-size:12px;line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.pulse-updated{margin-left:auto;font-size:9px;color:#66727D;white-space:nowrap;}
+.pulse-wrap-compact .pulse-updated{font-size:8px;}
+.marketing-overview-tight-start{height:0;margin-top:-6px;margin-bottom:-2px;}
+.executive-overview-tight-start{height:0;margin-top:-6px;margin-bottom:-2px;}
+.executive-kpi-card{display:flex;flex-direction:column;justify-content:flex-start;}
+.executive-kpi-card .kpi-label,
+.executive-kpi-card .kpi-value,
+.executive-kpi-card .kpi-delta,
+.executive-kpi-card .kpi-sub{max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.executive-kpi-card .kpi-delta{display:block;width:max-content;max-width:100%;}
+.executive-board-summary{display:none!important;padding:2px 10px!important;margin:2px 0 0!important;line-height:1.15;}
+.executive-board-summary span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.executive-insight-below{margin-top:6px;}
+.executive-drawer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch;}
+.executive-drawer-grid .cn-card{height:100%;margin-bottom:0!important;}
 /* Section label */
 .sec-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--cyan);margin-bottom:4px;padding-bottom:4px;
@@ -346,10 +378,10 @@ def _human_df(df):
 def _fmt_money(value):
     value = float(value or 0)
     if value >= 1_000_000:
-        return f"${value/1_000_000:.1f}M"
+        return f"P{value/1_000_000:.1f}M"
     if value >= 1_000:
-        return f"${value/1_000:.0f}K"
-    return f"${value:,.0f}"
+        return f"P{value/1_000:.0f}K"
+    return f"P{value:,.0f}"
 
 def _top_value(df, col, fallback="--"):
     if df is None or df.empty or col not in df.columns:
@@ -726,6 +758,7 @@ def render_header():
     v    = st.session_state
     dash = v.active_dashboard
     cfg  = DASH_CFG[dash]
+    title_html = cfg["title"].replace("CyberNova", '<span class="cn-brand-glow">CyberNova</span>', 1)
     role = v.current_role or ""
     uname, _ = ROLE_META.get(role, ("Alex",""))
     fname = uname.split()[0]
@@ -744,8 +777,8 @@ def render_header():
         <span style="color:#22D3EE;">{now}</span>
         &nbsp;<span style="color:#4ADE80;">Live</span>
       </div>
-      <div style="font-size:17px;font-weight:800;color:{cfg['accent']};letter-spacing:.01em;line-height:1.15;">
-        {cfg['title']}
+      <div class="header-dashboard-title" style="color:{cfg['accent']};">
+        {title_html}
       </div>
       <div style="font-size:10px;color:#6B7FA3;margin-top:1px;">{cfg['sub']}</div>
     </div>
@@ -806,12 +839,20 @@ def render_admin_drawer():
     for d in allowed(role):
         cfg    = DASH_CFG[d]
         active = v.active_dashboard == d
-        if st.button(f"{cfg['icon']}  {cfg['title']}", key=f"rp_dash_{d}", use_container_width=True):
+        panel_title = PANEL_DASHBOARD_TITLES.get(d, cfg["title"])
+        if active:
+            st.markdown(
+                f'<div class="rp-active-dashboard" style="--dash-accent:{cfg["accent"]};">'
+                f'<span class="rp-active-icon">{cfg["icon"]}</span>'
+                f'<span>{panel_title}</span>'
+                f'</div>',
+                unsafe_allow_html=True,
+            )
+            continue
+        if st.button(f"{cfg['icon']}  {panel_title}", key=f"rp_dash_{d}", use_container_width=True):
             v.active_dashboard = d
             v.active_tab = "Overview"
             st.rerun()
-        if active:
-            st.markdown(f'<div style="height:2px;background:{cfg["accent"]};border-radius:2px;margin:-10px 0 6px;opacity:.5;"></div>', unsafe_allow_html=True)
 
     st.markdown('<div style="height:1px;background:rgba(34,211,238,0.08);margin:12px 0;"></div>', unsafe_allow_html=True)
 
@@ -880,7 +921,7 @@ def render_chips(df):
 </div>""", unsafe_allow_html=True)
 
 @st.fragment(run_every=1)
-def render_live_pulse():
+def render_live_pulse(compact=False):
     v    = st.session_state
     dash = v.get("active_dashboard","Sales")
     now  = datetime.datetime.now().strftime("%H:%M:%S")
@@ -912,29 +953,35 @@ def render_live_pulse():
 
     html = "".join(f'<div class="pulse-item"><div class="pl">{l}</div><div class="pv" style="color:{c};">{val}</div></div>'
                    for l,val,c in items)
+    pulse_class = "pulse-wrap pulse-wrap-compact" if compact else "pulse-wrap"
+    update_html = (
+        f'<div class="pulse-updated">Updated {now} &middot; today stream</div>'
+        if compact else
+        f'<div class="pulse-updated">Updated {now}<br>today stream</div>'
+    )
     st.markdown(f"""
-<div class="pulse-wrap">
+<div class="{pulse_class}">
   <div style="display:flex;align-items:center;font-size:9px;font-weight:700;letter-spacing:.14em;
     text-transform:uppercase;color:#3A4A5E;padding-right:16px;border-right:1px solid rgba(34,211,238,0.1);">
     <span class="live-dot"></span>LIVE
   </div>
   {html}
-  <div style="margin-left:auto;font-size:9px;color:#66727D;white-space:nowrap;">Updated {now}<br>today stream</div>
+  {update_html}
 </div>""", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # SHARED SADC MAP
 # ═══════════════════════════════════════════════════════════════════════════════
 MAP_NODES = [
-    {"city":"Cape Town","country":"South Africa","lat":-33.9,"lon":18.4,"status":"Core Market","customers":450,"demos":98,"conv":"21.8%","revenue":"$18.2M","ai":34,"risk":"Low","action":"Scale outreach","visitors":4200,"eng":"31%","invest":"Invest"},
-    {"city":"Durban","country":"South Africa","lat":-29.9,"lon":30.9,"status":"High Growth","customers":112,"demos":28,"conv":"25%","revenue":"$6.1M","ai":28,"risk":"Low","action":"Expand campaign","visitors":1100,"eng":"27%","invest":"Invest"},
-    {"city":"Lusaka","country":"Zambia","lat":-15.4,"lon":28.3,"status":"Strategic Hub","customers":180,"demos":41,"conv":"22.8%","revenue":"$9.5M","ai":41,"risk":"Low","action":"Deepen AI push","visitors":1800,"eng":"28%","invest":"Invest"},
-    {"city":"Maputo","country":"Mozambique","lat":-25.9,"lon":32.6,"status":"Strategic Hub","customers":140,"demos":29,"conv":"20.7%","revenue":"$7.2M","ai":37,"risk":"Medium","action":"Strengthen brand","visitors":1400,"eng":"25%","invest":"Monitor"},
-    {"city":"Gaborone","country":"Botswana","lat":-24.7,"lon":25.9,"status":"Stable","customers":95,"demos":18,"conv":"18.9%","revenue":"$4.8M","ai":22,"risk":"Low","action":"Maintain","visitors":950,"eng":"22%","invest":"Monitor"},
-    {"city":"Harare","country":"Zimbabwe","lat":-17.8,"lon":31.0,"status":"High Growth","customers":120,"demos":31,"conv":"25.8%","revenue":"$6.8M","ai":31,"risk":"Medium","action":"Monitor closely","visitors":1100,"eng":"27%","invest":"Monitor"},
-    {"city":"Luanda","country":"Angola","lat":-8.8,"lon":13.2,"status":"Emerging","customers":72,"demos":14,"conv":"19.4%","revenue":"$3.1M","ai":18,"risk":"Medium","action":"Pilot campaign","visitors":720,"eng":"24%","invest":"Review"},
-    {"city":"Windhoek","country":"Namibia","lat":-22.6,"lon":17.1,"status":"Emerging","customers":55,"demos":11,"conv":"20%","revenue":"$2.3M","ai":15,"risk":"Low","action":"Explore","visitors":550,"eng":"20%","invest":"Review"},
-    {"city":"Lilongwe","country":"Malawi","lat":-13.9,"lon":33.8,"status":"Emerging","customers":48,"demos":8,"conv":"16.7%","revenue":"$1.6M","ai":12,"risk":"Low","action":"Seed market","visitors":480,"eng":"18%","invest":"Review"},
+    {"city":"Cape Town","country":"South Africa","lat":-33.9,"lon":18.4,"status":"Core Market","customers":450,"demos":98,"conv":"21.8%","revenue":"P18.2M","ai":34,"risk":"Low","action":"Scale outreach","visitors":4200,"eng":"31%","invest":"Invest"},
+    {"city":"Durban","country":"South Africa","lat":-29.9,"lon":30.9,"status":"High Growth","customers":112,"demos":28,"conv":"25%","revenue":"P6.1M","ai":28,"risk":"Low","action":"Expand campaign","visitors":1100,"eng":"27%","invest":"Invest"},
+    {"city":"Lusaka","country":"Zambia","lat":-15.4,"lon":28.3,"status":"Strategic Hub","customers":180,"demos":41,"conv":"22.8%","revenue":"P9.5M","ai":41,"risk":"Low","action":"Deepen AI push","visitors":1800,"eng":"28%","invest":"Invest"},
+    {"city":"Maputo","country":"Mozambique","lat":-25.9,"lon":32.6,"status":"Strategic Hub","customers":140,"demos":29,"conv":"20.7%","revenue":"P7.2M","ai":37,"risk":"Medium","action":"Strengthen brand","visitors":1400,"eng":"25%","invest":"Monitor"},
+    {"city":"Gaborone","country":"Botswana","lat":-24.7,"lon":25.9,"status":"Stable","customers":95,"demos":18,"conv":"18.9%","revenue":"P4.8M","ai":22,"risk":"Low","action":"Maintain","visitors":950,"eng":"22%","invest":"Monitor"},
+    {"city":"Harare","country":"Zimbabwe","lat":-17.8,"lon":31.0,"status":"High Growth","customers":120,"demos":31,"conv":"25.8%","revenue":"P6.8M","ai":31,"risk":"Medium","action":"Monitor closely","visitors":1100,"eng":"27%","invest":"Monitor"},
+    {"city":"Luanda","country":"Angola","lat":-8.8,"lon":13.2,"status":"Emerging","customers":72,"demos":14,"conv":"19.4%","revenue":"P3.1M","ai":18,"risk":"Medium","action":"Pilot campaign","visitors":720,"eng":"24%","invest":"Review"},
+    {"city":"Windhoek","country":"Namibia","lat":-22.6,"lon":17.1,"status":"Emerging","customers":55,"demos":11,"conv":"20%","revenue":"P2.3M","ai":15,"risk":"Low","action":"Explore","visitors":550,"eng":"20%","invest":"Review"},
+    {"city":"Lilongwe","country":"Malawi","lat":-13.9,"lon":33.8,"status":"Emerging","customers":48,"demos":8,"conv":"16.7%","revenue":"P1.6M","ai":12,"risk":"Low","action":"Seed market","visitors":480,"eng":"18%","invest":"Review"},
 ]
 
 def _live_map_nodes(df):
@@ -1028,7 +1075,7 @@ def render_sadc_map(mode="sales", height=400, df=None):
                     orientation="v", x=0.01, y=0.98),
     )
     st.markdown(f'<div class="cn-card"><div class="sec-label">{title}</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ── CHART LAYOUT HELPER ───────────────────────────────────────────────────────
@@ -1162,7 +1209,7 @@ def _sales_growth(df):
     _cl(fig, 145)
     fig.update_xaxes(type="category")
     st.markdown('<div class="cn-card"><div class="sec-label">Sales Growth Trend</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _pipeline_funnel(df):
@@ -1214,7 +1261,7 @@ def _pipeline_funnel(df):
         yaxis=dict(tickfont=dict(color="#CBD5E1", size=11, family="Inter")),
     )
     st.markdown(f'<div class="cn-card"><div class="sec-label">Pipeline Funnel</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Conversion: <b style="color:#4ADE80;">{conv}%</b> &nbsp;·&nbsp; Won: <b style="color:#4ADE80;">{won:,}</b></div>', unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _service_donut(df):
@@ -1226,15 +1273,15 @@ def _service_donut(df):
             total = rev.sum()
             labels = rev.index.tolist()
             values = (rev / 1e6).round(2).values.tolist()
-            total_str = f"${total/1e6:.1f}M"
+            total_str = f"P{total/1e6:.1f}M"
         except Exception:
             labels = ["AI Solutions","Cybersecurity","Cloud & Data","Advisory & Training","Other"]
             values = [31.4, 20.7, 16.5, 8.3, 5.7]
-            total_str = "$82.6M"
+            total_str = "P82.6M"
     else:
         labels = ["AI Solutions","Cybersecurity","Cloud & Data","Advisory & Training","Other"]
         values = [31.4, 20.7, 16.5, 8.3, 5.7]
-        total_str = "$82.6M"
+        total_str = "P82.6M"
 
     total_value = float(sum(values) or 1)
     top_label = labels[0] if labels else "Top service"
@@ -1249,7 +1296,7 @@ def _service_donut(df):
             line=dict(color="rgba(7,14,26,0.92)", width=2),
         ),
         textinfo="none",
-        hovertemplate="<b>%{label}</b><br>Value: $%{value:.1f}M<br>Share: %{percent}<extra></extra>",
+        hovertemplate="<b>%{label}</b><br>Value: P%{value:.1f}M<br>Share: %{percent}<extra></extra>",
         direction="clockwise",
         sort=True,
     ))
@@ -1266,7 +1313,7 @@ def _service_donut(df):
                         font=dict(color="#F0F4F8", size=11, family="Inter")),
     )
     st.markdown(f'<div class="cn-card"><div class="sec-label">Service Mix</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Top: <b style="color:#38BDF8;">{top_label}</b> &nbsp;·&nbsp; Share: <b style="color:#2DD4BF;">{top_share}%</b></div>', unsafe_allow_html=True)
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _live_country_leaderboard(df):
@@ -1296,14 +1343,14 @@ def _live_country_leaderboard(df):
             cust = int(_truthy_series(human, "potential_customer_signal").sum()) if ("potential_customer_signal" in human.columns and len(human) > 0) else len(human)
             if "estimated_deal_value" in human.columns and len(human) > 0:
                 rev_val = _num_series(human, "estimated_deal_value").sum() / 1e6
-                rev_s = f"${rev_val:.1f}M"
+                rev_s = f"P{rev_val:.1f}M"
             else:
-                rev_s = f"${cust * 0.066:.1f}M"
+                rev_s = f"P{cust * 0.066:.1f}M"
         else:
-            _mock = {"South Africa":(450,"$18.2M"),"Zambia":(180,"$9.5M"),"Mozambique":(140,"$7.2M"),
-                     "Botswana":(95,"$4.8M"),"Angola":(72,"$3.1M"),"Namibia":(55,"$2.3M"),
-                     "Zimbabwe":(88,"$4.2M"),"Malawi":(42,"$1.6M")}
-            v = _mock.get(c, (0,"$0.0M"))
+            _mock = {"South Africa":(450,"P18.2M"),"Zambia":(180,"P9.5M"),"Mozambique":(140,"P7.2M"),
+                     "Botswana":(95,"P4.8M"),"Angola":(72,"P3.1M"),"Namibia":(55,"P2.3M"),
+                     "Zimbabwe":(88,"P4.2M"),"Malawi":(42,"P1.6M")}
+            v = _mock.get(c, (0,"P0.0M"))
             cust, rev_s = v[0], v[1]
 
         iso  = _ISO.get(c, "za")
@@ -1371,10 +1418,10 @@ def _sales_kpis(df):
     opp_delta, opp_cls = _metric_delta(stats, baseline, "opportunity")
 
     kpis = [
-        ("Pipeline Target Attainment", f"{pipeline_pct}%", f"${pot_rev_m}M / $95M target", pipeline_delta, pipeline_cls, "anchor"),
+        ("Pipeline Target Attainment", f"{pipeline_pct}%", f"P{pot_rev_m}M / P95M target", pipeline_delta, pipeline_cls, "anchor"),
         ("Potential Customers", f"{pot_cust:,}", f"today vs {baseline_label}", potential_delta, potential_cls, ""),
         ("Demo Requests", f"{demo_req:,}", f"today vs {baseline_label}", demo_delta, demo_cls, ""),
-        ("Potential Opportunity Value", f"${pot_rev_m}M", f"modelled; today vs {baseline_label}", opp_delta, opp_cls, ""),
+        ("Potential Opportunity Value", f"P{pot_rev_m}M", f"modelled; today vs {baseline_label}", opp_delta, opp_cls, ""),
         ("Top Sales Market", f"{flag_img}{top_market}", f"{top_pct}% of today's potential", "", "", ""),
     ]
     cols = st.columns(5, gap="small")
@@ -1433,7 +1480,7 @@ def _opportunity_matrix():
         hovertemplate="<b>%{text}</b><br>Visitors: %{x:,}<br>Engagement: %{y}%<extra></extra>"))
     _cl(fig,145); fig.update_layout(xaxis_title="Visitors",yaxis_title="Engagement %")
     st.markdown('<div class="cn-card"><div class="sec-label">Market Opportunity Matrix</div><div style="font-size:9px;color:#6B7FA3;margin-bottom:6px;">Bubble size = Potential Customers</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _promo_gap():
@@ -1443,7 +1490,7 @@ def _promo_gap():
     fig.add_trace(go.Bar(x=svcs,y=[42,24,18,12,4],name="Conversion Share %",marker_color="#22D3EE",hovertemplate="<b>%{x}</b><br>Conversion: %{y}%<extra></extra>"))
     _cl(fig,145); fig.update_layout(barmode="group",bargap=0.28)
     st.markdown(f'<div class="cn-card"><div class="sec-label">Service Promotion Gap</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;display:flex;align-items:center;gap:6px;">{svg_icon("alert", 13, "#FBBF24")} Cybersecurity: high conversion, low visit share to under-promoted</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _content_funnel():
@@ -1453,7 +1500,7 @@ def _content_funnel():
         hovertemplate="<b>%{y}</b><br>%{x:,}<br>%{percentInitial:.1%}<extra></extra>"))
     fig.update_layout(height=145,margin=dict(l=100,r=18,t=8,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#CBD5E1",size=11),yaxis=dict(tickfont=dict(color="#CBD5E1",size=10),automargin=True))
     st.markdown('<div class="cn-card"><div class="sec-label">Content Journey Funnel</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _activity_heatmap():
@@ -1465,7 +1512,7 @@ def _activity_heatmap():
         hovertemplate="<b>%{y} %{x}</b><br>Activity: %{z}<extra></extra>",showscale=False))
     fig.update_layout(height=145,margin=dict(l=42,r=12,t=8,b=44),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,17,24,0.44)",font=dict(color="#CBD5E1",size=10),xaxis=dict(tickangle=-45,color="#CBD5E1",tickfont=dict(size=9),automargin=True),yaxis=dict(color="#CBD5E1",tickfont=dict(size=10),automargin=True))
     st.markdown('<div class="cn-card"><div class="sec-label">Human Activity Timing</div><div style="font-size:9px;color:#6B7FA3;margin-bottom:6px;">Best: Tue–Thu, 09:00–17:00</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _mkt_right():
@@ -1506,27 +1553,24 @@ def _mkt_kpis(df=None):
     for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
         with col:
             delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else '<div style="height:20px;"></div>'
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm live-count" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="kpi-card marketing-kpi-card"><div class="kpi-label" title="{lbl}">{lbl}</div><div class="kpi-value live-count" title="{val}" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub" title="{sub}">{sub}</div></div>', unsafe_allow_html=True)
 
 def render_marketing_overview(df):
     st.session_state["_marketing_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
+    st.markdown('<div class="marketing-overview-tight-start"></div>', unsafe_allow_html=True)
 
     # ── Row 1: KPI cards + live pulse (side by side) ──
-    kpi_col, pulse_col = st.columns([3.5, 1.0], gap="small")
-    with kpi_col:
-        try:
-            @st.fragment(run_every=1)
-            def _live_marketing_kpis():
-                _mkt_kpis(st.session_state.get("_marketing_df_cache"))
-            _live_marketing_kpis()
-        except Exception:
-            _mkt_kpis(df)
-    with pulse_col:
-        render_live_pulse()
+    try:
+        @st.fragment(run_every=1)
+        def _live_marketing_kpis():
+            _mkt_kpis(st.session_state.get("_marketing_df_cache"))
+        _live_marketing_kpis()
+    except Exception:
+        _mkt_kpis(df)
     st.markdown('<div style="height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.18),rgba(34,211,238,0.06),transparent);margin:20px 0;"></div>', unsafe_allow_html=True)
 
     # ── Row 2: Map (left 55%) | 2×2 chart grid (right 45%) ──
-    col_map, col_right = st.columns([1.2, 1.0], gap="small")
+    col_map, col_right = st.columns([1.0, 1.15], gap="small")
     with col_map:
         render_sadc_map("marketing", 400)
     with col_right:
@@ -1543,14 +1587,14 @@ def render_marketing_overview(df):
 def _strategic_growth():
     mo=["Jan","Feb","Mar","Apr","May","Jun"]
     fig=go.Figure()
-    fig.add_trace(go.Scatter(x=mo,y=[72,76,79,82,82.6,None],name="Revenue ($M)",line=dict(color="#22D3EE",width=2),mode="lines+markers",marker=dict(size=4)))
+    fig.add_trace(go.Scatter(x=mo,y=[72,76,79,82,82.6,None],name="Revenue (Pula M)",line=dict(color="#22D3EE",width=2),mode="lines+markers",marker=dict(size=4)))
     fig.add_trace(go.Scatter(x=mo,y=[28,32,35,38,40,None],name="AI Solutions",line=dict(color="#A855F7",width=2),mode="lines+markers",marker=dict(size=4)))
     fig.add_trace(go.Scatter(x=mo,y=[44,44,44,44,42.6,None],name="Services",line=dict(color="#14B8A6",width=2),mode="lines+markers",marker=dict(size=4)))
     fig.add_trace(go.Scatter(x=mo,y=[80,83,85,90,95,100],name="Target",line=dict(color="#A855F7",width=1.5,dash="dash"),mode="lines"))
     fig.add_trace(go.Scatter(x=mo,y=[68,72,76,79,82,82.6],name="Prev. Month",line=dict(color="#3A4A5E",width=1.5,dash="dot"),mode="lines"))
     _cl(fig,145)
     st.markdown('<div class="cn-card"><div class="sec-label">Strategic Growth Trend</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _ai_traction():
@@ -1560,7 +1604,7 @@ def _ai_traction():
     fig.add_trace(go.Scatter(x=mo,y=[25,25,28,30],name="Target %",mode="lines+markers",line=dict(color="#A855F7",width=2,dash="dash"),marker=dict(size=5)))
     _cl(fig,145); fig.update_layout(barmode="group",bargap=0.3,yaxis_title="% Sessions")
     st.markdown('<div class="cn-card"><div class="sec-label">AI Assistant Traction</div><span style="background:rgba(168,85,247,0.12);color:#A855F7;border:1px solid rgba(168,85,247,0.25);border-radius:20px;padding:2px 9px;font-size:9px;font-weight:700;">Target Achievement: 97%</span>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _forecast_90():
@@ -1577,7 +1621,7 @@ def _forecast_90():
     fig.add_trace(go.Scatter(x=fwd,y=tg,name="Target Aim",line=dict(color="#A855F7",width=1.5,dash="dash"),mode="lines"))
     _cl(fig,145)
     st.markdown(f'<div class="cn-card"><div class="sec-label">90-Day Forecast</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;display:flex;align-items:center;gap:6px;">{svg_icon("alert", 13, "#FBBF24")} Rule-based linear forecast, not predictive AI.</div>', unsafe_allow_html=True)
-    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
+    st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _exec_right():
@@ -1623,9 +1667,9 @@ def _exec_kpis(df=None):
     for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
         with col:
             delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else '<div style="height:20px;"></div>'
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm live-count" style="color:#A855F7;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="kpi-card executive-kpi-card"><div class="kpi-label" title="{lbl}">{lbl}</div><div class="kpi-value live-count" title="{val}" style="color:#A855F7;">{val}</div>{delta}<div class="kpi-sub" title="{sub}">{sub}</div></div>', unsafe_allow_html=True)
     st.markdown(f"""
-<div style="background:linear-gradient(90deg,rgba(168,85,247,0.07),rgba(34,211,238,0.04));
+<div class="executive-board-summary" style="background:linear-gradient(90deg,rgba(168,85,247,0.07),rgba(34,211,238,0.04));
   border:1px solid rgba(168,85,247,0.18);border-radius:8px;padding:4px 12px;margin:4px 0;">
   <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A855F7;">Board Summary — </span>
   <span style="font-size:11px;color:#F0F4F8;">Live simulation. Opportunity value is modelled, not audited revenue.</span>
@@ -1633,36 +1677,33 @@ def _exec_kpis(df=None):
 
 def render_executive_overview(df):
     st.session_state["_executive_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
+    st.markdown('<div class="executive-overview-tight-start"></div>', unsafe_allow_html=True)
 
     # ── Row 1: KPI cards + live pulse (side by side) ──
-    kpi_col, pulse_col = st.columns([3.5, 1.0], gap="small")
-    with kpi_col:
-        try:
-            @st.fragment(run_every=1)
-            def _live_executive_kpis():
-                _exec_kpis(st.session_state.get("_executive_df_cache"))
-            _live_executive_kpis()
-        except Exception:
-            _exec_kpis(df)
-    with pulse_col:
-        render_live_pulse()
+    try:
+        @st.fragment(run_every=1)
+        def _live_executive_kpis():
+            _exec_kpis(st.session_state.get("_executive_df_cache"))
+        _live_executive_kpis()
+    except Exception:
+        _exec_kpis(df)
     st.markdown('<div style="height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.18),rgba(34,211,238,0.06),transparent);margin:20px 0;"></div>', unsafe_allow_html=True)
 
     # ── Row 2: Map (left 55%) | 2×2 chart grid (right 45%) ──
-    col_map, col_right = st.columns([1.2, 1.0], gap="small")
+    col_map, col_right = st.columns([0.8, 1.4], gap="small")
     with col_map:
         render_sadc_map("executive", 400)
     with col_right:
-        r1a, r1b = st.columns(2, gap="small")
-        with r1a: _strategic_growth()
-        with r1b: _ai_traction()
-        r2a, r2b = st.columns(2, gap="small")
-        with r2a: _forecast_90()
-        with r2b:
-            if _EXECUTIVE_VIEWS_OK:
-                st.markdown(render_executive_drawer(), unsafe_allow_html=True)
-            else:
-                _exec_right()
+        c1, c2, c3 = st.columns(3, gap="small")
+        with c1: _strategic_growth()
+        with c2: _ai_traction()
+        with c3: _forecast_90()
+        st.markdown('<div class="executive-insight-below">', unsafe_allow_html=True)
+        if _EXECUTIVE_VIEWS_OK:
+            st.markdown(render_executive_drawer(), unsafe_allow_html=True)
+        else:
+            _exec_right()
+        st.markdown('</div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # ANALYTICS / FORECASTING / DATA TABS

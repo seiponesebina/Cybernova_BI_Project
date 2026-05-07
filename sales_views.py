@@ -55,15 +55,15 @@ _STAGE_COLORS = {
 }
 
 MAP_NODES = [
-    {"city":"Cape Town",  "country":"South Africa", "lat":-33.9, "lon":18.4,  "status":"Core Market",   "customers":450, "demos":98,  "conv":"21.8%","revenue":"$18.2M","ai":34,"risk":"Low"},
-    {"city":"Durban",     "country":"South Africa", "lat":-29.9, "lon":30.9,  "status":"High Growth",   "customers":112, "demos":28,  "conv":"25%",  "revenue":"$6.1M", "ai":28,"risk":"Low"},
-    {"city":"Lusaka",     "country":"Zambia",        "lat":-15.4, "lon":28.3,  "status":"Strategic Hub", "customers":180, "demos":41,  "conv":"22.8%","revenue":"$9.5M", "ai":41,"risk":"Low"},
-    {"city":"Maputo",     "country":"Mozambique",    "lat":-25.9, "lon":32.6,  "status":"Strategic Hub", "customers":140, "demos":29,  "conv":"20.7%","revenue":"$7.2M", "ai":37,"risk":"Medium"},
-    {"city":"Gaborone",   "country":"Botswana",      "lat":-24.7, "lon":25.9,  "status":"Stable",        "customers":95,  "demos":18,  "conv":"18.9%","revenue":"$4.8M", "ai":22,"risk":"Low"},
-    {"city":"Harare",     "country":"Zimbabwe",      "lat":-17.8, "lon":31.0,  "status":"High Growth",   "customers":120, "demos":31,  "conv":"25.8%","revenue":"$6.8M", "ai":31,"risk":"Medium"},
-    {"city":"Luanda",     "country":"Angola",        "lat":-8.8,  "lon":13.2,  "status":"Emerging",      "customers":72,  "demos":14,  "conv":"19.4%","revenue":"$3.1M", "ai":18,"risk":"Medium"},
-    {"city":"Windhoek",   "country":"Namibia",       "lat":-22.6, "lon":17.1,  "status":"Emerging",      "customers":55,  "demos":11,  "conv":"20%",  "revenue":"$2.3M", "ai":15,"risk":"Low"},
-    {"city":"Lilongwe",   "country":"Malawi",        "lat":-13.9, "lon":33.8,  "status":"Emerging",      "customers":48,  "demos":8,   "conv":"16.7%","revenue":"$1.6M", "ai":12,"risk":"Low"},
+    {"city":"Cape Town",  "country":"South Africa", "lat":-33.9, "lon":18.4,  "status":"Core Market",   "customers":450, "demos":98,  "conv":"21.8%","revenue":"P18.2M","ai":34,"risk":"Low"},
+    {"city":"Durban",     "country":"South Africa", "lat":-29.9, "lon":30.9,  "status":"High Growth",   "customers":112, "demos":28,  "conv":"25%",  "revenue":"P6.1M", "ai":28,"risk":"Low"},
+    {"city":"Lusaka",     "country":"Zambia",        "lat":-15.4, "lon":28.3,  "status":"Strategic Hub", "customers":180, "demos":41,  "conv":"22.8%","revenue":"P9.5M", "ai":41,"risk":"Low"},
+    {"city":"Maputo",     "country":"Mozambique",    "lat":-25.9, "lon":32.6,  "status":"Strategic Hub", "customers":140, "demos":29,  "conv":"20.7%","revenue":"P7.2M", "ai":37,"risk":"Medium"},
+    {"city":"Gaborone",   "country":"Botswana",      "lat":-24.7, "lon":25.9,  "status":"Stable",        "customers":95,  "demos":18,  "conv":"18.9%","revenue":"P4.8M", "ai":22,"risk":"Low"},
+    {"city":"Harare",     "country":"Zimbabwe",      "lat":-17.8, "lon":31.0,  "status":"High Growth",   "customers":120, "demos":31,  "conv":"25.8%","revenue":"P6.8M", "ai":31,"risk":"Medium"},
+    {"city":"Luanda",     "country":"Angola",        "lat":-8.8,  "lon":13.2,  "status":"Emerging",      "customers":72,  "demos":14,  "conv":"19.4%","revenue":"P3.1M", "ai":18,"risk":"Medium"},
+    {"city":"Windhoek",   "country":"Namibia",       "lat":-22.6, "lon":17.1,  "status":"Emerging",      "customers":55,  "demos":11,  "conv":"20%",  "revenue":"P2.3M", "ai":15,"risk":"Low"},
+    {"city":"Lilongwe",   "country":"Malawi",        "lat":-13.9, "lon":33.8,  "status":"Emerging",      "customers":48,  "demos":8,   "conv":"16.7%","revenue":"P1.6M", "ai":12,"risk":"Low"},
 ]
 
 
@@ -416,6 +416,52 @@ def _card_end():
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+def _truthy_col(df, col):
+    if df is None or col not in df.columns:
+        return pd.Series(False, index=df.index if df is not None else [])
+    s = df[col]
+    if s.dtype == bool:
+        return s.fillna(False)
+    return s.astype(str).str.lower().isin(["1", "true", "yes", "y"])
+
+
+def _money_pula(value):
+    value = float(value or 0)
+    if value >= 1_000_000:
+        return f"P{value / 1_000_000:.1f}M"
+    if value >= 1_000:
+        return f"P{value / 1_000:.0f}K"
+    return f"P{value:,.0f}"
+
+
+def _summary_table(rows):
+    body = "".join(
+        f'<tr><td>{label}</td><td>{value}</td></tr>'
+        for label, value in rows
+    )
+    return f'<table class="summary-stat-table"><tbody>{body}</tbody></table>'
+
+
+def _sales_summary_statistics(df):
+    _card_start("Summary Statistics", "chart")
+    work = df if df is not None and not df.empty else pd.DataFrame()
+    human = work[~_truthy_col(work, "is_bot")] if not work.empty and "is_bot" in work.columns else work
+    potential = int(_truthy_col(human, "potential_customer_signal").sum()) if not human.empty else 0
+    demos = int(_truthy_col(human, "has_demo_request").sum()) if not human.empty else 0
+    opportunity = pd.to_numeric(human.get("estimated_deal_value", pd.Series(dtype="float64")), errors="coerce").fillna(0).sum()
+    top_market = human["country"].dropna().astype(str).value_counts().index[0] if not human.empty and "country" in human.columns and not human["country"].dropna().empty else "--"
+    rows = [
+        ("Filtered rows", f"{len(work):,}"),
+        ("Human rows", f"{len(human):,}"),
+        ("Potential customers", f"{potential:,}"),
+        ("Demo requests", f"{demos:,}"),
+        ("Opportunity value", _money_pula(opportunity)),
+        ("Top market", top_market),
+    ]
+    st.markdown(_summary_table(rows), unsafe_allow_html=True)
+    _card_end()
+
+
 def _pill(stage):
     cls_map = {
         "Engaged":  "stage-pill-engaged",
@@ -565,7 +611,7 @@ def _funnel_by_market():
     )
 
     _card_start("Funnel by Market", "chart")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     avg_conv = sum(conv_rates) / len(conv_rates)
     gap = avg_conv - target
     gap_color = _GREEN if gap >= 0 else _RED
@@ -616,7 +662,7 @@ def _funnel_by_service():
                        font=dict(color=_GREEN, size=9), xanchor="left", xshift=6)
 
     _card_start("Funnel by Service", "chart")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -656,7 +702,7 @@ def _repeat_visitor_conv():
         'Repeat: 4.8%  -  Lift 2.4x</span>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -701,7 +747,7 @@ def _segment_quality_bubble():
     _card_start("Segment Quality Bubble", "quality")
     c_left, c_right = st.columns([3, 1])
     with c_left:
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     with c_right:
         st.markdown("<div style='height:20px;'></div>", unsafe_allow_html=True)
         for seg, qs, col in zip(segments, quality, colors):
@@ -722,7 +768,7 @@ def _segment_quality_bubble():
 # ── E. Sales Insight Assistant ────────────────────────────────────────────────
 def _sales_insight_assistant():
     insights = [
-        ("dot", "South Africa is the largest opportunity pool - 450 potential customers, $18.2M pipeline.", _GREEN),
+        ("dot", "South Africa is the largest opportunity pool - 450 potential customers, P18.2M pipeline.", _GREEN),
         ("dot", "Zambia shows strong growth momentum (+31% MoM) - high-priority emerging hub.", _YELLOW),
         ("dot", "Biggest funnel drop-off: Qualified to Proposal stage (-59% fallthrough rate).", _RED),
         ("dot", "Repeat visitors convert 2.4× higher than new visitors - prioritise returning traffic.", _GREEN),
@@ -796,7 +842,7 @@ def _mini_hotzones_map():
     )
 
     _card_start("Sales Hotzones Map", "map")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -830,19 +876,19 @@ def _top_service_demand():
     )
 
     _card_start("Top Service Demand", "trend")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
 # ── H. Customers by Country ───────────────────────────────────────────────────
 def _customers_by_country():
     rows_data = [
-        ("🇿🇦", "South Africa", 450, "+22%", "21.8%", "$18.2M", _GREEN),
-        ("🇿🇲", "Zambia",        180, "+14%", "22.8%", "$9.5M",  _GREEN),
-        ("🇲🇿", "Mozambique",    140, "+18%", "20.7%", "$7.2M",  _GREEN),
-        ("🇧🇼", "Botswana",       95, "+8%",  "18.9%", "$4.8M",  _YELLOW),
-        ("🇦🇴", "Angola",          72, "+31%", "19.4%", "$3.1M",  _GREEN),
-        ("🇨🇩", "DRC",             38, "+9%",  "15.2%", "$1.4M",  _YELLOW),
+        ("🇿🇦", "South Africa", 450, "+22%", "21.8%", "P18.2M", _GREEN),
+        ("🇿🇲", "Zambia",        180, "+14%", "22.8%", "P9.5M",  _GREEN),
+        ("🇲🇿", "Mozambique",    140, "+18%", "20.7%", "P7.2M",  _GREEN),
+        ("🇧🇼", "Botswana",       95, "+8%",  "18.9%", "P4.8M",  _YELLOW),
+        ("🇦🇴", "Angola",          72, "+31%", "19.4%", "P3.1M",  _GREEN),
+        ("🇨🇩", "DRC",             38, "+9%",  "15.2%", "P1.4M",  _YELLOW),
     ]
 
     header = (
@@ -916,7 +962,7 @@ def _demo_intent_heatmap():
         'High-intent windows highlighted</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -949,7 +995,7 @@ def _conversion_by_stage():
     fig.update_layout(yaxis_title="Cumulative Conversion %", showlegend=False)
 
     _card_start("Conversion Rate by Stage", "target")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown(
         '<div style="font-size:10px;color:#8A98A6;margin-top:4px;">'
         'lightbulb Opportunity: Improving QualifiedtoProposal by 10% could add ~50 additional won deals per cycle.</div>',
@@ -991,7 +1037,7 @@ def _forecast_kpis():
         ("Customers Forecast", "1,642", "vs current 1,248", "+ 31.6%", "up", _PURPLE),
         ("Demo Requests Forecast", "412", "vs current 312", "+ 32.1%", "up", _CYAN),
         ("Expected Conversions", "98", "next 30 days", "+ 28.9%", "up", _GREEN),
-        ("Forecasted Revenue", "$2.86M", "vs current $2.24M", "+ 27.7%", "up", _TEAL),
+        ("Forecasted Revenue", "P2.86M", "vs current P2.24M", "+ 27.7%", "up", _TEAL),
         ("Confidence Level", "76%", "medium-high accuracy", "Medium-High", "watch", _YELLOW),
     ]
     delta_cls = {"up": "kpi-delta-up", "watch": "kpi-delta-watch", "down": "kpi-delta-down"}
@@ -1054,7 +1100,7 @@ def _customer_forecast_30d():
         'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -1098,7 +1144,7 @@ def _demo_request_forecast():
         'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -1118,13 +1164,13 @@ def _forecast_vs_target():
     fig.add_trace(go.Scatter(x=months, y=fcast, name="Forecast",
         line=dict(color=_CYAN, width=2.5), mode="lines+markers",
         marker=dict(size=6, color=_CYAN),
-        hovertemplate="<b>%{x}</b><br>Forecast: $%{y:.2f}M<extra></extra>"))
+        hovertemplate="<b>%{x}</b><br>Forecast: P%{y:.2f}M<extra></extra>"))
     fig.add_trace(go.Scatter(x=months, y=target, name="Target",
         line=dict(color=_PURPLE, width=1.5, dash="dash"), mode="lines",
-        hovertemplate="<b>%{x}</b><br>Target: $%{y:.2f}M<extra></extra>"))
+        hovertemplate="<b>%{x}</b><br>Target: P%{y:.2f}M<extra></extra>"))
 
     _chart_layout(fig, h=240)
-    fig.update_layout(yaxis_title="Revenue ($M)")
+    fig.update_layout(yaxis_title="Revenue (Pula M)")
 
     _card_start("Forecast vs Target", "flag")
     st.markdown(
@@ -1132,11 +1178,11 @@ def _forecast_vs_target():
         'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     c1, c2, c3, c4 = st.columns(4)
-    with c1: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Forecast <b style="color:{_CYAN};">$2.86M</b></div>', unsafe_allow_html=True)
-    with c2: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Target <b style="color:{_PURPLE};">$3.20M</b></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Gap <b style="color:{_RED};">-$340K</b></div>', unsafe_allow_html=True)
+    with c1: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Forecast <b style="color:{_CYAN};">P2.86M</b></div>', unsafe_allow_html=True)
+    with c2: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Target <b style="color:{_PURPLE};">P3.20M</b></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Gap <b style="color:{_RED};">-P340K</b></div>', unsafe_allow_html=True)
     with c4: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Confidence <b style="color:{_YELLOW};">76%</b></div>', unsafe_allow_html=True)
     _card_end()
 
@@ -1180,7 +1226,7 @@ def _whatif_analysis():
                 f'<div style="font-size:13px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">'
                 f'Conversions: {convs}</div>'
                 f'<div style="font-size:14px;font-weight:800;color:{color};margin-bottom:4px;">'
-                f'Revenue: ${rev:.2f}M</div>'
+                f'Revenue: P{rev:.2f}M</div>'
                 f'<div style="font-size:10px;color:{gap_c};">Gap to Target: {gap_s}</div>'
                 f'</div>',
                 unsafe_allow_html=True,
@@ -1246,7 +1292,7 @@ def _forecast_confidence_gauge():
     )
 
     _card_start("Forecast Confidence", "target")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown(
         f'<div style="text-align:center;font-size:11px;color:{_YELLOW};font-weight:600;">Medium-High</div>'
         f'<div style="text-align:center;font-size:10px;color:#8A98A6;">Based on historical accuracy</div>',
@@ -1351,7 +1397,7 @@ def _alert_center_risk():
         paper_bgcolor="rgba(0,0,0,0)",
         font=dict(color="#8A98A6", size=9),
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown(
         f'<div style="text-align:center;font-size:11px;color:{_GREEN};font-weight:700;">LOW RISK</div>',
         unsafe_allow_html=True,
@@ -1391,11 +1437,11 @@ def render_sales_forecasting(df):
 
 def _action_queue():
     actions = [
-        ("bell", "Follow up",       "🇦🇴 Luanda, Angola",      "High",   "Today",     "Alex M.",   "$85K"),
-        ("file", "Qualify",         "🇿🇲 Lusaka, Zambia",       "High",   "Tomorrow",  "Sarah K.",  "$120K"),
-        ("sync", "Re-engage",       "🇳🇦 Windhoek, Namibia",    "Med",    "May 30",    "Alex M.",   "$42K"),
-        ("file", "Prepare proposal","🇿🇦 Durban, S. Africa",     "High",   "May 31",    "James O.",  "$200K"),
-        ("phone", "Intro call",      "🇿🇦 Cape Town, S. Africa",  "Med",    "Jun 1",     "Alex M.",   "$95K"),
+        ("bell", "Follow up",       "🇦🇴 Luanda, Angola",      "High",   "Today",     "Alex M.",   "P85K"),
+        ("file", "Qualify",         "🇿🇲 Lusaka, Zambia",       "High",   "Tomorrow",  "Sarah K.",  "P120K"),
+        ("sync", "Re-engage",       "🇳🇦 Windhoek, Namibia",    "Med",    "May 30",    "Alex M.",   "P42K"),
+        ("file", "Prepare proposal","🇿🇦 Durban, S. Africa",     "High",   "May 31",    "James O.",  "P200K"),
+        ("phone", "Intro call",      "🇿🇦 Cape Town, S. Africa",  "Med",    "Jun 1",     "Alex M.",   "P95K"),
     ]
     priority_html = {
         "High": f'<span style="background:rgba(248,113,113,0.12);color:{_RED};border:1px solid rgba(248,113,113,0.25);border-radius:20px;padding:2px 7px;font-size:9px;font-weight:700;">High</span>',
@@ -1434,16 +1480,16 @@ def _action_queue():
 
 def _customers_table():
     customers = [
-        ("Lusaka Telecom Ltd",         "Zambia",       "Strategic Hub",  "Qualified", 88, "$142K", "2h ago",  "Sarah K."),
-        ("Cape Town Digital Co.",      "South Africa", "Core Market",    "Proposal",  82, "$210K", "1d ago",  "James O."),
-        ("Maputo Industries",          "Mozambique",   "Strategic Hub",  "Engaged",   74, "$95K",  "3h ago",  "Alex M."),
-        ("Gaborone FinServ",           "Botswana",     "Stable",         "Qualified", 71, "$88K",  "2d ago",  "Sarah K."),
-        ("Luanda Solutions Ltd",       "Angola",       "Emerging",       "Proposal",  79, "$175K", "5h ago",  "James O."),
-        ("Harare Cloud Systems",       "Zimbabwe",     "High Growth",    "Risk",      45, "$62K",  "7d ago",  "Alex M."),
-        ("Windhoek Data Group",        "Namibia",      "Emerging",       "Engaged",   66, "$54K",  "4h ago",  "Sarah K."),
-        ("Durban Enterprise Hub",      "South Africa", "Core Market",    "Won",       95, "$320K", "1d ago",  "James O."),
-        ("Lilongwe Agri Connect",      "Malawi",       "Emerging",       "Engaged",   58, "$41K",  "6h ago",  "Alex M."),
-        ("Johannesburg AI Ventures",   "South Africa", "High Growth",    "Proposal",  86, "$265K", "2d ago",  "Sarah K."),
+        ("Lusaka Telecom Ltd",         "Zambia",       "Strategic Hub",  "Qualified", 88, "P142K", "2h ago",  "Sarah K."),
+        ("Cape Town Digital Co.",      "South Africa", "Core Market",    "Proposal",  82, "P210K", "1d ago",  "James O."),
+        ("Maputo Industries",          "Mozambique",   "Strategic Hub",  "Engaged",   74, "P95K",  "3h ago",  "Alex M."),
+        ("Gaborone FinServ",           "Botswana",     "Stable",         "Qualified", 71, "P88K",  "2d ago",  "Sarah K."),
+        ("Luanda Solutions Ltd",       "Angola",       "Emerging",       "Proposal",  79, "P175K", "5h ago",  "James O."),
+        ("Harare Cloud Systems",       "Zimbabwe",     "High Growth",    "Risk",      45, "P62K",  "7d ago",  "Alex M."),
+        ("Windhoek Data Group",        "Namibia",      "Emerging",       "Engaged",   66, "P54K",  "4h ago",  "Sarah K."),
+        ("Durban Enterprise Hub",      "South Africa", "Core Market",    "Won",       95, "P320K", "1d ago",  "James O."),
+        ("Lilongwe Agri Connect",      "Malawi",       "Emerging",       "Engaged",   58, "P41K",  "6h ago",  "Alex M."),
+        ("Johannesburg AI Ventures",   "South Africa", "High Growth",    "Proposal",  86, "P265K", "2d ago",  "Sarah K."),
     ]
 
     header = (
@@ -1502,10 +1548,10 @@ def _score_color(score: int) -> str:
 
 def _evidence_snapshot():
     metrics = [
-        ("money", "Total Potential Revenue",   "$82.6M", _GREEN),
+        ("money", "Total Potential Revenue",   "P82.6M", _GREEN),
         ("users", "Potential Customers",       "1,248",  _CYAN),
         ("🆕", "New Potential Customers",   "312",    _TEAL),
-        ("chart", "Avg Potential Revenue",     "$66.3K", _YELLOW),
+        ("chart", "Avg Potential Revenue",     "P66.3K", _YELLOW),
         ("activity", "Avg Engagement Score",      "74/100", _PURPLE),
     ]
 
@@ -1661,7 +1707,7 @@ def _methodology():
   <div style="margin-bottom:12px;">
     <div style="font-size:10px;font-weight:700;color:#22D3EE;text-transform:uppercase;
       letter-spacing:.1em;margin-bottom:4px;">Revenue Assumptions</div>
-    <div style="color:#8A98A6;">Average deal value of $66.3K is based on segment analysis of the SADC enterprise software market. Values are indicative estimates.</div>
+    <div style="color:#8A98A6;">Average deal value of P66.3K is based on segment analysis of the SADC enterprise software market. Values are indicative estimates.</div>
   </div>
   <div style="margin-bottom:12px;">
     <div style="font-size:10px;font-weight:700;color:#FFD84A;text-transform:uppercase;
@@ -1671,7 +1717,7 @@ def _methodology():
   <div style="margin-bottom:12px;">
     <div style="font-size:10px;font-weight:700;color:#22D3EE;text-transform:uppercase;
       letter-spacing:.1em;margin-bottom:4px;">Currency</div>
-    <div style="color:#8A98A6;">All revenue values are denominated in USD.</div>
+    <div style="color:#8A98A6;">All revenue values are denominated in BWP.</div>
   </div>
   <div>
     <div style="font-size:10px;font-weight:700;color:#22D3EE;text-transform:uppercase;
@@ -1701,9 +1747,9 @@ def _revenue_by_region():
             line=dict(color="rgba(0,0,0,0.3)", width=1),
         ),
         textfont=dict(color="#F8FAFC", size=9),
-        hovertemplate="<b>%{label}</b><br>Revenue: $%{value:.1f}M<br>Share: %{percent}<extra></extra>",
+        hovertemplate="<b>%{label}</b><br>Revenue: P%{value:.1f}M<br>Share: %{percent}<extra></extra>",
     ))
-    fig.add_annotation(text="$82.6M", x=0.5, y=0.58,
+    fig.add_annotation(text="P82.6M", x=0.5, y=0.58,
                        font=dict(size=14, color="#FFFFFF", family="Inter"), showarrow=False)
     fig.add_annotation(text="Total", x=0.5, y=0.42,
                        font=dict(size=9, color="#8A98A6", family="Inter"), showarrow=False)
@@ -1716,7 +1762,7 @@ def _revenue_by_region():
     )
 
     _card_start("Revenue by Region", "money")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -1767,7 +1813,7 @@ def _new_customers_trend():
     )
 
     _card_start("New Potential Customers Trend", "trend")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -1800,10 +1846,10 @@ def _top_customers_revenue():
         x=revs,
         orientation="h",
         marker_color=colors,
-        text=[f"${r}K" for r in revs],
+        text=[f"P{r}K" for r in revs],
         textposition="outside",
         textfont=dict(color="#F8FAFC", size=9),
-        hovertemplate="<b>%{y}</b><br>Revenue: $%{x}K<extra></extra>",
+        hovertemplate="<b>%{y}</b><br>Revenue: P%{x}K<extra></extra>",
     ))
     fig.update_layout(
         height=330,
@@ -1811,13 +1857,13 @@ def _top_customers_revenue():
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(8,17,24,0.44)",
         font=dict(color="#CBD5E1", size=10),
-        xaxis=dict(gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", title="Revenue (USD thousands)", tickfont=dict(size=10), title_font=dict(size=10), automargin=True),
+        xaxis=dict(gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", title="Revenue (BWP thousands)", tickfont=dict(size=10), title_font=dict(size=10), automargin=True),
         yaxis=dict(color="#CBD5E1", tickfont=dict(size=10), automargin=True),
         showlegend=False,
     )
 
     _card_start("Top Potential Customers by Revenue", "award")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
 
@@ -1940,12 +1986,16 @@ def render_sales_data(df):
     with c3: _evidence_snapshot()
 
     # Row 2
-    c1, c2, c3 = st.columns(3, gap="small")
-    with c1: _export_center(df)
-    with c2: _data_quality_summary()
-    with c3: _methodology()
+    c1, c2 = st.columns([0.85, 1.65], gap="small")
+    with c1: _sales_summary_statistics(df)
+    with c2: _export_center(df)
 
     # Row 3
+    c1, c2 = st.columns(2, gap="small")
+    with c1: _data_quality_summary()
+    with c2: _methodology()
+
+    # Row 4
     c1, c2, c3 = st.columns(3, gap="small")
     with c1: _revenue_by_region()
     with c2: _new_customers_trend()

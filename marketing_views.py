@@ -173,6 +173,48 @@ def _card_close():
     st.markdown("</div>", unsafe_allow_html=True)
 
 
+def _truthy_col(df, col):
+    if df is None or col not in df.columns:
+        return pd.Series(False, index=df.index if df is not None else [])
+    s = df[col]
+    if s.dtype == bool:
+        return s.fillna(False)
+    return s.astype(str).str.lower().isin(["1", "true", "yes", "y"])
+
+
+def _summary_table(rows):
+    body = "".join(
+        f'<tr><td>{label}</td><td>{value}</td></tr>'
+        for label, value in rows
+    )
+    return f'<table class="summary-stat-table"><tbody>{body}</tbody></table>'
+
+
+def _marketing_summary_statistics(df):
+    _card_open("Summary Statistics")
+    work = df if df is not None and not df.empty else _mock_df()
+    human = work[~_truthy_col(work, "is_bot")] if "is_bot" in work.columns else work
+    engaged = int(_truthy_col(human, "is_engaged_session").sum()) if "is_engaged_session" in human.columns else int(len(human) * 0.28)
+    potential = int(_truthy_col(human, "potential_customer_signal").sum()) if "potential_customer_signal" in human.columns else 0
+    ai = int(_truthy_col(human, "has_ai_interest").sum()) if "has_ai_interest" in human.columns else (
+        int(human["service_name"].astype(str).str.contains("AI", case=False, na=False).sum()) if "service_name" in human.columns else 0
+    )
+    top_market = human["country"].dropna().astype(str).value_counts().index[0] if "country" in human.columns and not human["country"].dropna().empty else "--"
+    top_service = human["service_name"].dropna().astype(str).value_counts().index[0] if "service_name" in human.columns and not human["service_name"].dropna().empty else "--"
+    rows = [
+        ("Filtered rows", f"{len(work):,}"),
+        ("Human audience", f"{len(human):,}"),
+        ("Engaged sessions", f"{engaged:,}"),
+        ("Engagement rate", f"{(engaged / len(human) * 100):.1f}%" if len(human) else "0.0%"),
+        ("AI traction", f"{(ai / len(human) * 100):.1f}%" if len(human) else "0.0%"),
+        ("Top service", top_service),
+        ("Top market", top_market),
+        ("Potential customers", f"{potential:,}"),
+    ]
+    st.markdown(_summary_table(rows), unsafe_allow_html=True)
+    _card_close()
+
+
 def _pill_html(label, cls="mkt-pill-grow"):
     return f'<span class="{cls}">{label}</span>'
 
@@ -285,7 +327,7 @@ def _audience_segments_over_time(df):
     _cl(fig, 240)
     fig.update_layout(xaxis=dict(tickangle=-35, tickfont=dict(size=9, color="#CBD5E1"), automargin=True))
     _card_open("Audience Segments Over Time")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -321,7 +363,7 @@ def _country_engagement_breakdown():
         showlegend=True,
     )
     _card_open("Country Engagement Breakdown")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -398,7 +440,7 @@ def _service_promotion_gap():
         f'Cybersecurity: high conversion, low visit share - under-promoted opportunity</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     # Under-promoted tag
     gap_rows = "".join(
         f'<div style="display:flex;align-items:center;gap:8px;padding:4px 0;">'
@@ -452,7 +494,7 @@ def _channel_source_quality():
     )
 
     _card_open("Channel / Source Quality")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -500,7 +542,7 @@ def _sadc_reach_map():
     )
 
     _card_open("SADC Campaign Reach Map")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
 
     # Ranking table below map
     header = (
@@ -618,7 +660,7 @@ def _forecast_kpis():
         ("Forecasted Engaged Visitors", "4,200",  "next 30 days",      "+ 9.4%",    "up",   _CYAN),
         ("Campaign Visits Forecast",     "1,450",  "vs current 1,240",  "+ 16.9%",  "up",   _TEAL),
         ("Expected Potential Customers", "380",    "next 30 days",      "+ 12.4%",  "up",   _GREEN),
-        ("Forecasted Opportunity Value", "$2.1M",  "pipeline estimate", "+ 18.7%",  "up",   _PURPLE),
+        ("Forecasted Opportunity Value", "P2.1M",  "pipeline estimate", "+ 18.7%",  "up",   _PURPLE),
         ("Forecast Confidence",          "74%",    "medium accuracy",   "Medium",    "watch",_YELLOW),
     ]
     delta_cls = {"up": "delta-up", "watch": "delta-watch", "down": "delta-down"}
@@ -701,7 +743,7 @@ def _audience_growth_forecast():
         f'Rule-based linear forecast, not predictive AI. Dashed = forecast, purple = target.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -758,7 +800,7 @@ def _engaged_sessions_forecast():
         f'Rule-based linear forecast. Purple dashed = target, gray dotted = previous month actual.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -787,7 +829,7 @@ def _campaign_whatif():
         [
             ("Additional Engaged Visitors",    f"+{additional_visitors:,}",          _CYAN,   "rgba(34,211,238,0.08)"),
             ("Additional Potential Customers", f"+{additional_potential}",            _GREEN,  "rgba(74,222,128,0.08)"),
-            ("Estimated Opportunity Value",    f"+${additional_opp/1000:.0f}K",      _PURPLE, "rgba(168,85,247,0.08)"),
+            ("Estimated Opportunity Value",    f"+P{additional_opp/1000:.0f}K",      _PURPLE, "rgba(168,85,247,0.08)"),
         ],
     ):
         with col:
@@ -832,7 +874,7 @@ def _campaign_target_tracker():
     fig.update_layout(barmode="group", bargap=0.2, yaxis_title="Campaign Visits")
 
     _card_open("Campaign Target Tracker")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -1431,10 +1473,12 @@ def render_marketing_data(df, date_start=None, date_end=None):
     _filtered_audience_data(df, date_start=date_start, date_end=date_end)
 
     # Row 3 - Evidence snapshot + Export center
-    c1, c2 = st.columns([1, 1.6], gap="small")
+    c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
     with c1:
         _evidence_snapshot(df)
     with c2:
+        _marketing_summary_statistics(df)
+    with c3:
         _export_center(df)
 
     # Row 4 - Data quality + Methodology

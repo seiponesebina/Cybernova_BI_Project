@@ -99,6 +99,49 @@ def _card_close():
 
 
 # ── STATUS PILL HELPER ─────────────────────────────────────────────────────────
+def _truthy_col(df, col):
+    if df is None or col not in df.columns:
+        return pd.Series(False, index=df.index if df is not None else [])
+    s = df[col]
+    if s.dtype == bool:
+        return s.fillna(False)
+    return s.astype(str).str.lower().isin(["1", "true", "yes", "y"])
+
+
+def _summary_table(rows):
+    body = "".join(
+        f'<tr><td>{label}</td><td>{value}</td></tr>'
+        for label, value in rows
+    )
+    return f'<table class="summary-stat-table"><tbody>{body}</tbody></table>'
+
+
+def _executive_summary_statistics(df):
+    _card_open("Summary Statistics")
+    work = df if df is not None and not df.empty else pd.DataFrame()
+    human = work[~_truthy_col(work, "is_bot")] if not work.empty and "is_bot" in work.columns else work
+    potential = int(_truthy_col(human, "potential_customer_signal").sum()) if not human.empty else 0
+    ai = int(_truthy_col(human, "has_ai_interest").sum()) if "has_ai_interest" in human.columns else (
+        int(human["service_name"].astype(str).str.contains("AI", case=False, na=False).sum()) if "service_name" in human.columns else 0
+    )
+    risk = int((pd.to_numeric(human["risk_score"], errors="coerce").fillna(0) >= 70).sum()) if "risk_score" in human.columns else (
+        int(_truthy_col(human, "is_anomaly").sum()) if "is_anomaly" in human.columns else 0
+    )
+    active_markets = int(human["country"].nunique()) if "country" in human.columns and not human.empty else 0
+    top_market = human["country"].dropna().astype(str).value_counts().index[0] if "country" in human.columns and not human["country"].dropna().empty else "--"
+    rows = [
+        ("Strategic rows", f"{len(work):,}"),
+        ("Human signals", f"{len(human):,}"),
+        ("Potential customers", f"{potential:,}"),
+        ("AI traction", f"{(ai / len(human) * 100):.1f}%" if len(human) else "0.0%"),
+        ("Active markets", f"{active_markets:,}"),
+        ("Risk alerts", f"{risk:,}"),
+        ("Top market", top_market),
+    ]
+    st.markdown(_summary_table(rows), unsafe_allow_html=True)
+    _card_close()
+
+
 _STATUS_STYLES = {
     "Above Target": f"background:rgba(74,222,128,0.12);color:{_GREEN};border:1px solid rgba(74,222,128,0.25);",
     "On Track":     f"background:rgba(34,211,238,0.12);color:{_CYAN};border:1px solid rgba(34,211,238,0.25);",
@@ -243,6 +286,7 @@ def inject_executive_css():
 def render_executive_drawer() -> str:
     """Returns HTML string for the 4 executive insight cards in the right-panel drawer."""
     return """
+<div class="executive-drawer-grid">
 <div class="cn-card" style="margin-bottom:10px;border-color:rgba(168,85,247,0.22);">
   <div class="sec-label">Regional Priority</div>
   <div style="font-size:15px;font-weight:800;color:#A855F7;margin-bottom:4px;">South Africa + Zambia</div>
@@ -284,6 +328,7 @@ def render_executive_drawer() -> str:
     <span style="color:#F87171;font-weight:700;">Review:</span>
     <span style="color:#F0F4F8;"> Angola, Malawi, DRC.</span>
   </div>
+</div>
 </div>
 """
 
@@ -373,7 +418,7 @@ def _market_contribution_chart():
     )
 
     _card_open("Market Contribution Analysis")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -408,7 +453,7 @@ def _ai_by_market_chart():
     )
 
     _card_open("AI Assistant by Market")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -443,7 +488,7 @@ def _risk_anomaly_trend():
     fig.update_layout(yaxis_title="Count", xaxis_title="Days Ago")
 
     _card_open("Risk and Anomaly Trend - Last 30 Days")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -555,7 +600,7 @@ def _forecast_kpi_row():
         ("90-Day Customer Forecast", "1,850",  "base case scenario",   "+ 48%",    "up"),
         ("Forecasted Strategic Demand","11,200","projected engagement", "+ 22%",    "up"),
         ("AI Traction Forecast",     "34%",    "vs current 29.4%",     "+ 4.6 pts","up"),
-        ("Forecasted Opp. Value",    "$4.8M",  "base case revenue",    "+ 27%",    "up"),
+        ("Forecasted Opp. Value",    "P4.8M",  "base case revenue",    "+ 27%",    "up"),
         ("Confidence Level",         "72%",    "medium accuracy",      "Medium",   "watch"),
     ]
     delta_cls = {"up": "delta-up", "watch": "delta-watch", "down": "delta-down"}
@@ -618,7 +663,7 @@ def _forecast_90d_chart():
         'Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -703,7 +748,7 @@ def _ai_traction_forecast_chart():
     fig.update_layout(yaxis_title="AI Traction %")
 
     _card_open("AI Assistant Traction Forecast")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_close()
 
 
@@ -730,14 +775,14 @@ def _forecast_vs_target_area():
         x=months, y=fcast, name="Forecast",
         line=dict(color=_CYAN, width=2.5), mode="lines+markers",
         marker=dict(size=6, color=_CYAN),
-        hovertemplate="<b>%{x}</b><br>Forecast: $%{y:.1f}M<extra></extra>"))
+        hovertemplate="<b>%{x}</b><br>Forecast: P%{y:.1f}M<extra></extra>"))
     fig.add_trace(go.Scatter(
         x=months, y=target, name="Target",
         line=dict(color=_PURPLE, width=1.5, dash="dash"), mode="lines",
-        hovertemplate="<b>%{x}</b><br>Target: $%{y:.1f}M<extra></extra>"))
+        hovertemplate="<b>%{x}</b><br>Target: P%{y:.1f}M<extra></extra>"))
 
     _cl(fig, 230)
-    fig.update_layout(yaxis_title="Opportunity Value ($M)", showlegend=True)
+    fig.update_layout(yaxis_title="Opportunity Value (PM)", showlegend=True)
 
     col_chart, col_metrics = st.columns([3, 1], gap="small")
     with col_chart:
@@ -747,17 +792,17 @@ def _forecast_vs_target_area():
             'Rule-based linear forecast, not predictive AI.</div>',
             unsafe_allow_html=True,
         )
-        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
         _card_close()
     with col_metrics:
         st.markdown(
             f'<div class="exec-kpi-card" style="height:100%;display:flex;flex-direction:column;gap:10px;">'
             f'<div><div class="kpi-label">Forecasted Value</div>'
-            f'<div class="kpi-value-sm" style="color:{_CYAN};">$4.8M</div></div>'
+            f'<div class="kpi-value-sm" style="color:{_CYAN};">P4.8M</div></div>'
             f'<div><div class="kpi-label">Target</div>'
-            f'<div class="kpi-value-sm" style="color:{_PURPLE};">$5.2M</div></div>'
+            f'<div class="kpi-value-sm" style="color:{_PURPLE};">P5.2M</div></div>'
             f'<div><div class="kpi-label">Gap</div>'
-            f'<div class="kpi-value-sm" style="color:{_RED};">-$400K</div></div>'
+            f'<div class="kpi-value-sm" style="color:{_RED};">-P400K</div></div>'
             f'<div><div class="kpi-label">Confidence</div>'
             f'<div class="kpi-value-sm" style="color:{_YELLOW};">72%</div></div>'
             f'<div><div class="kpi-label">Status</div>'
@@ -799,7 +844,7 @@ def _risk_anomaly_gauge():
     )
 
     _card_open("Risk and Anomaly Outlook")
-    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown(
         f'<div style="text-align:center;font-size:11px;color:{_YELLOW};font-weight:700;margin-bottom:8px;">MEDIUM RISK</div>',
         unsafe_allow_html=True,
@@ -848,15 +893,15 @@ def _scenario_cards():
     scenarios = [
         ("Conservative Case",
          "rgba(107,127,163,0.08)", "rgba(107,127,163,0.25)", _GRAY,
-         [("Potential Customers","1,420"),("Opportunity Value","$3.2M"),
+         [("Potential Customers","1,420"),("Opportunity Value","P3.2M"),
           ("Risk Level","Low"),("Strategy","Protect core markets")]),
         ("Base Case",
          "rgba(34,211,238,0.06)", "rgba(34,211,238,0.28)", _CYAN,
-         [("Potential Customers","1,850"),("Opportunity Value","$4.8M"),
+         [("Potential Customers","1,850"),("Opportunity Value","P4.8M"),
           ("Risk Level","Medium"),("Strategy","Invest in SA + Zambia")]),
         ("Growth Case",
          "rgba(168,85,247,0.07)", "rgba(168,85,247,0.3)", _PURPLE,
-         [("Potential Customers","2,340"),("Opportunity Value","$6.1M"),
+         [("Potential Customers","2,340"),("Opportunity Value","P6.1M"),
           ("Risk Level","Medium-High"),("Strategy","Expand to high-growth markets")]),
     ]
     cols = st.columns(3, gap="small")
@@ -948,15 +993,15 @@ def _decision_brief():
 def _regional_priority_table():
     """Item 2: Regional Priority Table with flags."""
     data = [
-        ("🇿🇦", "South Africa", "Core Market",   488, "34%", "$4.8M", "Low",    "Invest",   _GREEN),
-        ("🇿🇲", "Zambia",       "Strategic Hub",  162, "38%", "$1.9M", "Low",    "Invest",   _GREEN),
-        ("🇲🇿", "Mozambique",   "Emerging",       118, "28%", "$1.2M", "Medium", "Monitor",  _YELLOW),
-        ("🇧🇼", "Botswana",     "Stable",          95, "22%", "$0.9M", "Low",    "Monitor",  _YELLOW),
-        ("🇦🇴", "Angola",       "Emerging",        68, "18%", "$0.6M", "Medium", "Review",   _RED),
-        ("🇳🇦", "Namibia",      "Stable",          58, "15%", "$0.5M", "Low",    "Monitor",  _YELLOW),
-        ("🇿🇼", "Zimbabwe",     "High Growth",     88, "31%", "$0.9M", "Medium", "Maintain", _CYAN),
-        ("🇲🇼", "Malawi",       "Emerging",        42, "12%", "$0.3M", "Low",    "Review",   _RED),
-        ("🇨🇩", "DRC",          "Emerging",        30,  "8%", "$0.2M", "High",   "Review",   _RED),
+        ("🇿🇦", "South Africa", "Core Market",   488, "34%", "P4.8M", "Low",    "Invest",   _GREEN),
+        ("🇿🇲", "Zambia",       "Strategic Hub",  162, "38%", "P1.9M", "Low",    "Invest",   _GREEN),
+        ("🇲🇿", "Mozambique",   "Emerging",       118, "28%", "P1.2M", "Medium", "Monitor",  _YELLOW),
+        ("🇧🇼", "Botswana",     "Stable",          95, "22%", "P0.9M", "Low",    "Monitor",  _YELLOW),
+        ("🇦🇴", "Angola",       "Emerging",        68, "18%", "P0.6M", "Medium", "Review",   _RED),
+        ("🇳🇦", "Namibia",      "Stable",          58, "15%", "P0.5M", "Low",    "Monitor",  _YELLOW),
+        ("🇿🇼", "Zimbabwe",     "High Growth",     88, "31%", "P0.9M", "Medium", "Maintain", _CYAN),
+        ("🇲🇼", "Malawi",       "Emerging",        42, "12%", "P0.3M", "Low",    "Review",   _RED),
+        ("🇨🇩", "DRC",          "Emerging",        30,  "8%", "P0.2M", "High",   "Review",   _RED),
     ]
     header = (
         '<table class="exec-table"><thead><tr>'
@@ -1063,7 +1108,7 @@ def _filtered_strategic_data(df, date_start=None, date_end=None):
             "country": np.random.choice(countries, n),
             "service_name": np.random.choice(services, n),
             "potential_customer_signal": np.random.randint(10, 90, n),
-            "estimated_deal_value": [f"${v:,}" for v in np.random.randint(50000, 500000, n)],
+            "estimated_deal_value": [f"P{v:,}" for v in np.random.randint(50000, 500000, n)],
             "risk_level": np.random.choice(risk_lvls, n),
         })
 
@@ -1399,8 +1444,12 @@ def render_executive_data(df, date_start=None, date_end=None):
     # Item 4: Filtered Strategic Data
     _filtered_strategic_data(df, date_start, date_end)
 
-    # Item 5: Export Center
-    _export_center(df)
+    # Item 5: Summary statistics + Export Center
+    c1, c2 = st.columns([0.85, 1.35], gap="small")
+    with c1:
+        _executive_summary_statistics(df)
+    with c2:
+        _export_center(df)
 
     # Item 6: Data Quality Summary
     _data_quality_summary()
