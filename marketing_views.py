@@ -120,10 +120,10 @@ def inject_marketing_css():
 
 
 # ── INTERNAL HELPERS ──────────────────────────────────────────────────────────
-def _cl(fig, h=240):
+def _cl(fig, h=210):
     """Apply consistent dark chart layout."""
     fig.update_layout(
-        height=max(h, 270),
+        height=h,
         margin=dict(l=50, r=24, t=18, b=58),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(8,17,24,0.44)",
