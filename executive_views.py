@@ -1,5 +1,5 @@
 """
-executive_views.py — CyberNova BI Portal · Executive Dashboard
+executive_views.py - CyberNova BI Portal  -  Executive Dashboard
 Imported by cybernovaapp.py. Provides 5 public functions:
   inject_executive_css, render_executive_drawer,
   render_executive_analytics, render_executive_forecasting, render_executive_data
@@ -41,33 +41,49 @@ _MUTED  = "#6B7FA3"
 def _cl(fig, h=240):
     """Apply consistent dark Executive chart layout."""
     fig.update_layout(
-        height=h,
-        margin=dict(l=0, r=0, t=10, b=0),
+        height=max(h, 270),
+        margin=dict(l=50, r=24, t=18, b=58),
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color=_MUTED, size=10, family="Inter"),
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=11, family="Inter"),
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="rgba(7,14,26,0.95)",
+            bordercolor="rgba(124,110,230,0.30)",
+            font=dict(color="#F0F4F8", size=11, family="Inter"),
+        ),
         xaxis=dict(
-            gridcolor="rgba(34,211,238,0.05)",
-            color=_MUTED,
+            gridcolor="rgba(148,163,184,0.10)",
+            color="#94A3B8",
             showgrid=True,
             zeroline=False,
+            showspikes=True, spikesnap="cursor",
+            spikecolor="rgba(124,110,230,0.24)", spikethickness=1,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
         ),
         yaxis=dict(
-            gridcolor="rgba(34,211,238,0.05)",
-            color=_MUTED,
+            gridcolor="rgba(148,163,184,0.10)",
+            color="#94A3B8",
             showgrid=True,
             zeroline=False,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
         ),
         legend=dict(
-            bgcolor="rgba(7,16,28,0.82)",
-            bordercolor="rgba(34,211,238,0.14)",
+            bgcolor="rgba(7,16,28,0.72)",
+            bordercolor="rgba(148,163,184,0.16)",
             borderwidth=1,
-            font=dict(color=_MUTED, size=9),
+            font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.28,
+            y=-0.30,
             x=0,
         ),
     )
+    fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+    fig.update_traces(line=dict(width=2.4), selector=dict(type="scatter"))
 
 
 def _card_open(title):
@@ -99,7 +115,7 @@ def _status_pill(label):
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 1. CSS INJECTION — Executive-specific additions only
+# 1. CSS INJECTION - Executive-specific additions only
 # ══════════════════════════════════════════════════════════════════════════════
 def inject_executive_css():
     """Inject Executive-specific CSS not already in main inject_css()."""
@@ -222,7 +238,7 @@ def inject_executive_css():
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# 2. EXECUTIVE DRAWER — returns HTML string
+# 2. EXECUTIVE DRAWER - returns HTML string
 # ══════════════════════════════════════════════════════════════════════════════
 def render_executive_drawer() -> str:
     """Returns HTML string for the 4 executive insight cards in the right-panel drawer."""
@@ -231,19 +247,19 @@ def render_executive_drawer() -> str:
   <div class="sec-label">Regional Priority</div>
   <div style="font-size:15px;font-weight:800;color:#A855F7;margin-bottom:4px;">South Africa + Zambia</div>
   <div style="font-size:10px;color:#6B7FA3;">Core + Strategic Hub anchors</div>
-  <div style="font-size:11px;color:#4ADE80;margin-top:8px;font-weight:700;">Invest — protect lead</div>
+  <div style="font-size:11px;color:#4ADE80;margin-top:8px;font-weight:700;">Invest - protect lead</div>
 </div>
 
 <div class="cn-card" style="margin-bottom:10px;border-color:rgba(168,85,247,0.15);">
   <div class="sec-label">Strategic Signals</div>
   <div style="font-size:11px;margin-bottom:6px;color:#F0F4F8;">
-    <span style="color:#4ADE80;">●</span>&nbsp; AI Solutions — <b>Accelerating</b>
+    <span style="color:#4ADE80;">●</span>&nbsp; AI Solutions - <b>Accelerating</b>
   </div>
   <div style="font-size:11px;margin-bottom:6px;color:#F0F4F8;">
-    <span style="color:#22D3EE;">●</span>&nbsp; SADC Expansion — <b>On Track</b>
+    <span style="color:#22D3EE;">●</span>&nbsp; SADC Expansion - <b>On Track</b>
   </div>
   <div style="font-size:11px;color:#F0F4F8;">
-    <span style="color:#F87171;">●</span>&nbsp; Zimbabwe — <b>Monitor</b>
+    <span style="color:#F87171;">●</span>&nbsp; Zimbabwe - <b>Monitor</b>
   </div>
 </div>
 
@@ -297,7 +313,7 @@ _ACTION_COLORS = {
 
 
 def _regional_target_table():
-    """Card 1: Regional Target Table — full width."""
+    """Card 1: Regional Target Table - full width."""
     header = (
         '<table class="exec-table"><thead><tr>'
         '<th>Country</th>'
@@ -334,7 +350,7 @@ def _regional_target_table():
 
 
 def _market_contribution_chart():
-    """Card 2: Market Contribution Analysis — stacked horizontal bar."""
+    """Card 2: Market Contribution Analysis - stacked horizontal bar."""
     np.random.seed(42)
     countries = [r[1] for r in _COUNTRIES]
     strat_demand    = [488, 162, 118,  95, 68, 58, 88, 42, 30]
@@ -348,14 +364,13 @@ def _market_contribution_chart():
     fig.add_trace(go.Bar(name="AI Assistant Interest",y=countries, x=ai_interest,    orientation="h", marker_color="rgba(168,85,247,0.75)"))
     fig.add_trace(go.Bar(name="Opportunity Value",    y=countries, x=opp_value,      orientation="h", marker_color="rgba(74,222,128,0.65)"))
 
-    fig.update_layout(barmode="stack", height=240, margin=dict(l=0, r=0, t=10, b=0),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color=_MUTED, size=9),
-        xaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_MUTED),
-        yaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_WHITE, tickfont=dict(size=9)),
-        legend=dict(bgcolor="rgba(7,16,28,0.82)", bordercolor="rgba(34,211,238,0.14)",
-                    borderwidth=1, font=dict(color=_MUTED, size=8),
-                    orientation="h", y=-0.3, x=0))
+    _cl(fig, 320)
+    fig.update_layout(
+        barmode="stack",
+        margin=dict(l=128, r=24, t=18, b=60),
+        xaxis_title="Indexed contribution",
+        yaxis=dict(autorange="reversed", tickfont=dict(size=10, color="#CBD5E1"), automargin=True),
+    )
 
     _card_open("Market Contribution Analysis")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -363,7 +378,7 @@ def _market_contribution_chart():
 
 
 def _ai_by_market_chart():
-    """Card 3: AI Assistant by Market — grouped bar chart."""
+    """Card 3: AI Assistant by Market - grouped bar chart."""
     np.random.seed(42)
     countries_short = ["S. Africa", "Zambia", "Mozambique", "Botswana", "Angola", "Namibia", "Zimbabwe", "Malawi", "DRC"]
     ai_interest_pct  = [34, 38, 28, 22, 18, 15, 31, 12,  8]
@@ -383,14 +398,14 @@ def _ai_by_market_chart():
         mode="lines", line=dict(color="rgba(107,127,163,0.6)", width=1.5, dash="dot"),
         hovertemplate="Prev Month: %{y}%<extra></extra>"))
 
-    fig.update_layout(barmode="group", height=240, margin=dict(l=0, r=0, t=10, b=0),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color=_MUTED, size=9),
-        xaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_MUTED, tickangle=-30),
-        yaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_MUTED),
-        legend=dict(bgcolor="rgba(7,16,28,0.82)", bordercolor="rgba(34,211,238,0.14)",
-                    borderwidth=1, font=dict(color=_MUTED, size=8),
-                    orientation="h", y=-0.38, x=0))
+    _cl(fig, 320)
+    fig.update_layout(
+        barmode="group",
+        bargap=0.24,
+        margin=dict(l=50, r=24, t=18, b=82),
+        xaxis=dict(tickangle=-25, tickfont=dict(size=9, color="#CBD5E1"), automargin=True),
+        yaxis_title="Index / percent",
+    )
 
     _card_open("AI Assistant by Market")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -398,7 +413,7 @@ def _ai_by_market_chart():
 
 
 def _risk_anomaly_trend():
-    """Card 4: Risk / Anomaly Trend — line chart, last 30 days, business language."""
+    """Card 4: Risk / Anomaly Trend - line chart, last 30 days, business language."""
     np.random.seed(42)
     days = list(range(-29, 1))
     risk_events       = [max(0, int(3 + np.random.normal(0, 1.2))) for _ in days]
@@ -407,35 +422,39 @@ def _risk_anomaly_trend():
     demand_spikes     = [max(0, int(2 + np.random.normal(0, 1))) for _ in days]
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=days, y=risk_events,   name="Risk Events",
-        line=dict(color=_RED,    width=2), mode="lines",
-        hovertemplate="Day %{x}<br>Risk Events: %{y}<extra></extra>"))
-    fig.add_trace(go.Scatter(x=days, y=visit_issues,  name="Visit Issues",
+    fig.add_trace(go.Scatter(x=days, y=risk_events, name="Risk Events",
+        line=dict(color=_RED, width=2), mode="lines",
+        fill="tozeroy", fillcolor="rgba(248,113,113,0.06)",
+        hovertemplate="Risk Events: <b>%{y}</b><extra></extra>"))
+    fig.add_trace(go.Scatter(x=days, y=visit_issues, name="Visit Issues",
         line=dict(color=_ORANGE, width=2), mode="lines",
-        hovertemplate="Day %{x}<br>Visit Issues: %{y}<extra></extra>"))
+        fill="tozeroy", fillcolor="rgba(245,158,11,0.05)",
+        hovertemplate="Visit Issues: <b>%{y}</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=days, y=data_warnings, name="Data Quality Warnings",
         line=dict(color=_YELLOW, width=2), mode="lines",
-        hovertemplate="Day %{x}<br>Data Warnings: %{y}<extra></extra>"))
+        fill="tozeroy", fillcolor="rgba(251,191,36,0.05)",
+        hovertemplate="Data Warnings: <b>%{y}</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=days, y=demand_spikes, name="Unusual Demand Spikes",
-        line=dict(color=_CYAN,   width=2), mode="lines",
-        hovertemplate="Day %{x}<br>Demand Spikes: %{y}<extra></extra>"))
+        line=dict(color=_CYAN, width=2), mode="lines",
+        fill="tozeroy", fillcolor="rgba(34,211,238,0.05)",
+        hovertemplate="Demand Spikes: <b>%{y}</b><extra></extra>"))
 
     _cl(fig, 240)
     fig.update_layout(yaxis_title="Count", xaxis_title="Days Ago")
 
-    _card_open("Risk and Anomaly Trend — Last 30 Days")
+    _card_open("Risk and Anomaly Trend - Last 30 Days")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_close()
 
 
 def _strategic_signals_grid():
-    """Card 5: Strategic Signals Breakdown — 5 styled metric cards in a grid."""
+    """Card 5: Strategic Signals Breakdown - 5 styled metric cards in a grid."""
     signals = [
-        ("Policy Momentum",      "+12%",   "▲",  _GREEN,  "Regulatory tailwinds across SADC"),
-        ("Digital Adoption",     "+18%",   "▲",  _CYAN,   "Rising enterprise tech uptake"),
-        ("Partner Activity",     "+8%",    "▲",  _TEAL,   "Channel expansion progressing"),
-        ("Market Readiness",     "72%",    "→",  _YELLOW, "Key markets approaching readiness"),
-        ("Competitive Pressure", "Medium", "→",  _ORANGE, "Manageable — monitor closely"),
+        ("Policy Momentum",      "+12%",   "+",  _GREEN,  "Regulatory tailwinds across SADC"),
+        ("Digital Adoption",     "+18%",   "+",  _CYAN,   "Rising enterprise tech uptake"),
+        ("Partner Activity",     "+8%",    "+",  _TEAL,   "Channel expansion progressing"),
+        ("Market Readiness",     "72%",    "to",  _YELLOW, "Key markets approaching readiness"),
+        ("Competitive Pressure", "Medium", "to",  _ORANGE, "Manageable - monitor closely"),
     ]
     cols = st.columns(5, gap="small")
     for col, (label, value, arrow, color, desc) in zip(cols, signals):
@@ -453,13 +472,13 @@ def _strategic_signals_grid():
 
 
 def _exec_insight_assistant():
-    """Card 6: Executive Insight Assistant — board-level glassmorphism card."""
+    """Card 6: Executive Insight Assistant - board-level glassmorphism card."""
     bullets = [
-        ("South Africa leads with 488 potential customers, 38 above the 450 target — sustain investment momentum."),
+        ("South Africa leads with 488 potential customers, 38 above the 450 target - sustain investment momentum."),
         ("Zambia exceeds its 150-customer target with 162 actuals, confirming strategic hub status."),
-        ("Angola, Malawi, and DRC are collectively 30 customers below target — executive review recommended."),
+        ("Angola, Malawi, and DRC are collectively 30 customers below target - executive review recommended."),
         ("AI Assistant traction is at 29.4% across SADC sessions, on track toward the 30% board target."),
-        ("Forecasted 90-day potential customer pipeline is 1,850 at base case — regional expansion justified."),
+        ("Forecasted 90-day potential customer pipeline is 1,850 at base case - regional expansion justified."),
     ]
     rows_html = "".join(
         f'<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;'
@@ -489,8 +508,8 @@ def _exec_insight_assistant():
         f'font-size:16px;">&#128200;</div>'
         f'<div>'
         f'<div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:{_PURPLE};">'
-        f'CyberNova Intelligence · Board Briefing</div>'
-        f'<div style="font-size:9px;color:{_MUTED};">Strategic analysis · Executive level</div>'
+        f'CyberNova Intelligence  -  Board Briefing</div>'
+        f'<div style="font-size:9px;color:{_MUTED};">Strategic analysis  -  Executive level</div>'
         f'</div></div>'
         f'{rows_html}'
         f'{recommended}'
@@ -501,10 +520,10 @@ def _exec_insight_assistant():
 
 
 def render_executive_analytics(df):
-    """Render Executive Analytics tab — 6 cards."""
+    """Render Executive Analytics tab - 6 cards."""
     inject_executive_css()
 
-    # Card 1: Regional Target Table — full width
+    # Card 1: Regional Target Table - full width
     _regional_target_table()
 
     # Cards 2 + 3: 2 columns
@@ -514,15 +533,15 @@ def render_executive_analytics(df):
     with c2:
         _ai_by_market_chart()
 
-    # Card 4: Risk / Anomaly Trend — full width
+    # Card 4: Risk / Anomaly Trend - full width
     _risk_anomaly_trend()
 
-    # Card 5: Strategic Signals — 5 cols
+    # Card 5: Strategic Signals - 5 cols
     _card_open("Strategic Signals Breakdown")
     _strategic_signals_grid()
     _card_close()
 
-    # Card 6: Executive Insight Assistant — full width
+    # Card 6: Executive Insight Assistant - full width
     _exec_insight_assistant()
 
 
@@ -531,12 +550,12 @@ def render_executive_analytics(df):
 # ══════════════════════════════════════════════════════════════════════════════
 
 def _forecast_kpi_row():
-    """Item 1: Forecast Summary KPI row — 5 cards."""
+    """Item 1: Forecast Summary KPI row - 5 cards."""
     kpis = [
-        ("90-Day Customer Forecast", "1,850",  "base case scenario",   "▲ 48%",    "up"),
-        ("Forecasted Strategic Demand","11,200","projected engagement", "▲ 22%",    "up"),
-        ("AI Traction Forecast",     "34%",    "vs current 29.4%",     "▲ 4.6 pts","up"),
-        ("Forecasted Opp. Value",    "$4.8M",  "base case revenue",    "▲ 27%",    "up"),
+        ("90-Day Customer Forecast", "1,850",  "base case scenario",   "+ 48%",    "up"),
+        ("Forecasted Strategic Demand","11,200","projected engagement", "+ 22%",    "up"),
+        ("AI Traction Forecast",     "34%",    "vs current 29.4%",     "+ 4.6 pts","up"),
+        ("Forecasted Opp. Value",    "$4.8M",  "base case revenue",    "+ 27%",    "up"),
         ("Confidence Level",         "72%",    "medium accuracy",      "Medium",   "watch"),
     ]
     delta_cls = {"up": "delta-up", "watch": "delta-watch", "down": "delta-down"}
@@ -557,7 +576,7 @@ def _forecast_kpi_row():
 
 
 def _forecast_90d_chart():
-    """Item 2: 90-Day Potential Customer Forecast — line chart."""
+    """Item 2: 90-Day Potential Customer Forecast - line chart."""
     np.random.seed(42)
     days_hist = list(range(-60, 1))
     days_fwd  = list(range(0, 91))
@@ -604,7 +623,7 @@ def _forecast_90d_chart():
 
 
 def _regional_expansion_forecast():
-    """Item 3: Regional Expansion Forecast — styled HTML table."""
+    """Item 3: Regional Expansion Forecast - styled HTML table."""
     data = [
         ("🇿🇦", "South Africa", "Core Market",   "Invest",   "Strong pipeline growth",    _GREEN),
         ("🇿🇲", "Zambia",       "Strategic Hub",  "Invest",   "Rising potential",          _GREEN),
@@ -645,7 +664,7 @@ def _regional_expansion_forecast():
 
 
 def _ai_traction_forecast_chart():
-    """Item 4: AI Assistant Traction Forecast — multi-line chart."""
+    """Item 4: AI Assistant Traction Forecast - multi-line chart."""
     np.random.seed(42)
     months_hist = ["Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"]
     months_fwd  = ["Apr", "May", "Jun", "Jul"]
@@ -689,7 +708,7 @@ def _ai_traction_forecast_chart():
 
 
 def _forecast_vs_target_area():
-    """Item 5: Forecast vs Target — area chart with side metrics panel."""
+    """Item 5: Forecast vs Target - area chart with side metrics panel."""
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
     fcast  = [3.1, 3.5, 3.8, 4.2, 4.8, 5.3]
     target = [3.4, 3.8, 4.2, 4.6, 5.2, 5.8]
@@ -749,7 +768,7 @@ def _forecast_vs_target_area():
 
 
 def _risk_anomaly_gauge():
-    """Item 6: Risk / Anomaly Outlook — Plotly indicator gauge."""
+    """Item 6: Risk / Anomaly Outlook - Plotly indicator gauge."""
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=42,
@@ -773,10 +792,10 @@ def _risk_anomaly_gauge():
         },
     ))
     fig.update_layout(
-        height=200,
-        margin=dict(l=10, r=10, t=30, b=0),
+        height=240,
+        margin=dict(l=18, r=18, t=42, b=18),
         paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(color=_MUTED, size=10),
+        font=dict(color="#CBD5E1", size=11),
     )
 
     _card_open("Risk and Anomaly Outlook")
@@ -804,7 +823,7 @@ def _risk_anomaly_gauge():
 
 
 def _investment_recommendation():
-    """Item 7: Executive Investment Recommendation — decision card."""
+    """Item 7: Executive Investment Recommendation - decision card."""
     sections = [
         ("Invest",   _GREEN,  "invest-card",  "🇿🇦 South Africa, 🇿🇲 Zambia"),
         ("Monitor",  _YELLOW, "monitor-card", "🇲🇿 Mozambique, 🇳🇦 Namibia, 🇧🇼 Botswana"),
@@ -825,7 +844,7 @@ def _investment_recommendation():
 
 
 def _scenario_cards():
-    """Item 8: Scenario Cards — 3 cards in a row."""
+    """Item 8: Scenario Cards - 3 cards in a row."""
     scenarios = [
         ("Conservative Case",
          "rgba(107,127,163,0.08)", "rgba(107,127,163,0.25)", _GRAY,
@@ -862,17 +881,17 @@ def _scenario_cards():
 
 
 def render_executive_forecasting(df):
-    """Render Executive Forecasting tab — 8 items."""
+    """Render Executive Forecasting tab - 8 items."""
     inject_executive_css()
 
     # Item 1: KPI row
     _forecast_kpi_row()
     st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
-    # Item 2: 90-day forecast chart — full width
+    # Item 2: 90-day forecast chart - full width
     _forecast_90d_chart()
 
-    # Item 3: Regional Expansion Forecast table — full width
+    # Item 3: Regional Expansion Forecast table - full width
     _regional_expansion_forecast()
 
     # Item 4 + 5: AI Traction Forecast and Forecast vs Target (2 rows together)
@@ -899,11 +918,11 @@ def render_executive_forecasting(df):
 def _decision_brief():
     """Item 1: Executive Decision Brief."""
     bullets = [
-        (f"color:{_GREEN};", "Top growth market: South Africa — 488 potential customers, above target by 38."),
+        (f"color:{_GREEN};", "Top growth market: South Africa - 488 potential customers, above target by 38."),
         (f"color:{_CYAN};",  "AI Assistant: 29.4% traction rate, on track for 30% board target."),
-        (f"color:{_RED};",   "Strategic risk: 3 markets below target — Angola, Malawi, and DRC require executive review."),
+        (f"color:{_RED};",   "Strategic risk: 3 markets below target - Angola, Malawi, and DRC require executive review."),
         (f"color:{_PURPLE};","Investment priority: Invest in South Africa and Zambia; monitor Botswana, Mozambique, Namibia."),
-        (f"color:{_YELLOW};","Forecast confidence: 72% (base case scenario) — reliable for near-term planning."),
+        (f"color:{_YELLOW};","Forecast confidence: 72% (base case scenario) - reliable for near-term planning."),
     ]
     html = "".join(
         f'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;'
@@ -918,7 +937,7 @@ def _decision_brief():
     st.markdown(
         f'<div class="exec-insight-card">'
         f'<div style="font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;'
-        f'color:{_PURPLE};margin-bottom:10px;">Board-Level Strategic Summary · {datetime.date.today().strftime("%B %Y")}</div>'
+        f'color:{_PURPLE};margin-bottom:10px;">Board-Level Strategic Summary  -  {datetime.date.today().strftime("%B %Y")}</div>'
         f'{html}'
         f'</div>',
         unsafe_allow_html=True,
@@ -978,7 +997,7 @@ def _risk_evidence_table():
         ("2026-04-27", "Mozambique",   "Conversion Dip",     "Medium", "Slight drop in qualified interest",  "Adjust outreach timing"),
         ("2026-05-02", "Botswana",     "Slow Growth",        "Low",    "Growth below 5% monthly pace",       "Maintain current strategy"),
         ("2026-04-29", "Namibia",      "Flat Performance",   "Low",    "No meaningful change month-over-month", "Continue monitoring"),
-        ("2026-05-03", "South Africa", "Unusual Demand Spike","Low",   "Higher than expected activity — positive", "Validate and scale"),
+        ("2026-05-03", "South Africa", "Unusual Demand Spike","Low",   "Higher than expected activity - positive", "Validate and scale"),
     ]
     sev_colors = {"High": _RED, "Medium": _YELLOW, "Low": _CYAN}
     header = (
@@ -1012,7 +1031,7 @@ def _risk_evidence_table():
 
 
 def _filtered_strategic_data(df, date_start=None, date_end=None):
-    """Item 4: Filtered Strategic Data — st.dataframe."""
+    """Item 4: Filtered Strategic Data - st.dataframe."""
     _NEEDED_COLS = [
         "date", "country", "service_name",
         "potential_customer_signal", "estimated_deal_value", "risk_level",
@@ -1058,7 +1077,7 @@ def _filtered_strategic_data(df, date_start=None, date_end=None):
 
 
 def _export_center(df):
-    """Item 5: Export Center — download buttons."""
+    """Item 5: Export Center - download buttons."""
     _card_open("Export Center")
 
     # Build CSV bytes for filtered data
@@ -1067,7 +1086,7 @@ def _export_center(df):
     except Exception:
         csv_data = b"no data"
 
-    # Regional priority CSV — _COUNTRIES = (flag, country, target, actual, gap, status, action)
+    # Regional priority CSV - _COUNTRIES = (flag, country, target, actual, gap, status, action)
     rp_data = pd.DataFrame([
         {"Country": r[1], "Target": r[2], "Actual": r[3], "Gap": r[4],
          "Status": r[5], "Recommended_Action": r[6]}
@@ -1086,12 +1105,12 @@ def _export_center(df):
     risk_csv = pd.DataFrame(risk_rows).to_csv(index=False).encode()
 
     methodology_text = (
-        "CyberNova BI — Executive Methodology\n\n"
+        "CyberNova BI - Executive Methodology\n\n"
         "Strategic Demand Score: aggregated potential customer signals across SADC markets.\n"
         "Regional Priority Logic: markets ranked by actual vs target gap, AI traction, and risk level.\n"
         "AI Assistant Traction: % of platform sessions engaging CyberNova AI Assistant.\n"
         "Risk Scoring: composite of demand gap, data quality, and operational stability indicators.\n"
-        "Forecasting: rule-based linear projection — not machine learning or predictive AI.\n"
+        "Forecasting: rule-based linear projection - not machine learning or predictive AI.\n"
         "Data Note: dashboard uses synthetic/generated data for demonstration purposes.\n"
         "Date Range Default: last 7 days unless overridden by date filter.\n"
     ).encode()
@@ -1099,7 +1118,7 @@ def _export_center(df):
     exec_summary = (
         "CyberNova Executive Summary\n\n"
         "Top Growth Market: South Africa (488 customers, above target)\n"
-        "AI Traction: 29.4% — on track for 30% target\n"
+        "AI Traction: 29.4% - on track for 30% target\n"
         "Markets Below Target: Angola, Malawi, DRC\n"
         "Investment Priority: South Africa, Zambia\n"
         "Forecast Confidence: 72% (base case)\n"
@@ -1148,7 +1167,7 @@ def _export_center(df):
 
 
 def _data_quality_summary():
-    """Item 6: Data Quality Summary — 5 progress bars."""
+    """Item 6: Data Quality Summary - 5 progress bars."""
     metrics = [
         ("Data Completeness",       96, _GREEN),
         ("Data Freshness",          99, _GREEN),
@@ -1173,7 +1192,7 @@ def _data_quality_summary():
 
 
 def _methodology_note():
-    """Item 7: Methodology Note — styled dark card with purple accent."""
+    """Item 7: Methodology Note - styled dark card with purple accent."""
     st.markdown(
         f"""
 <div style="background:linear-gradient(145deg,rgba(12,4,40,0.92),rgba(8,3,28,0.88));

@@ -12,7 +12,11 @@
   --neon-teal: #00FFD1;
   --neon-yellow: #FFC928;
   --neon-amber: #FFB000;
+  --violet: #7C6EE6;
+  --blueprint: rgba(87, 140, 255, 0.08);
   --danger: #FF4D6D;
+  --shadow-deep: 0 18px 38px rgba(0, 0, 0, 0.30);
+  --shadow-soft: 0 8px 22px rgba(0, 0, 0, 0.22);
 }
 
 html,
@@ -20,10 +24,9 @@ body,
 [data-testid="stAppViewContainer"],
 [data-testid="stApp"] {
   background:
-    radial-gradient(circle at 22% 14%, rgba(0, 229, 255, 0.10), transparent 32%),
-    radial-gradient(circle at 84% 8%, rgba(124, 255, 42, 0.08), transparent 28%),
-    radial-gradient(circle at 78% 90%, rgba(0, 255, 209, 0.08), transparent 28%),
-    linear-gradient(135deg, #03070C 0%, #050B12 48%, #071018 100%) !important;
+    linear-gradient(180deg, rgba(18, 29, 43, 0.72), transparent 280px),
+    linear-gradient(135deg, #050A10 0%, #071018 52%, #081119 100%) !important;
+  background-size: auto !important;
   color: var(--text-main) !important;
 }
 
@@ -31,7 +34,7 @@ div.block-container {
   width: min(1440px, calc(100vw - 32px)) !important;
   max-width: 1440px !important;
   margin: 0 auto !important;
-  padding: 16px 16px 22px !important;
+  padding: 18px 16px 28px !important;
 }
 
 div[data-testid="stVerticalBlock"],
@@ -58,14 +61,38 @@ th {
 .kpi-card,
 .pulse-wrap,
 .status-bar {
-  background: linear-gradient(180deg, rgba(13, 25, 34, 0.92), rgba(8, 17, 24, 0.95)) !important;
+  background:
+    linear-gradient(180deg, rgba(15, 27, 38, 0.94), rgba(8, 17, 24, 0.96)) !important;
   border: 1px solid var(--border-soft) !important;
-  border-radius: 12px !important;
+  border-radius: 10px !important;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.02) inset,
-    0 12px 35px rgba(0, 0, 0, 0.35) !important;
+    var(--shadow-soft) !important;
   backdrop-filter: blur(16px);
   overflow: hidden;
+}
+
+.cn-card {
+  position: relative;
+  padding: 18px 20px !important;
+}
+
+.cn-card::after,
+.kpi-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 28%);
+  opacity: 0.55;
+}
+
+.cn-card > *,
+.kpi-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .cn-card:hover,
@@ -73,19 +100,19 @@ th {
   border-color: var(--border-strong) !important;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.025) inset,
-    0 14px 38px rgba(0, 0, 0, 0.42),
-    0 0 24px rgba(0, 229, 255, 0.08) !important;
+    var(--shadow-deep),
+    0 0 0 rgba(0, 0, 0, 0) !important;
 }
 
 .sec-label {
-  color: var(--neon-teal) !important;
-  border-bottom: 1px solid rgba(0, 255, 209, 0.14) !important;
-  min-height: 30px;
+  color: rgba(245, 247, 250, 0.76) !important;
+  border-bottom: 1px solid rgba(154, 167, 176, 0.13) !important;
+  min-height: 34px;
   display: flex !important;
   align-items: center !important;
   gap: 8px !important;
   margin-bottom: 12px !important;
-  padding-bottom: 8px !important;
+  padding-bottom: 10px !important;
   font-size: 10px !important;
   font-weight: 800 !important;
   line-height: 1.2 !important;
@@ -93,9 +120,53 @@ th {
   text-transform: uppercase !important;
 }
 
+.sec-label::before {
+  content: "";
+  width: 3px;
+  height: 14px;
+  border-radius: 2px;
+  background: #2DD4BF;
+  box-shadow: none;
+  flex: 0 0 auto;
+}
+
 .kpi-label,
 .pl {
   color: var(--text-muted) !important;
+}
+
+.kpi-card {
+  position: relative;
+  min-height: 138px;
+  padding: 16px 18px !important;
+}
+
+.kpi-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #2DD4BF;
+  opacity: 0.72;
+}
+
+.kpi-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 20px;
+}
+
+.kpi-label::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 999px;
+  background: rgba(154, 167, 176, 0.76);
+  box-shadow: none;
+  flex: 0 0 auto;
 }
 
 .kpi-value,
@@ -120,14 +191,15 @@ th {
   height: 7px;
   border-radius: 999px;
   background: var(--neon-green);
-  box-shadow: 0 0 8px rgba(124, 255, 42, 0.45);
+  box-shadow: none;
   margin-right: 7px;
   animation: none !important;
 }
 
 .pulse-wrap {
-  min-height: 62px;
-  padding: 10px 16px !important;
+  min-height: 68px;
+  padding: 11px 16px !important;
+  border-color: rgba(0, 255, 209, 0.18) !important;
 }
 
 .pulse-item {
@@ -140,9 +212,24 @@ th {
 }
 
 .chip {
-  background: rgba(0, 229, 255, 0.06) !important;
-  border-color: rgba(0, 255, 209, 0.16) !important;
-  color: var(--neon-cyan) !important;
+  background: rgba(10, 22, 32, 0.82) !important;
+  border-color: rgba(0, 255, 209, 0.18) !important;
+  color: rgba(245, 247, 250, 0.76) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset;
+  min-height: 24px;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px !important;
+}
+
+.chip::before {
+  content: "";
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(154, 167, 176, 0.8);
+  opacity: 1;
 }
 
 .regional-live-card {
@@ -219,14 +306,24 @@ th {
 }
 
 .stTabs [data-baseweb="tab-list"] {
-  background: rgba(10, 18, 25, 0.90) !important;
-  border: 1px solid rgba(120, 255, 220, 0.14) !important;
-  border-radius: 10px !important;
+  background: rgba(7, 14, 22, 0.78) !important;
+  border: 1px solid rgba(120, 255, 220, 0.16) !important;
+  border-radius: 12px !important;
+  padding: 5px !important;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22) !important;
+}
+
+.stTabs [data-baseweb="tab"] {
+  border-radius: 9px !important;
+  min-height: 38px !important;
 }
 
 .stTabs [aria-selected="true"] {
-  border-bottom: 3px solid var(--neon-green) !important;
+  background:
+    rgba(45, 212, 191, 0.10) !important;
+  border-bottom: 0 !important;
   color: #FFFFFF !important;
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.18) inset !important;
 }
 
 div[data-testid="stDownloadButton"] > button,
@@ -263,6 +360,87 @@ div[data-testid="stDownloadButton"] > button:active,
   border-color: var(--neon-green) !important;
 }
 
+.app-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+  position: relative;
+  background:
+    linear-gradient(135deg, rgba(13, 26, 38, 0.97), rgba(6, 14, 22, 0.97)) !important;
+  border: 1px solid rgba(154, 167, 176, 0.16) !important;
+  border-radius: 12px !important;
+  padding: 16px 22px !important;
+  margin-bottom: 14px !important;
+  box-shadow:
+    0 18px 58px rgba(0, 0, 0, 0.34),
+    0 0 0 1px rgba(255, 255, 255, 0.025) inset !important;
+  overflow: hidden;
+}
+
+.app-shell-header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(45, 212, 191, 0.10), transparent 30%);
+  opacity: 0.52;
+  pointer-events: none;
+}
+
+.app-shell-header > div {
+  position: relative;
+  z-index: 1;
+}
+
+.header-chip {
+  background: rgba(4, 10, 16, 0.72) !important;
+  border: 1px solid rgba(154, 167, 176, 0.16) !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 11px !important;
+  color: rgba(245, 247, 250, 0.62) !important;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.035) inset;
+}
+
+.headline-strip {
+  padding: 16px 20px !important;
+  border-radius: 12px !important;
+  border: 1px solid rgba(154, 167, 176, 0.14) !important;
+  background:
+    linear-gradient(135deg, rgba(10, 22, 34, 0.90), rgba(6, 13, 20, 0.82)) !important;
+  box-shadow: var(--shadow-soft);
+}
+
+.rp-label {
+  color: rgba(245, 247, 250, 0.46) !important;
+}
+
+.ph-card {
+  background:
+    linear-gradient(180deg, rgba(11, 21, 31, 0.76), rgba(7, 14, 22, 0.82)) !important;
+  border-color: rgba(0, 255, 209, 0.18) !important;
+  color: rgba(245, 247, 250, 0.64) !important;
+}
+
+[data-testid="stDataFrame"],
+[data-testid="stTable"] {
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  border: 1px solid rgba(0, 255, 209, 0.12) !important;
+  box-shadow: var(--shadow-soft) !important;
+}
+
+.js-plotly-plot .plotly .modebar {
+  opacity: 0;
+  transition: opacity 160ms ease;
+}
+
+.js-plotly-plot:hover .plotly .modebar {
+  opacity: 1;
+}
+
 @media (max-width: 1200px) {
   div.block-container {
     width: min(100%, calc(100vw - 20px)) !important;
@@ -271,5 +449,25 @@ div[data-testid="stDownloadButton"] > button:active,
 
   .pulse-item {
     min-width: 148px;
+  }
+}
+
+@media (max-width: 760px) {
+  div.block-container {
+    width: min(100%, calc(100vw - 12px)) !important;
+    padding: 8px 6px 18px !important;
+  }
+
+  .app-shell-header {
+    padding: 14px !important;
+  }
+
+  .pulse-wrap {
+    align-items: stretch !important;
+  }
+
+  .cn-card,
+  .kpi-card {
+    border-radius: 12px !important;
   }
 }

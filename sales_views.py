@@ -1,5 +1,5 @@
 """
-sales_views.py — CyberNova BI Portal · Sales Dashboard
+sales_views.py - CyberNova BI Portal  -  Sales Dashboard
 Imported by cybernovaapp.py. Provides 4 tab renderers + CSS injection.
 """
 import streamlit as st
@@ -322,27 +322,90 @@ def inject_sales_css():
 def _chart_layout(fig, h=260):
     """Apply consistent dark chart layout."""
     fig.update_layout(
-        height=h,
-        margin=dict(l=0, r=0, t=10, b=0),
+        height=max(h, 270),
+        margin=dict(l=50, r=24, t=18, b=58),
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=10, family="Inter"),
-        xaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6", showgrid=True, zeroline=False),
-        yaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6", showgrid=True, zeroline=False),
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=11, family="Inter"),
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="rgba(7,14,26,0.95)",
+            bordercolor="rgba(45,212,191,0.28)",
+            font=dict(color="#F0F4F8", size=11, family="Inter"),
+        ),
+        xaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True, zeroline=False,
+            showspikes=True, spikesnap="cursor",
+            spikecolor="rgba(45,212,191,0.22)", spikethickness=1,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
+        yaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True, zeroline=False,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
         legend=dict(
-            bgcolor="rgba(7,16,28,0.82)",
-            bordercolor="rgba(77,255,225,0.14)",
+            bgcolor="rgba(7,16,28,0.72)",
+            bordercolor="rgba(148,163,184,0.16)",
             borderwidth=1,
-            font=dict(color="#8A98A6", size=9),
+            font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.25,
+            y=-0.30,
             x=0,
         ),
+    )
+    fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+    fig.update_traces(line=dict(width=2.4), selector=dict(type="scatter"))
+
+
+_ICON_SVG = {
+    "chart": '<path d="M3 3v18h18"/><path d="M8 17V9"/><path d="M13 17V5"/><path d="M18 17v-6"/>',
+    "trend": '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/>',
+    "sync": '<path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7L21 16"/><path d="M21 21v-5h-5"/>',
+    "quality": '<path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/>',
+    "bot": '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 2v6"/><path d="M8 13h.01"/><path d="M16 13h.01"/><path d="M9 17h6"/>',
+    "map": '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15"/><path d="M15 6v15"/>',
+    "globe": '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/>',
+    "clock": '<circle cx="12" cy="13" r="8"/><path d="M12 9v5l3 2"/><path d="M5 3 2 6"/><path d="m22 6-3-3"/>',
+    "target": '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    "flag": '<path d="M4 22V4"/><path d="M4 4h13l-1 5 1 5H4"/>',
+    "lightbulb": '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M8.2 14A6 6 0 1 1 15.8 14c-.8.7-1.3 1.6-1.5 2.6H9.7A4.8 4.8 0 0 0 8.2 14Z"/>',
+    "signal": '<path d="M5 13a10 10 0 0 1 14 0"/><path d="M8.5 16.5a5 5 0 0 1 7 0"/><path d="M12 20h.01"/><path d="M12 4v4"/>',
+    "bell": '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    "check": '<path d="m20 6-11 11-5-5"/>',
+    "file": '<path d="M9 3h6v4H9z"/><path d="M9 5H5v16h14V5h-4"/><path d="M8 12h8"/><path d="M8 16h8"/>',
+    "folder": '<path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>',
+    "download": '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8"/><path d="M7 3v5h8"/>',
+    "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    "book": '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>',
+    "money": '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    "award": '<path d="M8 21h8"/><path d="M12 17v4"/><path d="M7 4h10v6a5 5 0 0 1-10 0V4Z"/><path d="M5 5H3v3a3 3 0 0 0 4 2.8"/><path d="M19 5h2v3a3 3 0 0 1-4 2.8"/>',
+    "alert": '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
+    "file": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+    "phone": '<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 2.9a2 2 0 0 1-.4 2.1L8.1 10a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.9.6 2.9.7a2 2 0 0 1 1.6 1.9Z"/>',
+    "activity": '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8Z"/>',
+    "users": '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/>',
+    "hot": '<path d="M8.5 14.5A3.5 3.5 0 1 0 12 11c0-2.5 1-4.7 3-6 1 2.5 3 4.4 3 8a6 6 0 1 1-12 0c0-1.4.5-2.8 1.5-3.9.1 2 .5 3.6 1 5.4Z"/>',
+    "message": '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>',
+}
+
+
+def _svg_for_icon(icon):
+    path = _ICON_SVG.get(icon)
+    if not path:
+        return f"{icon} " if icon else ""
+    return (
+        '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" '
+        'stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+        f'style="vertical-align:-2px;margin-right:7px;">{path}</svg>'
     )
 
 
 def _card_start(title, icon=""):
-    prefix = f"{icon} " if icon else ""
+    prefix = _svg_for_icon(icon)
     st.markdown(
         f'<div class="cyber-card"><div class="sv-title">{prefix}{title}</div>',
         unsafe_allow_html=True,
@@ -414,7 +477,7 @@ def build_sales_insights(df):
             "risk_level": risk_level,
             "risk_color": risk_color,
             "conv_rate": conv,
-            "action": f"Focus on {top_service} in {priority_market} — highest conversion opportunity."
+            "action": f"Focus on {top_service} in {priority_market} - highest conversion opportunity."
         }
     except Exception:
         return {"priority_market":"South Africa","top_service":"AI Solutions",
@@ -442,9 +505,9 @@ def render_sales_drawer() -> str:
 
 <div class="cn-card" style="margin-bottom:10px;">
   <div class="sec-label">Strategic Signals</div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F5F7FA;"><span style="color:#76FF36;">●</span> {ins["top_service"]} — <b>High Intent</b></div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F5F7FA;"><span style="color:#00F5D4;">●</span> Digital Transformation — <b>Accelerating</b></div>
-  <div style="font-size:11px;color:#F5F7FA;"><span style="color:#FFD84A;">●</span> Budget Confidence — <b>Positive</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F5F7FA;"><span style="color:#76FF36;">●</span> {ins["top_service"]} - <b>High Intent</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F5F7FA;"><span style="color:#00F5D4;">●</span> Digital Transformation - <b>Accelerating</b></div>
+  <div style="font-size:11px;color:#F5F7FA;"><span style="color:#FFD84A;">●</span> Budget Confidence - <b>Positive</b></div>
 </div>
 
 <div class="cn-card">
@@ -493,21 +556,15 @@ def _funnel_by_market():
             ),
         ))
 
+    _chart_layout(fig, 320)
     fig.update_layout(
         barmode="stack",
-        height=260,
-        margin=dict(l=0, r=0, t=10, b=0),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=9),
-        xaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6"),
-        yaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#F8FAFC", tickfont=dict(size=9)),
-        legend=dict(bgcolor="rgba(7,16,28,0.82)", bordercolor="rgba(77,255,225,0.14)",
-                    borderwidth=1, font=dict(color="#8A98A6", size=8),
-                    orientation="h", y=-0.28, x=0),
+        margin=dict(l=104, r=22, t=18, b=64),
+        xaxis_title="Visits / opportunities",
+        yaxis=dict(autorange="reversed", tickfont=dict(size=10, color="#CBD5E1"), automargin=True),
     )
 
-    _card_start("Funnel by Market", "📊")
+    _card_start("Funnel by Market", "chart")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     avg_conv = sum(conv_rates) / len(conv_rates)
     gap = avg_conv - target
@@ -515,8 +572,8 @@ def _funnel_by_market():
     gap_sign = "+" if gap >= 0 else ""
     st.markdown(
         f'<div style="font-size:10px;color:#8A98A6;margin-top:4px;">'
-        f'Overall Conv: <b style="color:{_CYAN};">{avg_conv:.1f}%</b> &nbsp;·&nbsp; '
-        f'Target: <b style="color:{_PURPLE};">3.0%</b> &nbsp;·&nbsp; '
+        f'Overall Conv: <b style="color:{_CYAN};">{avg_conv:.1f}%</b> &nbsp; - &nbsp; '
+        f'Target: <b style="color:{_PURPLE};">3.0%</b> &nbsp; - &nbsp; '
         f'Gap: <b style="color:{gap_color};">{gap_sign}{gap:.1f} pts</b></div>',
         unsafe_allow_html=True,
     )
@@ -548,20 +605,17 @@ def _funnel_by_service():
     fig.add_vline(x=target, line_dash="dash", line_color=_PURPLE, line_width=1.5,
                   annotation_text="Target 3.0%", annotation_font_color=_PURPLE,
                   annotation_font_size=9)
+    _chart_layout(fig, 300)
     fig.update_layout(
-        height=260,
-        margin=dict(l=0, r=0, t=10, b=0),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=9),
-        xaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6", title="Conversion Rate %"),
-        yaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#F8FAFC", tickfont=dict(size=10)),
+        margin=dict(l=104, r=44, t=18, b=50),
+        xaxis_title="Conversion rate %",
+        yaxis=dict(autorange="reversed", tickfont=dict(size=10, color="#CBD5E1"), automargin=True),
         showlegend=False,
     )
-    fig.add_annotation(x=conv[0], y=services[0], text="Best ★", showarrow=False,
+    fig.add_annotation(x=conv[0], y=services[0], text="Best top", showarrow=False,
                        font=dict(color=_GREEN, size=9), xanchor="left", xshift=6)
 
-    _card_start("Funnel by Service", "📊")
+    _card_start("Funnel by Service", "chart")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
@@ -577,27 +631,29 @@ def _repeat_visitor_conv():
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=months, y=new_vis, name="New Visitors",
         line=dict(color=_GRAY, width=2), mode="lines+markers",
-        marker=dict(size=5, color=_GRAY),
-        hovertemplate="<b>%{x}</b><br>New: %{y:.1f}%<extra></extra>"))
+        marker=dict(size=6, color=_GRAY, line=dict(color="rgba(255,255,255,0.2)", width=1)),
+        fill="tozeroy", fillcolor="rgba(138,152,166,0.04)",
+        hovertemplate="New: <b>%{y:.1f}%</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=months, y=repeat_vis, name="Repeat Visitors",
         line=dict(color=_CYAN, width=2.5), mode="lines+markers",
-        marker=dict(size=6, color=_CYAN),
-        hovertemplate="<b>%{x}</b><br>Repeat: %{y:.1f}%<extra></extra>"))
+        marker=dict(size=7, color=_CYAN, line=dict(color="rgba(255,255,255,0.25)", width=1.5)),
+        fill="tozeroy", fillcolor="rgba(34,211,238,0.06)",
+        hovertemplate="Repeat: <b>%{y:.1f}%</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=months, y=target, name="Target",
         line=dict(color=_PURPLE, width=1.5, dash="dash"), mode="lines",
-        hovertemplate="<b>%{x}</b><br>Target: %{y:.1f}%<extra></extra>"))
+        hovertemplate="Target: <b>%{y:.1f}%</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=months, y=prev_month, name="Prev Month",
         line=dict(color="#3A4A5E", width=1.5, dash="dot"), mode="lines",
-        hovertemplate="<b>%{x}</b><br>Prev: %{y:.1f}%<extra></extra>"))
+        hovertemplate="Prev: <b>%{y:.1f}%</b><extra></extra>"))
 
     _chart_layout(fig, h=230)
     fig.update_layout(yaxis_title="Conv Rate %")
 
-    _card_start("Repeat Visitor Conversion", "🔄")
+    _card_start("Repeat Visitor Conversion", "sync")
     st.markdown(
         '<span style="background:rgba(34,211,238,0.12);color:#22D3EE;border:1px solid '
         'rgba(34,211,238,0.25);border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;">'
-        'Repeat: 4.8% · Lift 2.4x</span>',
+        'Repeat: 4.8%  -  Lift 2.4x</span>',
         unsafe_allow_html=True,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -614,28 +670,35 @@ def _segment_quality_bubble():
     fill_c    = ["rgba(20,184,166,0.7)", "rgba(255,216,74,0.7)",
                  "rgba(124,255,79,0.7)", "rgba(34,211,238,0.7)", "rgba(138,152,166,0.7)"]
 
+    border_colors = ["rgba(34,211,238,0.5)", "rgba(255,216,74,0.5)",
+                     "rgba(124,255,79,0.5)", "rgba(20,184,166,0.5)", "rgba(138,152,166,0.4)"]
     fig = go.Figure()
-    for i, (seg, vol, cr, qs, fc) in enumerate(zip(segments, volumes, conv_r, quality, fill_c)):
+    for i, (seg, vol, cr, qs, fc, bc) in enumerate(zip(segments, volumes, conv_r, quality, fill_c, border_colors)):
         fig.add_trace(go.Scatter(
             x=[vol], y=[cr],
             mode="markers+text",
             name=seg,
             text=[seg],
             textposition="top center",
-            textfont=dict(color="#F8FAFC", size=8),
-            marker=dict(size=qs / 2.2, color=fc, line=dict(color="rgba(0,0,0,0.3)", width=1)),
+            textfont=dict(color="#F8FAFC", size=9, family="Inter"),
+            marker=dict(
+                size=qs / 2.0,
+                color=fc,
+                line=dict(color=bc, width=2),
+                opacity=0.88,
+            ),
             hovertemplate=(
                 f"<b>{seg}</b><br>"
-                f"Volume: {vol}<br>"
+                f"Volume: {vol:,}<br>"
                 f"Conv Rate: {cr}%<br>"
-                f"Quality Score: {qs}<extra></extra>"
+                f"Quality Score: {qs}/100<extra></extra>"
             ),
         ))
 
     _chart_layout(fig, h=230)
     fig.update_layout(xaxis_title="Potential Customers", yaxis_title="Conversion Rate %", showlegend=False)
 
-    _card_start("Segment Quality Bubble", "💎")
+    _card_start("Segment Quality Bubble", "quality")
     c_left, c_right = st.columns([3, 1])
     with c_left:
         st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -659,38 +722,40 @@ def _segment_quality_bubble():
 # ── E. Sales Insight Assistant ────────────────────────────────────────────────
 def _sales_insight_assistant():
     insights = [
-        ("🟢", "South Africa is the largest opportunity pool — 450 potential customers, $18.2M pipeline.", _GREEN),
-        ("🟡", "Zambia shows strong growth momentum (+31% MoM) — high-priority emerging hub.", _YELLOW),
-        ("🔴", "Biggest funnel drop-off: Qualified → Proposal stage (−59% fallthrough rate).", _RED),
-        ("🟢", "Repeat visitors convert 2.4× higher than new visitors — prioritise returning traffic.", _GREEN),
-        ("💡", "Recommended: Prioritise high-intent repeat visitors and accelerate proposal-stage follow-ups.", _CYAN),
+        ("dot", "South Africa is the largest opportunity pool - 450 potential customers, $18.2M pipeline.", _GREEN),
+        ("dot", "Zambia shows strong growth momentum (+31% MoM) - high-priority emerging hub.", _YELLOW),
+        ("dot", "Biggest funnel drop-off: Qualified to Proposal stage (-59% fallthrough rate).", _RED),
+        ("dot", "Repeat visitors convert 2.4× higher than new visitors - prioritise returning traffic.", _GREEN),
+        ("lightbulb", "Recommended: Prioritise high-intent repeat visitors and accelerate proposal-stage follow-ups.", _CYAN),
     ]
     rows_html = "".join(
         f'<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;'
         f'border-bottom:1px solid rgba(77,255,225,0.06);">'
-        f'<span style="font-size:14px;flex-shrink:0;">{icon}</span>'
+        f'<span style="flex-shrink:0;color:{col};">'
+        f'{f"<span style=\'display:inline-block;width:7px;height:7px;border-radius:50%;background:{col};margin-top:6px;\'></span>" if icon == "dot" else _svg_for_icon(icon)}'
+        f'</span>'
         f'<span style="font-size:12px;color:#F8FAFC;line-height:1.5;">{text}</span>'
         f'</div>'
-        for icon, text, _ in insights
+        for icon, text, col in insights
     )
 
     st.markdown(
         f"""
 <div class="insight-card">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <div style="font-size:16px;">🤖</div>
+    <div style="color:#22D3EE;">{_svg_for_icon("bot")}</div>
     <div>
       <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#22D3EE;">
-        CyberNova Intelligence · Sales Insights
+        CyberNova Intelligence  -  Sales Insights
       </div>
-      <div style="font-size:9px;color:#8A98A6;">AI-generated intelligence summary · Updated live</div>
+      <div style="font-size:9px;color:#8A98A6;">Intelligence summary - Updated live</div>
     </div>
   </div>
   {rows_html}
   <div style="margin-top:12px;">
     <button style="background:linear-gradient(135deg,rgba(20,184,166,0.25),rgba(34,211,238,0.15));
       border:1px solid rgba(34,211,238,0.35);color:#22D3EE;border-radius:8px;padding:6px 16px;
-      font-size:11px;font-weight:600;cursor:pointer;">Ask CyberNova →</button>
+      font-size:11px;font-weight:600;cursor:pointer;">Ask CyberNova to</button>
   </div>
 </div>
 """,
@@ -730,7 +795,7 @@ def _mini_hotzones_map():
                     borderwidth=1, font=dict(color="#F8FAFC", size=9), orientation="v", x=0.01, y=0.98),
     )
 
-    _card_start("Sales Hotzones Map", "🗺️")
+    _card_start("Sales Hotzones Map", "map")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
@@ -756,18 +821,15 @@ def _top_service_demand():
         hovertemplate="<b>%{y}</b><br>Potential Customers: %{x}<extra></extra>",
     ))
 
+    _chart_layout(fig, 300)
     fig.update_layout(
-        height=260,
-        margin=dict(l=0, r=0, t=10, b=0),
-        paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=9),
-        xaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6", title="Potential Customers"),
-        yaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#F8FAFC", tickfont=dict(size=10)),
+        margin=dict(l=104, r=52, t=18, b=50),
+        xaxis_title="Potential customers",
+        yaxis=dict(autorange="reversed", tickfont=dict(size=10, color="#CBD5E1"), automargin=True),
         showlegend=False,
     )
 
-    _card_start("Top Service Demand", "📈")
+    _card_start("Top Service Demand", "trend")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
@@ -775,12 +837,12 @@ def _top_service_demand():
 # ── H. Customers by Country ───────────────────────────────────────────────────
 def _customers_by_country():
     rows_data = [
-        ("🇿🇦", "South Africa", 450, "▲22%", "21.8%", "$18.2M", _GREEN),
-        ("🇿🇲", "Zambia",        180, "▲14%", "22.8%", "$9.5M",  _GREEN),
-        ("🇲🇿", "Mozambique",    140, "▲18%", "20.7%", "$7.2M",  _GREEN),
-        ("🇧🇼", "Botswana",       95, "▲8%",  "18.9%", "$4.8M",  _YELLOW),
-        ("🇦🇴", "Angola",          72, "▲31%", "19.4%", "$3.1M",  _GREEN),
-        ("🇨🇩", "DRC",             38, "▲9%",  "15.2%", "$1.4M",  _YELLOW),
+        ("🇿🇦", "South Africa", 450, "+22%", "21.8%", "$18.2M", _GREEN),
+        ("🇿🇲", "Zambia",        180, "+14%", "22.8%", "$9.5M",  _GREEN),
+        ("🇲🇿", "Mozambique",    140, "+18%", "20.7%", "$7.2M",  _GREEN),
+        ("🇧🇼", "Botswana",       95, "+8%",  "18.9%", "$4.8M",  _YELLOW),
+        ("🇦🇴", "Angola",          72, "+31%", "19.4%", "$3.1M",  _GREEN),
+        ("🇨🇩", "DRC",             38, "+9%",  "15.2%", "$1.4M",  _YELLOW),
     ]
 
     header = (
@@ -803,7 +865,7 @@ def _customers_by_country():
         for flag, country, cust, chg, conv, rev, chg_col in rows_data
     )
 
-    _card_start("Potential Customers by Country", "🌍")
+    _card_start("Potential Customers by Country", "globe")
     st.markdown(
         f'<div style="overflow-y:auto;max-height:280px;">{header}{rows_html}</div>',
         unsafe_allow_html=True,
@@ -827,7 +889,9 @@ def _demo_intent_heatmap():
         z=z,
         x=hours,
         y=days,
-        colorscale=[[0, "rgba(7,16,28,0.9)"], [0.4, "rgba(20,184,166,0.3)"], [1, _CYAN]],
+        colorscale=[[0, "rgba(15,23,42,0.85)"], [0.42, "rgba(20,184,166,0.34)"], [1, _CYAN]],
+        xgap=1,
+        ygap=1,
         hovertemplate=(
             "<b>%{y} %{x}</b><br>"
             "Demo Intent Count: %{z}<br>"
@@ -837,18 +901,18 @@ def _demo_intent_heatmap():
     ))
 
     fig.update_layout(
-        height=260,
-        margin=dict(l=0, r=0, t=10, b=0),
+        height=280,
+        margin=dict(l=42, r=14, t=16, b=58),
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=9),
-        xaxis=dict(tickangle=-45, color="#8A98A6", tickfont=dict(size=8)),
-        yaxis=dict(color="#F8FAFC", tickfont=dict(size=9)),
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=10),
+        xaxis=dict(tickangle=-45, color="#CBD5E1", tickfont=dict(size=9), automargin=True),
+        yaxis=dict(color="#CBD5E1", tickfont=dict(size=10), automargin=True),
     )
 
-    _card_start("Demo Intent by Hour", "⏰")
+    _card_start("Demo Intent by Hour", "clock")
     st.markdown(
-        '<div style="font-size:9px;color:#8A98A6;margin-bottom:6px;">Peak: Tue–Thu, 09:00–17:00 &nbsp;·&nbsp; '
+        '<div style="font-size:9px;color:#8A98A6;margin-bottom:6px;">Peak: Tue–Thu, 09:00–17:00 &nbsp; - &nbsp; '
         'High-intent windows highlighted</div>',
         unsafe_allow_html=True,
     )
@@ -884,11 +948,11 @@ def _conversion_by_stage():
     _chart_layout(fig, h=240)
     fig.update_layout(yaxis_title="Cumulative Conversion %", showlegend=False)
 
-    _card_start("Conversion Rate by Stage", "🎯")
+    _card_start("Conversion Rate by Stage", "target")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     st.markdown(
         '<div style="font-size:10px;color:#8A98A6;margin-top:4px;">'
-        '💡 Opportunity: Improving Qualified→Proposal by 10% could add ~50 additional won deals per cycle.</div>',
+        'lightbulb Opportunity: Improving QualifiedtoProposal by 10% could add ~50 additional won deals per cycle.</div>',
         unsafe_allow_html=True,
     )
     _card_end()
@@ -924,10 +988,10 @@ def render_sales_analytics(df):
 
 def _forecast_kpis():
     kpis = [
-        ("Customers Forecast", "1,642", "vs current 1,248", "▲ 31.6%", "up", _PURPLE),
-        ("Demo Requests Forecast", "412", "vs current 312", "▲ 32.1%", "up", _CYAN),
-        ("Expected Conversions", "98", "next 30 days", "▲ 28.9%", "up", _GREEN),
-        ("Forecasted Revenue", "$2.86M", "vs current $2.24M", "▲ 27.7%", "up", _TEAL),
+        ("Customers Forecast", "1,642", "vs current 1,248", "+ 31.6%", "up", _PURPLE),
+        ("Demo Requests Forecast", "412", "vs current 312", "+ 32.1%", "up", _CYAN),
+        ("Expected Conversions", "98", "next 30 days", "+ 28.9%", "up", _GREEN),
+        ("Forecasted Revenue", "$2.86M", "vs current $2.24M", "+ 27.7%", "up", _TEAL),
         ("Confidence Level", "76%", "medium-high accuracy", "Medium-High", "watch", _YELLOW),
     ]
     delta_cls = {"up": "kpi-delta-up", "watch": "kpi-delta-watch", "down": "kpi-delta-down"}
@@ -984,10 +1048,10 @@ def _customer_forecast_30d():
     _chart_layout(fig, h=260)
     fig.update_layout(yaxis_title="Potential Customers")
 
-    _card_start("30-Day Customer Forecast", "📈")
+    _card_start("30-Day Customer Forecast", "trend")
     st.markdown(
         '<div style="font-size:9px;color:#FFD84A;margin-bottom:6px;">'
-        '⚠ Rule-based linear forecast, not predictive AI.</div>',
+        'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -1028,10 +1092,10 @@ def _demo_request_forecast():
     _chart_layout(fig, h=260)
     fig.update_layout(yaxis_title="Demo Requests")
 
-    _card_start("Demo Request Forecast", "📊")
+    _card_start("Demo Request Forecast", "chart")
     st.markdown(
         '<div style="font-size:9px;color:#FFD84A;margin-bottom:6px;">'
-        '⚠ Rule-based linear forecast, not predictive AI.</div>',
+        'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -1062,23 +1126,23 @@ def _forecast_vs_target():
     _chart_layout(fig, h=240)
     fig.update_layout(yaxis_title="Revenue ($M)")
 
-    _card_start("Forecast vs Target", "🏁")
+    _card_start("Forecast vs Target", "flag")
     st.markdown(
         '<div style="font-size:9px;color:#FFD84A;margin-bottom:4px;">'
-        '⚠ Rule-based linear forecast, not predictive AI.</div>',
+        'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     c1, c2, c3, c4 = st.columns(4)
     with c1: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Forecast <b style="color:{_CYAN};">$2.86M</b></div>', unsafe_allow_html=True)
     with c2: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Target <b style="color:{_PURPLE};">$3.20M</b></div>', unsafe_allow_html=True)
-    with c3: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Gap <b style="color:{_RED};">−$340K</b></div>', unsafe_allow_html=True)
+    with c3: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Gap <b style="color:{_RED};">-$340K</b></div>', unsafe_allow_html=True)
     with c4: st.markdown(f'<div style="font-size:10px;color:#8A98A6;">Confidence <b style="color:{_YELLOW};">76%</b></div>', unsafe_allow_html=True)
     _card_end()
 
 
 def _whatif_analysis():
-    _card_start("AI-to-Demo What-If Analysis", "🤖")
+    _card_start("AI-to-Demo What-If Analysis", "bot")
     slider_pct = st.slider(
         "AI-to-Demo Conversion Rate (%)",
         min_value=15, max_value=35, value=25, step=1,
@@ -1126,8 +1190,8 @@ def _whatif_analysis():
 
 def _readiness_checklist():
     items = [
-        ("✓", "Increase follow-up cadence", "done",        _GREEN),
-        ("✓", "Enable industry-specific playbooks", "done", _GREEN),
+        ("Done", "Increase follow-up cadence", "done",        _GREEN),
+        ("Done", "Enable industry-specific playbooks", "done", _GREEN),
         ("○", "Prioritise enterprise accounts", "in-progress", _YELLOW),
         ("○", "Upskill SDRs on demo conversion", "in-progress", _YELLOW),
         ("○", "Launch Zambia expansion campaign", "planned",  _GRAY),
@@ -1150,7 +1214,7 @@ def _readiness_checklist():
             f'</div>'
         )
 
-    _card_start("Sales Readiness Recommendations", "💡")
+    _card_start("Sales Readiness Recommendations", "lightbulb")
     st.markdown(rows_html, unsafe_allow_html=True)
     _card_end()
 
@@ -1175,13 +1239,13 @@ def _forecast_confidence_gauge():
         },
     ))
     fig.update_layout(
-        height=220,
-        margin=dict(l=10, r=10, t=30, b=0),
+        height=250,
+        margin=dict(l=18, r=18, t=42, b=18),
         paper_bgcolor="rgba(0,0,0,0)",
-        font=dict(color="#8A98A6", size=10),
+        font=dict(color="#CBD5E1", size=11),
     )
 
-    _card_start("Forecast Confidence", "🎯")
+    _card_start("Forecast Confidence", "target")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     st.markdown(
         f'<div style="text-align:center;font-size:11px;color:{_YELLOW};font-weight:600;">Medium-High</div>'
@@ -1200,7 +1264,7 @@ def _market_outlook():
     ]
     status_bg = {"Invest": "rgba(124,255,79,0.08)", "Monitor": "rgba(255,216,74,0.08)", "Watch": "rgba(245,158,11,0.08)"}
 
-    _card_start("Market Outlook", "🗺️")
+    _card_start("Market Outlook", "map")
     for flag, country, status, action, color in markets:
         _bg = status_bg.get(action, "rgba(8,22,28,0.5)")
         st.markdown(
@@ -1223,13 +1287,13 @@ def _market_outlook():
 
 def _forecast_signals():
     signals = [
-        ("📈", "Rising website visits",       "Positive",    _GREEN),
-        ("🎯", "Product page engagement",      "Positive",    _GREEN),
-        ("🔥", "Intent signals increasing",    "Positive",    _GREEN),
-        ("💬", "Competitive mentions",         "Low & Stable", _YELLOW),
+        ("trend", "Rising website visits",       "Positive",    _GREEN),
+        ("target", "Product page engagement",      "Positive",    _GREEN),
+        ("hot", "Intent signals increasing",    "Positive",    _GREEN),
+        ("message", "Competitive mentions",         "Low & Stable", _YELLOW),
     ]
 
-    _card_start("Forecast Signals", "📡")
+    _card_start("Forecast Signals", "signal")
     for icon, label, status, color in signals:
         st.markdown(
             f'<div class="forecast-signal-card">'
@@ -1245,17 +1309,17 @@ def _forecast_signals():
 
 def _alert_center_risk():
     alerts = [
-        ("⚠️", "Zambia demo conversion below forecast",     "High priority",   "high"),
-        ("⚠️", "Large opportunity aging (>21 days unactioned)", "Medium priority", "warn"),
+        ("Zambia demo conversion below forecast",     "High priority",   "high"),
+        ("Large opportunity aging (>21 days unactioned)", "Medium priority", "warn"),
     ]
 
-    _card_start("Alert Center + Risk Gauge", "🔔")
-    for icon, msg, priority, cls in alerts:
+    _card_start("Alert Center + Risk Gauge", "bell")
+    for msg, priority, cls in alerts:
         p_color = _RED if cls == "high" else _YELLOW
         st.markdown(
             f'<div class="alert-item {"" if cls=="high" else "warn"}">'
             f'<div style="display:flex;align-items:center;gap:8px;">'
-            f'<span>{icon}</span>'
+            f'<span style="color:{p_color};">{_svg_for_icon("alert")}</span>'
             f'<span style="flex:1;font-size:12px;">{msg}</span>'
             f'<span style="font-size:9px;font-weight:700;color:{p_color};'
             f'padding:2px 7px;border-radius:20px;background:rgba(0,0,0,0.2);">{priority}</span>'
@@ -1327,11 +1391,11 @@ def render_sales_forecasting(df):
 
 def _action_queue():
     actions = [
-        ("🔔", "Follow up",       "🇦🇴 Luanda, Angola",      "High",   "Today",     "Alex M.",   "$85K"),
-        ("📋", "Qualify",         "🇿🇲 Lusaka, Zambia",       "High",   "Tomorrow",  "Sarah K.",  "$120K"),
-        ("🔄", "Re-engage",       "🇳🇦 Windhoek, Namibia",    "Med",    "May 30",    "Alex M.",   "$42K"),
-        ("📄", "Prepare proposal","🇿🇦 Durban, S. Africa",     "High",   "May 31",    "James O.",  "$200K"),
-        ("📞", "Intro call",      "🇿🇦 Cape Town, S. Africa",  "Med",    "Jun 1",     "Alex M.",   "$95K"),
+        ("bell", "Follow up",       "🇦🇴 Luanda, Angola",      "High",   "Today",     "Alex M.",   "$85K"),
+        ("file", "Qualify",         "🇿🇲 Lusaka, Zambia",       "High",   "Tomorrow",  "Sarah K.",  "$120K"),
+        ("sync", "Re-engage",       "🇳🇦 Windhoek, Namibia",    "Med",    "May 30",    "Alex M.",   "$42K"),
+        ("file", "Prepare proposal","🇿🇦 Durban, S. Africa",     "High",   "May 31",    "James O.",  "$200K"),
+        ("phone", "Intro call",      "🇿🇦 Cape Town, S. Africa",  "Med",    "Jun 1",     "Alex M.",   "$95K"),
     ]
     priority_html = {
         "High": f'<span style="background:rgba(248,113,113,0.12);color:{_RED};border:1px solid rgba(248,113,113,0.25);border-radius:20px;padding:2px 7px;font-size:9px;font-weight:700;">High</span>',
@@ -1352,7 +1416,7 @@ def _action_queue():
     rows_html = "".join(
         f'<div style="display:flex;align-items:center;padding:8px 4px;'
         f'border-bottom:1px solid rgba(77,255,225,0.05);">'
-        f'<span style="flex:0.4;font-size:14px;">{icon}</span>'
+        f'<span style="flex:0.4;color:#8A98A6;">{_svg_for_icon(icon)}</span>'
         f'<span style="flex:1.2;font-size:11px;color:#F8FAFC;font-weight:500;">{action}</span>'
         f'<span style="flex:1.4;font-size:11px;color:#8A98A6;">{market}</span>'
         f'<span style="flex:0.7;">{priority_html.get(prio, prio)}</span>'
@@ -1363,7 +1427,7 @@ def _action_queue():
         for icon, action, market, prio, due, owner, val in actions
     )
 
-    _card_start("Sales Action Queue", "✅")
+    _card_start("Sales Action Queue", "check")
     st.markdown(f"<div>{header}{rows_html}</div>", unsafe_allow_html=True)
     _card_end()
 
@@ -1411,7 +1475,7 @@ def _customers_table():
         for name, region, hub, stage, score, rev, activity, owner in customers
     )
 
-    _card_start("Potential Customers Table", "📋")
+    _card_start("Potential Customers Table", "file")
     st.markdown(
         f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">'
         f'Use market filter (right panel) to narrow results. Showing top 10 of 1,248 records.</div>',
@@ -1424,7 +1488,7 @@ def _customers_table():
     )
     st.markdown(
         '<div style="font-size:10px;color:#8A98A6;margin-top:6px;text-align:right;">'
-        'Page 1 of 5 · 1,248 records</div>',
+        'Page 1 of 5  -  1,248 records</div>',
         unsafe_allow_html=True,
     )
     _card_end()
@@ -1438,11 +1502,11 @@ def _score_color(score: int) -> str:
 
 def _evidence_snapshot():
     metrics = [
-        ("💰", "Total Potential Revenue",   "$82.6M", _GREEN),
-        ("👥", "Potential Customers",       "1,248",  _CYAN),
+        ("money", "Total Potential Revenue",   "$82.6M", _GREEN),
+        ("users", "Potential Customers",       "1,248",  _CYAN),
         ("🆕", "New Potential Customers",   "312",    _TEAL),
-        ("📊", "Avg Potential Revenue",     "$66.3K", _YELLOW),
-        ("⚡", "Avg Engagement Score",      "74/100", _PURPLE),
+        ("chart", "Avg Potential Revenue",     "$66.3K", _YELLOW),
+        ("activity", "Avg Engagement Score",      "74/100", _PURPLE),
     ]
 
     rows_html = "".join(
@@ -1456,7 +1520,7 @@ def _evidence_snapshot():
     )
 
     health_pct = 74
-    _card_start("Evidence Snapshot", "📂")
+    _card_start("Evidence Snapshot", "folder")
     st.markdown(rows_html, unsafe_allow_html=True)
     st.markdown(
         f'<div style="margin-top:12px;">'
@@ -1473,15 +1537,15 @@ def _evidence_snapshot():
 
 
 def _export_center(df):
-    _card_start("Export Center", "💾")
+    _card_start("Export Center", "download")
     c1, c2 = st.columns(2)
 
     with c1:
         st.markdown(
             f'<div class="export-btn-card">'
-            f'<div style="font-size:14px;margin-bottom:6px;">📄</div>'
+            f'<div style="font-size:14px;margin-bottom:6px;color:#8A98A6;">{_svg_for_icon("file")}</div>'
             f'<div style="font-size:11px;font-weight:600;color:#F8FAFC;margin-bottom:4px;">Weekly PDF Report</div>'
-            f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">Sales summary · Current week</div>'
+            f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">Sales summary  -  Current week</div>'
             f'<button style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);'
             f'color:{_CYAN};border-radius:6px;padding:4px 12px;font-size:10px;cursor:pointer;">Generate PDF</button>'
             f'</div>',
@@ -1489,7 +1553,7 @@ def _export_center(df):
         )
         st.markdown(
             f'<div class="export-btn-card">'
-            f'<div style="font-size:14px;margin-bottom:6px;">📅</div>'
+            f'<div style="font-size:14px;margin-bottom:6px;color:#8A98A6;">{_svg_for_icon("file")}</div>'
             f'<div style="font-size:11px;font-weight:600;color:#F8FAFC;margin-bottom:4px;">Monthly PDF Report</div>'
             f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">Full monthly intelligence briefing</div>'
             f'<button style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);'
@@ -1499,7 +1563,7 @@ def _export_center(df):
         )
         st.markdown(
             f'<div class="export-btn-card">'
-            f'<div style="font-size:14px;margin-bottom:6px;">📑</div>'
+            f'<div style="font-size:14px;margin-bottom:6px;color:#8A98A6;">{_svg_for_icon("file")}</div>'
             f'<div style="font-size:11px;font-weight:600;color:#F8FAFC;margin-bottom:4px;">Pipeline Snapshot PDF</div>'
             f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">Current pipeline status</div>'
             f'<button style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);'
@@ -1513,7 +1577,7 @@ def _export_center(df):
         if df is not None:
             pc_df = df[~df["is_bot"]] if "is_bot" in df.columns else df
             st.download_button(
-                label="⬇ Potential Customers CSV",
+                label="Potential Customers CSV",
                 data=pc_df.head(5000).to_csv(index=False).encode(),
                 file_name="cybernova_potential_customers.csv",
                 mime="text/csv",
@@ -1525,7 +1589,7 @@ def _export_center(df):
             if filtered.empty:
                 filtered = pc_df
             st.download_button(
-                label="⬇ Filtered Data CSV",
+                label="Filtered Data CSV",
                 data=filtered.head(5000).to_csv(index=False).encode(),
                 file_name="cybernova_filtered.csv",
                 mime="text/csv",
@@ -1534,13 +1598,13 @@ def _export_center(df):
             )
         else:
             st.markdown(
-                f'<div style="font-size:10px;color:{_YELLOW};padding:8px 0;">CSV export unavailable — data not loaded.</div>',
+                f'<div style="font-size:10px;color:{_YELLOW};padding:8px 0;">CSV export unavailable - data not loaded.</div>',
                 unsafe_allow_html=True,
             )
 
         st.markdown(
             f'<div class="export-btn-card">'
-            f'<div style="font-size:14px;margin-bottom:6px;">📖</div>'
+            f'<div style="font-size:14px;margin-bottom:6px;">book</div>'
             f'<div style="font-size:11px;font-weight:600;color:#F8FAFC;margin-bottom:4px;">Data Dictionary</div>'
             f'<div style="font-size:10px;color:#8A98A6;margin-bottom:8px;">Field definitions & methodology</div>'
             f'<button style="background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);'
@@ -1563,11 +1627,11 @@ def _data_quality_summary():
         ("Engagement Coverage",  74,  _YELLOW, False),
     ]
 
-    _card_start("Data Quality Summary", "🔍")
+    _card_start("Data Quality Summary", "search")
     for label, pct, color, inverse in metrics:
         disp_pct = pct if not inverse else 100 - pct
         bar_color = (_RED if inverse else color)
-        # For duplicate rate: lower is better — show visually inverted
+        # For duplicate rate: lower is better - show visually inverted
         fill = 100 - pct if inverse else pct
         note = " (lower is better)" if inverse else ""
         st.markdown(
@@ -1584,7 +1648,7 @@ def _data_quality_summary():
 
 
 def _methodology():
-    _card_start("Methodology & Assumptions", "📖")
+    _card_start("Methodology & Assumptions", "book")
     st.markdown(
         """
 <div style="font-size:12px;color:#F8FAFC;line-height:1.7;">
@@ -1644,14 +1708,14 @@ def _revenue_by_region():
     fig.add_annotation(text="Total", x=0.5, y=0.42,
                        font=dict(size=9, color="#8A98A6", family="Inter"), showarrow=False)
     fig.update_layout(
-        height=260,
-        margin=dict(l=0, r=0, t=10, b=0),
+        height=290,
+        margin=dict(l=8, r=8, t=16, b=54),
         paper_bgcolor="rgba(0,0,0,0)",
-        legend=dict(bgcolor="rgba(7,16,28,0.82)", bordercolor="rgba(77,255,225,0.14)", borderwidth=1,
-                    font=dict(color="#8A98A6", size=9), orientation="v", x=0.78),
+        legend=dict(bgcolor="rgba(7,16,28,0.72)", bordercolor="rgba(148,163,184,0.16)", borderwidth=1,
+                    font=dict(color="#CBD5E1", size=10), orientation="h", y=-0.12, x=0),
     )
 
-    _card_start("Revenue by Region", "💰")
+    _card_start("Revenue by Region", "money")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
@@ -1698,11 +1762,11 @@ def _new_customers_trend():
     fig.update_layout(yaxis_title="New Potential Customers", xaxis_title="Month")
     st.markdown(
         '<div style="font-size:9px;color:#FFD84A;margin-bottom:4px;">'
-        '⚠ Rule-based linear forecast, not predictive AI.</div>',
+        'alert Rule-based linear forecast, not predictive AI.</div>',
         unsafe_allow_html=True,
     )
 
-    _card_start("New Potential Customers Trend", "📈")
+    _card_start("New Potential Customers Trend", "trend")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
@@ -1742,23 +1806,23 @@ def _top_customers_revenue():
         hovertemplate="<b>%{y}</b><br>Revenue: $%{x}K<extra></extra>",
     ))
     fig.update_layout(
-        height=300,
-        margin=dict(l=0, r=60, t=10, b=0),
+        height=330,
+        margin=dict(l=164, r=64, t=16, b=46),
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#8A98A6", size=9),
-        xaxis=dict(gridcolor="rgba(77,255,225,0.05)", color="#8A98A6", title="Revenue (USD thousands)"),
-        yaxis=dict(color="#F8FAFC", tickfont=dict(size=9)),
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=10),
+        xaxis=dict(gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", title="Revenue (USD thousands)", tickfont=dict(size=10), title_font=dict(size=10), automargin=True),
+        yaxis=dict(color="#CBD5E1", tickfont=dict(size=10), automargin=True),
         showlegend=False,
     )
 
-    _card_start("Top Potential Customers by Revenue", "🏆")
+    _card_start("Top Potential Customers by Revenue", "award")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_end()
 
 
 def _export_center(df):
-    _card_start("Export Center", "PDF")
+    _card_start("Export Center", "file")
     filters = {
         "role": "Sales",
         "market": st.session_state.get("selected_market", "All"),

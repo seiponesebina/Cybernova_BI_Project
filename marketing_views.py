@@ -1,5 +1,5 @@
 """
-marketing_views.py — CyberNova BI Portal · Marketing Dashboard
+marketing_views.py - CyberNova BI Portal  -  Marketing Dashboard
 Imported by cybernovaapp.py. Provides 5 public functions + CSS injection.
 """
 import streamlit as st
@@ -123,23 +123,43 @@ def inject_marketing_css():
 def _cl(fig, h=240):
     """Apply consistent dark chart layout."""
     fig.update_layout(
-        height=h,
-        margin=dict(l=0, r=0, t=10, b=0),
+        height=max(h, 270),
+        margin=dict(l=50, r=24, t=18, b=58),
         paper_bgcolor="rgba(0,0,0,0)",
-        plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color=_MUTED, size=10, family="Inter"),
-        xaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_MUTED, showgrid=True, zeroline=False),
-        yaxis=dict(gridcolor="rgba(34,211,238,0.05)", color=_MUTED, showgrid=True, zeroline=False),
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=11, family="Inter"),
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="rgba(7,14,26,0.95)",
+            bordercolor="rgba(45,212,191,0.28)",
+            font=dict(color="#F0F4F8", size=11, family="Inter"),
+        ),
+        xaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True, zeroline=False,
+            showspikes=True, spikesnap="cursor",
+            spikecolor="rgba(45,212,191,0.22)", spikethickness=1,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
+        yaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True, zeroline=False,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
         legend=dict(
-            bgcolor="rgba(7,16,28,0.82)",
-            bordercolor="rgba(34,211,238,0.14)",
+            bgcolor="rgba(7,16,28,0.72)",
+            bordercolor="rgba(148,163,184,0.16)",
             borderwidth=1,
-            font=dict(color=_MUTED, size=9),
+            font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.28,
+            y=-0.30,
             x=0,
         ),
     )
+    fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+    fig.update_traces(line=dict(width=2.4), selector=dict(type="scatter"))
 
 
 def _card_open(title):
@@ -244,24 +264,26 @@ def _audience_segments_over_time(df):
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=dates_str, y=li, name="Low-Intent",
-        fill="tozeroy", fillcolor="rgba(107,127,163,0.15)",
+        fill="tozeroy", fillcolor="rgba(107,127,163,0.12)",
         line=dict(color=_GRAY, width=1.5),
-        hovertemplate="<b>%{x}</b><br>Low-Intent: %{y}<extra></extra>"))
+        hovertemplate="Low-Intent: <b>%{y}</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=dates_str, y=gb, name="General Browsers",
-        fill="tonexty", fillcolor="rgba(251,191,36,0.12)",
+        fill="tonexty", fillcolor="rgba(251,191,36,0.10)",
         line=dict(color=_YELLOW, width=1.5),
-        hovertemplate="<b>%{x}</b><br>General: %{y}<extra></extra>"))
+        hovertemplate="General: <b>%{y}</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=dates_str, y=pc, name="Product-Curious",
-        fill="tonexty", fillcolor="rgba(20,184,166,0.14)",
+        fill="tonexty", fillcolor="rgba(20,184,166,0.12)",
         line=dict(color=_TEAL, width=2),
-        hovertemplate="<b>%{x}</b><br>Product-Curious: %{y}<extra></extra>"))
+        hovertemplate="Product-Curious: <b>%{y}</b><extra></extra>"))
     fig.add_trace(go.Scatter(x=dates_str, y=hi, name="High-Intent",
-        fill="tonexty", fillcolor="rgba(34,211,238,0.16)",
+        fill="tonexty", fillcolor="rgba(34,211,238,0.14)",
         line=dict(color=_CYAN, width=2.5),
-        hovertemplate="<b>%{x}</b><br>High-Intent: %{y}<extra></extra>"))
+        mode="lines+markers",
+        marker=dict(size=5, color=_CYAN, line=dict(color="rgba(255,255,255,0.2)", width=1)),
+        hovertemplate="High-Intent: <b>%{y}</b><extra></extra>"))
 
     _cl(fig, 240)
-    fig.update_layout(xaxis=dict(tickangle=-45, tickfont=dict(size=8), gridcolor="rgba(34,211,238,0.05)", color=_MUTED))
+    fig.update_layout(xaxis=dict(tickangle=-35, tickfont=dict(size=9, color="#CBD5E1"), automargin=True))
     _card_open("Audience Segments Over Time")
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
     _card_close()
@@ -373,7 +395,7 @@ def _service_promotion_gap():
     _card_open("Service Promotion Gap")
     st.markdown(
         f'<div style="font-size:9px;color:{_YELLOW};margin-bottom:6px;">'
-        f'Cybersecurity: high conversion, low visit share — under-promoted opportunity</div>',
+        f'Cybersecurity: high conversion, low visit share - under-promoted opportunity</div>',
         unsafe_allow_html=True,
     )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
@@ -425,8 +447,8 @@ def _channel_source_quality():
     _cl(fig, 240)
     fig.update_layout(
         barmode="group", bargap=0.2,
-        xaxis=dict(tickangle=-25, tickfont=dict(size=8), color=_MUTED),
-        yaxis=dict(title="Count", color=_MUTED),
+        xaxis=dict(tickangle=-25, tickfont=dict(size=9, color="#CBD5E1"), automargin=True),
+        yaxis=dict(title="Count", color="#94A3B8", tickfont=dict(size=10, color="#CBD5E1"), automargin=True),
     )
 
     _card_open("Channel / Source Quality")
@@ -518,11 +540,11 @@ def _score_color(score: int) -> str:
 # ── G. Marketing Insight Assistant ───────────────────────────────────────────
 def _marketing_insight_assistant():
     insights = [
-        ("South Africa leads SADC with 4,200 visitors and a 31% engagement rate — strongest campaign ROI in the region.", _GREEN),
-        ("Cybersecurity Services shows high conversion share (28%) vs. low visit share (18%) — significantly under-promoted.", _YELLOW),
-        ("Email and Organic Search deliver the highest conversion rates (9.4% and 8.2%) — prioritise these channels.", _CYAN),
-        ("Botswana and Namibia show emerging audience growth — weekday late-morning windows show highest engagement density.", _TEAL),
-        ("AI Cyber Assistant landing page drives 14.8% conversion — recommended as primary campaign destination for high-intent segments.", _CYAN),
+        ("South Africa leads SADC with 4,200 visitors and a 31% engagement rate - strongest campaign ROI in the region.", _GREEN),
+        ("Cybersecurity Services shows high conversion share (28%) vs. low visit share (18%) - significantly under-promoted.", _YELLOW),
+        ("Email and Organic Search deliver the highest conversion rates (9.4% and 8.2%) - prioritise these channels.", _CYAN),
+        ("Botswana and Namibia show emerging audience growth - weekday late-morning windows show highest engagement density.", _TEAL),
+        ("AI Cyber Assistant landing page drives 14.8% conversion - recommended as primary campaign destination for high-intent segments.", _CYAN),
     ]
     rows_html = "".join(
         f'<div style="display:flex;align-items:flex-start;gap:10px;padding:9px 0;'
@@ -546,7 +568,7 @@ def _marketing_insight_assistant():
       <div style="font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:{_CYAN};">
         CyberNova Intelligence &middot; Marketing Insights
       </div>
-      <div style="font-size:9px;color:{_MUTED};">AI-generated intelligence summary &middot; Updated live</div>
+      <div style="font-size:9px;color:{_MUTED};">Intelligence summary &middot; Updated live</div>
     </div>
   </div>
   {rows_html}
@@ -562,27 +584,27 @@ def render_marketing_analytics(df):
     if df is None:
         df = _mock_df()
 
-    # Row 1 — 2 columns
+    # Row 1 - 2 columns
     c1, c2 = st.columns(2, gap="small")
     with c1:
         _audience_segments_over_time(df)
     with c2:
         _country_engagement_breakdown()
 
-    # Row 2 — full width landing page table
+    # Row 2 - full width landing page table
     _landing_page_performance()
 
-    # Row 3 — 2 columns
+    # Row 3 - 2 columns
     c1, c2 = st.columns(2, gap="small")
     with c1:
         _service_promotion_gap()
     with c2:
         _channel_source_quality()
 
-    # Row 4 — full width map + ranking
+    # Row 4 - full width map + ranking
     _sadc_reach_map()
 
-    # Row 5 — full width insight assistant
+    # Row 5 - full width insight assistant
     _marketing_insight_assistant()
 
 
@@ -593,10 +615,10 @@ def render_marketing_analytics(df):
 # ── A. Forecast KPI row ───────────────────────────────────────────────────────
 def _forecast_kpis():
     kpis = [
-        ("Forecasted Engaged Visitors", "4,200",  "next 30 days",      "▲ 9.4%",    "up",   _CYAN),
-        ("Campaign Visits Forecast",     "1,450",  "vs current 1,240",  "▲ 16.9%",  "up",   _TEAL),
-        ("Expected Potential Customers", "380",    "next 30 days",      "▲ 12.4%",  "up",   _GREEN),
-        ("Forecasted Opportunity Value", "$2.1M",  "pipeline estimate", "▲ 18.7%",  "up",   _PURPLE),
+        ("Forecasted Engaged Visitors", "4,200",  "next 30 days",      "+ 9.4%",    "up",   _CYAN),
+        ("Campaign Visits Forecast",     "1,450",  "vs current 1,240",  "+ 16.9%",  "up",   _TEAL),
+        ("Expected Potential Customers", "380",    "next 30 days",      "+ 12.4%",  "up",   _GREEN),
+        ("Forecasted Opportunity Value", "$2.1M",  "pipeline estimate", "+ 18.7%",  "up",   _PURPLE),
         ("Forecast Confidence",          "74%",    "medium accuracy",   "Medium",    "watch",_YELLOW),
     ]
     delta_cls = {"up": "delta-up", "watch": "delta-watch", "down": "delta-down"}
@@ -660,7 +682,7 @@ def _audience_growth_forecast():
             hoverinfo="skip",
         ))
 
-    # Confidence band fill tweak — just use generic rgba for simplicity
+    # Confidence band fill tweak - just use generic rgba for simplicity
     target_line = [4500 + i * 6 for i in range(31)]
     fig.add_trace(go.Scatter(
         x=fwd_days, y=target_line, name="Target",
@@ -819,11 +841,11 @@ def _campaign_recommendations():
     items = [
         ("Increase AI Cyber Assistant campaign exposure in Botswana and Namibia "
          "during weekday late-morning windows (09:00–11:00).", True),
-        ("Promote Cybersecurity Services more aggressively — high conversion share "
+        ("Promote Cybersecurity Services more aggressively - high conversion share "
          "but chronically under-promoted in visit share.", True),
-        ("Prioritise Email and Organic Search channels — they deliver the highest "
+        ("Prioritise Email and Organic Search channels - they deliver the highest "
          "conversion rates across SADC markets.", False),
-        ("Retarget Product-Curious segment with Cloud & Data landing page — "
+        ("Retarget Product-Curious segment with Cloud & Data landing page - "
          "this segment shows 29% engagement rate.", False),
     ]
 
@@ -860,10 +882,10 @@ def _campaign_recommendations():
 # ── G. Marketing Alert Card ───────────────────────────────────────────────────
 def _marketing_alerts():
     alerts = [
-        ("Cybersecurity Services visit share dropped 3.2% this week despite high conversion — immediate campaign boost needed.", "high"),
-        ("Angola engagement rate fell below 20% — review campaign targeting and creative.", "warn"),
-        ("Malawi and DRC show minimal organic traffic — awareness campaigns not yet seeded.", "warn"),
-        ("Email campaign open rates declining — consider A/B testing subject lines for SADC markets.", "warn"),
+        ("Cybersecurity Services visit share dropped 3.2% this week despite high conversion - immediate campaign boost needed.", "high"),
+        ("Angola engagement rate fell below 20% - review campaign targeting and creative.", "warn"),
+        ("Malawi and DRC show minimal organic traffic - awareness campaigns not yet seeded.", "warn"),
+        ("Email campaign open rates declining - consider A/B testing subject lines for SADC markets.", "warn"),
     ]
 
     _card_open("Marketing Alert Center")
@@ -920,7 +942,7 @@ def render_marketing_forecasting(df):
 # ── A. Campaign Opportunity Table ─────────────────────────────────────────────
 def _campaign_opportunity_table():
     rows = [
-        ("South Africa", "🇿🇦", 4200, "31%", 450, 92, "Scale investment — highest quality audience"),
+        ("South Africa", "🇿🇦", 4200, "31%", 450, 92, "Scale investment - highest quality audience"),
         ("Zambia",        "🇿🇲", 1800, "28%", 180, 76, "Increase campaign frequency"),
         ("Zimbabwe",      "🇿🇼", 1100, "27%", 110, 70, "Promote Cloud & Data services"),
         ("Mozambique",    "🇲🇿", 1400, "25%", 140, 68, "Target enterprise segment"),
@@ -1104,7 +1126,7 @@ def _export_center(df):
             except Exception:
                 st.markdown(
                     f'<div class="mkt-export-card"><div style="font-size:11px;font-weight:600;color:{_WHITE};">Weekly PDF Report</div>'
-                    f'<div style="font-size:10px;color:{_MUTED};">Marketing summary — current week</div></div>',
+                    f'<div style="font-size:10px;color:{_MUTED};">Marketing summary - current week</div></div>',
                     unsafe_allow_html=True,
                 )
             try:
@@ -1141,7 +1163,7 @@ def _export_center(df):
                 )
         else:
             for label, desc in [
-                ("Weekly PDF Report",   "Marketing summary — current week"),
+                ("Weekly PDF Report",   "Marketing summary - current week"),
                 ("Monthly PDF Report",  "Full monthly intelligence briefing"),
                 ("Methodology PDF",     "Audience segmentation & scoring logic"),
             ]:
@@ -1402,20 +1424,20 @@ def render_marketing_data(df, date_start=None, date_end=None):
     if df is None:
         df = _mock_df()
 
-    # Row 1 — Campaign opportunity table
+    # Row 1 - Campaign opportunity table
     _campaign_opportunity_table()
 
-    # Row 2 — Filtered audience data
+    # Row 2 - Filtered audience data
     _filtered_audience_data(df, date_start=date_start, date_end=date_end)
 
-    # Row 3 — Evidence snapshot + Export center
+    # Row 3 - Evidence snapshot + Export center
     c1, c2 = st.columns([1, 1.6], gap="small")
     with c1:
         _evidence_snapshot(df)
     with c2:
         _export_center(df)
 
-    # Row 4 — Data quality + Methodology
+    # Row 4 - Data quality + Methodology
     c1, c2 = st.columns(2, gap="small")
     with c1:
         _data_quality_summary()

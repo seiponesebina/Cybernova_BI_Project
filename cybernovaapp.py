@@ -4,9 +4,13 @@ import numpy as np
 import plotly.graph_objects as go
 import datetime, pathlib, random, base64
 
-# Sales views — imported after page_config so Streamlit doesn't complain
+_BASE = pathlib.Path(__file__).parent
+_LOGO_PNG = _BASE / "logo.png"
+_PAGE_ICON = _LOGO_PNG.read_bytes() if _LOGO_PNG.exists() else "⬡"
+
+# Sales views - imported after page_config so Streamlit doesn't complain
 try:
-    from sales_views import (inject_sales_css, render_sales_drawer,
+    from sales_views import (inject_sales_css,
                               render_sales_analytics, render_sales_forecasting,
                               render_sales_data)
     _SALES_VIEWS_OK = True
@@ -30,15 +34,14 @@ except Exception as _ev_err:
     _EXECUTIVE_VIEWS_OK = False
 
 st.set_page_config(page_title="CyberNova BI Portal", layout="wide",
-                   initial_sidebar_state="collapsed", page_icon="⬡")
+                   initial_sidebar_state="collapsed", page_icon=_PAGE_ICON)
 
-_BASE = pathlib.Path(__file__).parent
 ENRICH_PATH = str(_BASE / "data" / "output" / "cybernova_enriched_logs.csv")
 FAST_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.pkl"
 
 # ── LOGO ──────────────────────────────────────────────────────────────────────
 def _load_logo():
-    for name, mime in [("cybernova_logo_transparent.svg","image/svg+xml"),("logo.png","image/png")]:
+    for name, mime in [("logo.png","image/png"),("cybernova_logo_transparent.svg","image/svg+xml")]:
         p = _BASE / name
         if p.exists():
             b64 = base64.b64encode(p.read_bytes()).decode()
@@ -46,8 +49,44 @@ def _load_logo():
     return "", ""
 
 LOGO_SRC, LOGO_MIME = _load_logo()
-def logo_img(h=36, extra=""):
+def logo_img(h=58, extra=""):
     return f'<img src="{LOGO_SRC}" style="height:{h}px;width:auto;display:inline-block;{extra}" />' if LOGO_SRC else '<span style="font-size:22px;color:#22D3EE;font-weight:900;">CN</span>'
+
+_SVG_PATHS = {
+    "alert": '<path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/>',
+    "archive": '<path d="M21 8v13H3V8"/><path d="M1 3h22v5H1z"/><path d="M10 12h4"/>',
+    "bell": '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+    "book": '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/>',
+    "bot": '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M12 2v6"/><path d="M8 13h.01"/><path d="M16 13h.01"/><path d="M9 17h6"/>',
+    "briefcase": '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><path d="M2 13h20"/>',
+    "chart": '<path d="M3 3v18h18"/><path d="m7 15 4-4 3 3 5-7"/>',
+    "check": '<path d="m20 6-11 11-5-5"/>',
+    "chevron": '<path d="m6 9 6 6 6-6"/>',
+    "clock": '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+    "diamond": '<path d="M6 3h12l4 6-10 12L2 9l4-6Z"/><path d="M2 9h20"/>',
+    "download": '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>',
+    "file": '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/>',
+    "filter": '<path d="M22 3H2l8 9v7l4 2v-9l8-9Z"/>',
+    "flag": '<path d="M4 22V4"/><path d="M4 4h13l-1 5 1 5H4"/>',
+    "folder": '<path d="M3 7h6l2 2h10v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7Z"/>',
+    "globe": '<circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15 15 0 0 1 0 20"/><path d="M12 2a15 15 0 0 0 0 20"/>',
+    "lightbulb": '<path d="M9 18h6"/><path d="M10 22h4"/><path d="M8.2 14A6 6 0 1 1 15.8 14c-.8.7-1.3 1.6-1.5 2.6H9.7A4.8 4.8 0 0 0 8.2 14Z"/>',
+    "logout": '<path d="M10 17l5-5-5-5"/><path d="M15 12H3"/><path d="M21 19V5a2 2 0 0 0-2-2h-7"/>',
+    "map": '<path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15"/><path d="M15 6v15"/>',
+    "money": '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/>',
+    "search": '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+    "shield": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+    "sync": '<path d="M21 12a9 9 0 0 0-15-6.7L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 15 6.7L21 16"/><path d="M21 21v-5h-5"/>',
+    "target": '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+}
+
+def svg_icon(name: str, size: int = 15, color: str = "currentColor") -> str:
+    path = _SVG_PATHS.get(name, _SVG_PATHS["chart"])
+    return (
+        f'<svg width="{size}" height="{size}" viewBox="0 0 24 24" fill="none" '
+        f'stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" '
+        f'aria-hidden="true" style="display:inline-block;vertical-align:-3px;flex:0 0 auto;">{path}</svg>'
+    )
 
 # ── CONSTANTS ─────────────────────────────────────────────────────────────────
 ROLE_PASSWORDS = {"Sales Team Lead":"sales123","Marketing Lead":"marketing123",
@@ -59,9 +98,9 @@ ROLE_META = {"Sales Team Lead":("Alex M.","Sales Director"),
              "Executive Management":("C. Mokoena","Executive"),
              "Admin / Lecturer View":("Admin","All Access")}
 DASH_CFG = {
-    "Sales":     {"title":"CyberNova Pulse",   "sub":"Sales Command Center • Potential Customer Intelligence",       "accent":"#22D3EE","icon":"⚡"},
-    "Marketing": {"title":"CyberNova Reach",   "sub":"Marketing Intelligence Hub • Campaign Opportunity Intelligence","accent":"#14B8A6","icon":"📡"},
-    "Executive": {"title":"CyberNova Horizon", "sub":"Executive Insights Dashboard • SADC Expansion Intelligence",   "accent":"#A855F7","icon":"🌐"},
+    "Sales":     {"title":"CyberNova Pulse",   "sub":"Sales Command Center • Potential Customer Intelligence",       "accent":"#22D3EE","icon":"Pulse"},
+    "Marketing": {"title":"CyberNova Reach",   "sub":"Marketing Intelligence Hub • Campaign Opportunity Intelligence","accent":"#14B8A6","icon":"Reach"},
+    "Executive": {"title":"CyberNova Horizon", "sub":"Executive Insights Dashboard • SADC Expansion Intelligence",   "accent":"#A855F7","icon":"Horizon"},
 }
 COLOR_MAP = {"Core Market":"#22D3EE","Strategic Hub":"#14B8A6","High Growth":"#FFD84A","Emerging":"#7CFF4F","Stable":"#8A98A6"}
 
@@ -214,6 +253,24 @@ label,.stSelectbox label,.stTextInput label,.stDateInput label{color:var(--muted
   background:linear-gradient(135deg,rgba(20,184,166,0.35),rgba(34,211,238,0.22))!important;
   box-shadow:0 0 16px rgba(34,211,238,0.2)!important;
 }
+/* Logout button: last column inside hdr_col2 (itself the last outer column) */
+[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  >[div]>[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  .stButton>button,
+[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  >div>[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  .stButton>button{
+  background:rgba(248,113,113,0.08)!important;
+  border:1px solid rgba(248,113,113,0.35)!important;
+  color:#F87171!important;
+}
+[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  >div>[data-testid="stHorizontalBlock"]>[data-testid="column"]:last-child
+  .stButton>button:hover{
+  background:rgba(248,113,113,0.2)!important;
+  border-color:#F87171!important;
+  box-shadow:0 0 16px rgba(248,113,113,0.2)!important;
+}
 </style>""", unsafe_allow_html=True)
     if extra_css:
         st.markdown(f"<style>{extra_css}</style>", unsafe_allow_html=True)
@@ -293,37 +350,6 @@ def _top_value(df, col, fallback="--"):
     vc = df[col].dropna().astype(str).value_counts()
     return vc.index[0] if not vc.empty else fallback
 
-def _live_enriched_df(df, key="global"):
-    """Append a small rolling simulated live stream, sampled from the selected real data."""
-    base = df.copy() if df is not None and not df.empty else pd.DataFrame()
-    buf_key = f"_live_rows_{key}"
-    now = pd.Timestamp.now().floor("s")
-
-    if buf_key not in st.session_state:
-        st.session_state[buf_key] = pd.DataFrame(columns=base.columns if not base.empty else None)
-
-    if not base.empty:
-        n = random.randint(2, 7)
-        sample = base.sample(n=min(n, len(base)), replace=len(base) < n).copy()
-        sample["timestamp"] = now
-        sample["date"] = now.date()
-        sample["time"] = now.strftime("%H:%M:%S")
-        if "request_id" in sample.columns:
-            sample["request_id"] = [f"live-{int(now.timestamp())}-{i}" for i in range(len(sample))]
-        if "response_time_ms" in sample.columns:
-            sample["response_time_ms"] = np.random.randint(80, 2200, len(sample))
-        if "bytes_transferred" in sample.columns:
-            sample["bytes_transferred"] = np.random.randint(1200, 85000, len(sample))
-        st.session_state[buf_key] = pd.concat(
-            [st.session_state[buf_key], sample], ignore_index=True
-        ).tail(350)
-
-    live = st.session_state.get(buf_key, pd.DataFrame())
-    if live is None or live.empty:
-        return base, 0
-    combined = pd.concat([base, live], ignore_index=True, sort=False)
-    return combined, len(live)
-
 def _date_series(df):
     if df is None or df.empty:
         return pd.Series(dtype="object")
@@ -338,12 +364,6 @@ def _today_reference_date(df):
     if not dates.empty and (dates == today).any():
         return today
     return dates.max() if not dates.empty and dates.notna().any() else today
-
-def _day_slice(df, day):
-    if df is None or df.empty:
-        return pd.DataFrame()
-    dates = _date_series(df)
-    return df[dates == day]
 
 def _today_slice(df):
     if df is None or df.empty:
@@ -425,7 +445,24 @@ def init_state():
         if k not in st.session_state: st.session_state[k] = v
 
 def logout():
-    for k in ["authenticated","current_role","active_dashboard","active_tab"]: st.session_state.pop(k,None)
+    st.query_params.clear()
+    keys_to_clear = [k for k in st.session_state.keys()]
+    for k in keys_to_clear:
+        del st.session_state[k]
+
+def restore_from_query_params():
+    """Restore auth session from URL query params - fixes browser back-button logout."""
+    if st.session_state.get("authenticated"):
+        return
+    params = st.query_params
+    role = params.get("role", "")
+    if role in ROLE_PASSWORDS:
+        st.session_state.authenticated    = True
+        st.session_state.current_role     = role
+        if not st.session_state.get("active_dashboard"):
+            st.session_state.active_dashboard = allowed(role)[0]
+        if not st.session_state.get("active_tab"):
+            st.session_state.active_tab = "Overview"
 
 def reset_filters_to_default():
     today = datetime.date.today()
@@ -510,223 +547,170 @@ def render_login():
     _ico_role = """<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#76FF36" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#76FF36" stroke-width="2" stroke-linecap="round"/></svg>"""
     _ico_lock = """<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" stroke="#76FF36" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#76FF36" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="#76FF36"/></svg>"""
     _ico_lock_sm = """<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" stroke="#F87171" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#F87171" stroke-width="2" stroke-linecap="round"/></svg>"""
+    _login_visual_path = _BASE / "Screenshot 2026-05-07 at 03.12.07.png"
+    _login_visual_src = ""
+    if _login_visual_path.exists():
+        _login_visual_src = "data:image/png;base64," + base64.b64encode(_login_visual_path.read_bytes()).decode()
 
-    # ── LOGIN CSS ──
     st.markdown("""
 <style>
 div.block-container{padding:0!important;max-width:100%!important;}
-[data-testid="stApp"]{
-  background:
-    radial-gradient(ellipse at 22% 48%,rgba(0,245,212,0.08) 0%,transparent 50%),
-    radial-gradient(ellipse at 78% 22%,rgba(118,255,54,0.06) 0%,transparent 46%),
-    radial-gradient(ellipse at 55% 80%,rgba(0,200,230,0.04) 0%,transparent 40%),
-    #020509 !important;
-}
-/* vertically centre the page content */
+[data-testid="stApp"]{background:#D7D7D7!important;}
 section[data-testid="stMain"]{display:flex;align-items:center;min-height:100vh;}
-section[data-testid="stMain"] > div{width:100%;}
+section[data-testid="stMain"]>div{width:100%;}
+[data-testid="stHeader"],[data-testid="stToolbar"],#MainMenu,footer{display:none!important;}
+div[data-testid="stHorizontalBlock"]{gap:0!important;}
 
-/* ── card top (HTML block) ── */
-.lc-top{
-  position:relative;overflow:hidden;
+.login-left{
+  height:682px;display:flex;align-items:center;justify-content:flex-end;overflow:hidden;
+  background:transparent;
+}
+.login-left-image{
+  height:682px;width:auto;max-width:100%;display:block;object-fit:contain;object-position:right center;
+  border-radius:10px 0 0 10px;
+}
+.login-left-fallback{
+  height:100%;display:flex;align-items:center;justify-content:center;padding:52px;
+  background:linear-gradient(135deg,#1647D8 0%,#7C6EE6 48%,#2DD4BF 120%);
+  color:white;font-size:32px;font-weight:800;line-height:1.16;
+}
+
+.login-form-head{
+  height:238px;box-sizing:border-box;border-radius:0 10px 0 0;padding:34px 54px 0;
   background:
-    radial-gradient(circle at 80% 20%,rgba(0,245,212,0.09),transparent 38%),
-    radial-gradient(circle at 15% 80%,rgba(118,255,54,0.08),transparent 32%),
-    rgba(7,14,22,0.90);
-  border:1px solid rgba(255,255,255,0.10);
-  border-bottom:none;
-  border-radius:22px 22px 0 0;
-  padding:32px 40px 24px;
-  backdrop-filter:blur(24px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+    linear-gradient(180deg,rgba(13,25,34,.98),rgba(8,17,24,.98))!important;
+  border-top:1px solid rgba(0,255,209,.22);
+  border-right:1px solid rgba(0,255,209,.16);
+  box-shadow:18px 18px 42px rgba(0,0,0,.24);
 }
-.lc-top::before{
-  content:'';position:absolute;top:-90px;right:-60px;
-  width:320px;height:320px;border-radius:50%;
-  border:1px solid rgba(0,245,212,0.05);
-  animation:lcArc 10s ease-in-out infinite;pointer-events:none;
+.login-logo-pill{
+  display:flex;align-items:center;justify-content:center;padding:0;border-radius:0;
+  width:max-content;min-width:0;min-height:0;margin:0 auto 34px;
+  background:transparent;color:#F5F7FA;font-size:14px;font-weight:800;
+  border:0;
 }
-@keyframes lcArc{0%,100%{opacity:.3;transform:scale(1);}50%{opacity:.7;transform:scale(1.06);}}
+.login-title{font-size:30px;font-weight:800;color:#F5F7FA;letter-spacing:0;margin-bottom:10px;}
+.login-subtitle{font-size:14px;color:#9AA7B0;line-height:1.45;}
 
-/* ── card form body (Streamlit form sits here) ── */
 div[data-testid="stForm"]{
-  background:rgba(7,14,22,0.90)!important;
-  border:none!important;
-  border-left:1px solid rgba(255,255,255,0.10)!important;
-  border-right:1px solid rgba(255,255,255,0.10)!important;
-  padding:0 40px!important;
-  border-radius:0!important;
-  backdrop-filter:blur(24px);
+  height:444px!important;min-height:444px!important;box-sizing:border-box!important;
+  border:none!important;border-radius:0 0 10px 0!important;
+  padding:12px 54px 44px!important;
+  background:
+    linear-gradient(180deg,rgba(8,17,24,.98),rgba(3,7,12,.99))!important;
+  border-right:1px solid rgba(0,255,209,.16)!important;
+  border-bottom:1px solid rgba(0,255,209,.16)!important;
+  box-shadow:18px 24px 42px rgba(0,0,0,.26);
 }
-/* ── card bottom (HTML block) ── */
-.lc-bot{
-  background:rgba(7,14,22,0.90);
-  border:1px solid rgba(255,255,255,0.10);
-  border-top:none;
-  border-radius:0 0 22px 22px;
-  padding:16px 40px 28px;
-  backdrop-filter:blur(24px);
-  box-shadow:0 24px 80px rgba(0,0,0,0.65);
+div[data-testid="stForm"] div[data-testid="stVerticalBlock"]{
+  gap:18px!important;
 }
-/* error bar sits between top and form — give it card sides */
-.lc-err-wrap{
-  background:rgba(7,14,22,0.90);
-  border-left:1px solid rgba(255,255,255,0.10);
-  border-right:1px solid rgba(255,255,255,0.10);
-  padding:0 40px 4px;
+div[data-testid="stForm"] label{
+  color:#DDE7EE!important;font-size:13px!important;font-weight:750!important;
+  letter-spacing:0!important;text-transform:none!important;margin-bottom:7px!important;
 }
-.lc-err{
-  background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.28);
-  border-radius:8px;padding:9px 13px;color:#F87171;font-size:12px;
-  display:flex;align-items:center;gap:8px;
+div[data-testid="stSelectbox"]>div>div,
+div[data-testid="stTextInput"]>div{
+  min-height:52px!important;border:1px solid rgba(34,211,238,.18)!important;border-radius:9px!important;
+  background:#0B1620!important;color:#F5F7FA!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
 }
-
-/* logo row */
-.lc-logo-row{display:flex;align-items:center;gap:11px;margin-bottom:20px;}
-.lc-wm-main{font-size:14px;font-weight:800;color:#F5F7FA;letter-spacing:.07em;line-height:1;}
-.lc-wm-sub{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#00F5D4;margin-top:3px;line-height:1;}
-/* status pill */
-.lc-status{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;
-  border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
-  margin-bottom:18px;float:right;margin-top:-4px;}
-.lc-sdot{width:6px;height:6px;border-radius:50%;background:#76FF36;animation:lcDot 2s ease-in-out infinite;}
-@keyframes lcDot{0%,100%{box-shadow:0 0 0 0 rgba(118,255,54,.4);}50%{box-shadow:0 0 0 5px rgba(118,255,54,0);}}
-.lc-stext{font-size:11px;color:rgba(245,247,250,0.55);}
-/* heading */
-.lc-heading{font-size:26px;font-weight:800;color:#F5F7FA;line-height:1.15;letter-spacing:-.01em;
-  margin-bottom:6px;clear:both;}
-.lc-sub{font-size:12px;color:rgba(245,247,250,0.55);margin-bottom:18px;line-height:1.5;}
-/* feature chips row */
-.lc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
-.lc-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;
-  font-size:11px;font-weight:600;}
-.lc-chip.g{background:rgba(118,255,54,0.07);border:1px solid rgba(118,255,54,0.22);color:#76FF36;}
-.lc-chip.c{background:rgba(0,245,212,0.07);border:1px solid rgba(0,245,212,0.22);color:#00F5D4;}
-/* divider */
-.lc-div{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
-  margin-bottom:0;}
-/* security note */
-.lc-note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;
-  border-radius:9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);}
-.lc-note-txt{font-size:11px;line-height:1.45;color:rgba(245,247,250,0.50);}
-
-/* ── widget overrides ── */
-div[data-testid="stSelectbox"] > label,
-div[data-testid="stTextInput"] > label{
-  color:rgba(245,247,250,0.55)!important;font-size:11px!important;
-  font-weight:600!important;letter-spacing:.08em!important;
-  text-transform:uppercase!important;margin-bottom:5px!important;
+div[data-testid="stSelectbox"]>div>div{
+  cursor:pointer!important;display:flex!important;align-items:center!important;
+  padding:0 50px 0 18px!important;
+  background:linear-gradient(180deg,#10202B 0%,#0B1620 100%)!important;
+  position:relative!important;
 }
-div[data-testid="stSelectbox"] > div > div{
-  background:rgba(4,8,15,0.95)!important;
-  border:1px solid rgba(255,255,255,0.11)!important;
-  border-radius:9px!important;min-height:44px!important;
-  color:#F5F7FA!important;font-size:13px!important;
+div[data-testid="stSelectbox"]>div>div::after{
+  content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;
+  border-right:2px solid #22D3EE;border-bottom:2px solid #22D3EE;
+  transform:translateY(-65%) rotate(45deg);pointer-events:none;opacity:.9;
 }
-div[data-testid="stSelectbox"] > div > div:focus-within{
-  border-color:rgba(118,255,54,0.45)!important;
-  box-shadow:0 0 0 2px rgba(118,255,54,0.09)!important;
+div[data-testid="stSelectbox"] svg{display:none!important;}
+div[data-testid="stSelectbox"] div,
+div[data-testid="stSelectbox"] span,
+div[data-testid="stTextInput"] input{
+  color:#F5F7FA!important;font-size:14px!important;font-weight:600!important;
 }
-div[data-testid="stTextInput"] > div{
-  background:rgba(4,8,15,0.95)!important;
-  border:1px solid rgba(255,255,255,0.11)!important;
-  border-radius:9px!important;min-height:44px!important;
+div[data-testid="stSelectbox"] span{
+  line-height:52px!important;display:flex!important;align-items:center!important;
 }
-div[data-testid="stTextInput"] > div > input{
-  background:transparent!important;color:#F5F7FA!important;
-  font-size:13px!important;min-height:42px!important;padding:0 13px!important;
+div[data-testid="stTextInput"] input{min-height:50px!important;padding:0 18px!important;background:transparent!important;}
+div[data-testid="stTextInput"] input::placeholder{color:#66727D!important;}
+div[data-testid="stSelectbox"]>div>div:focus-within,
+div[data-testid="stTextInput"]>div:focus-within{
+  border-color:rgba(34,211,238,.44)!important;
+  box-shadow:0 0 0 3px rgba(34,211,238,.10), inset 0 1px 0 rgba(255,255,255,.05)!important;
 }
-div[data-testid="stTextInput"] > div:focus-within{
-  border-color:rgba(118,255,54,0.45)!important;
-  box-shadow:0 0 0 2px rgba(118,255,54,0.09)!important;
+div[data-testid="stFormSubmitButton"]>button{
+  height:52px!important;margin-top:118px!important;border-radius:9px!important;
+  border:1px solid rgba(34,211,238,.30)!important;
+  background:linear-gradient(180deg,#101B26 0%,#081018 100%)!important;
+  color:#F5F7FA!important;font-size:15px!important;font-weight:800!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)!important;
 }
-div[data-testid="stFormSubmitButton"] > button{
-  width:100%!important;height:48px!important;margin-top:4px!important;
-  border-radius:9px!important;border:none!important;
-  font-size:14px!important;font-weight:800!important;color:#021008!important;
-  background:linear-gradient(90deg,#76FF36,#00F5D4)!important;
-  transition:all .18s!important;animation:lcBtn 3.5s ease-in-out infinite!important;
+div[data-testid="stFormSubmitButton"]>button:hover{
+  border-color:rgba(0,255,209,.42)!important;
+  background:linear-gradient(180deg,#122433 0%,#09141D 100%)!important;
+  filter:none!important;transform:none!important;
 }
-div[data-testid="stFormSubmitButton"] > button:hover{
-  filter:brightness(1.08)!important;transform:translateY(-1px)!important;
+.login-error{
+  background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;border-radius:8px;
+  padding:9px 12px;font-size:12px;margin-top:12px;display:flex;gap:8px;align-items:center;
 }
-div[data-testid="stFormSubmitButton"] > button:active{transform:translateY(0)!important;}
-@keyframes lcBtn{
-  0%,100%{box-shadow:0 0 20px rgba(0,245,212,.14),0 0 20px rgba(118,255,54,.10);}
-  50%{box-shadow:0 0 36px rgba(0,245,212,.24),0 0 36px rgba(118,255,54,.18);}
+@media(max-width:980px){
+  .login-left{display:none;}
+  .login-form-head{border-radius:10px 10px 0 0;}
+  div[data-testid="stForm"]{border-radius:0 0 10px 10px!important;}
+  div[data-testid="stForm"],.login-form-head{box-shadow:0 18px 42px rgba(15,23,42,.16);}
 }
-div[data-testid="stVerticalBlock"]>div{padding-top:3px!important;padding-bottom:3px!important;}
-</style>""", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
     if "login_error" not in st.session_state:
         st.session_state.login_error = False
 
-    # single centered column
-    _, card_col, _ = st.columns([1, 1.4, 1])
-
-    with card_col:
-        _logo = logo_img(h=34) if LOGO_SRC else _ico_mark
-
-        # ── CARD TOP ──────────────────────────────────────────────────────────────
-        st.markdown(f"""
-<div class="lc-top">
-  <div class="lc-status">
-    {_ico_shield_sm}
-    <div class="lc-sdot"></div>
-    <span class="lc-stext">All systems operational</span>
-  </div>
-  <div class="lc-logo-row">
-    {_logo}
-    <div>
-      <div class="lc-wm-main">CYBERNOVA</div>
-      <div class="lc-wm-sub">BI PORTAL</div>
-    </div>
-  </div>
-  <div class="lc-heading">Sign in to your<br/>intelligence workspace</div>
-  <div class="lc-sub">Your role unlocks the right dashboard, charts, and decisions.</div>
-  <div class="lc-chips">
-    <span class="lc-chip g">{_ico_pulse} Live Pulse</span>
-    <span class="lc-chip c">{_ico_chart} Strategic Analytics</span>
-    <span class="lc-chip g">{_ico_role} Role-Based Access</span>
-  </div>
-  <div class="lc-div"></div>
-</div>""", unsafe_allow_html=True)
-
-        # ── ERROR (card sides maintained) ─────────────────────────────────────────
-        if st.session_state.get("login_error"):
+    _, shell_col, _ = st.columns([0.42, 5.7, 0.42])
+    with shell_col:
+        left_col, right_col = st.columns([0.82, 1.0], gap=None)
+        with left_col:
+            _visual = (
+                f'<img class="login-left-image" src="{_login_visual_src}" alt="CyberNova dashboard preview"/>'
+                if _login_visual_src else
+                '<div class="login-left-fallback">CyberNova BI<br/>Made Clear</div>'
+            )
             st.markdown(f"""
-<div class="lc-err-wrap">
-  <div class="lc-err">{_ico_lock_sm}<span>Invalid password for selected role.</span></div>
-</div>""", unsafe_allow_html=True)
-
-        # ── FORM (stForm CSS gives it matching card sides) ─────────────────────────
-        with st.form("login_form", clear_on_submit=False):
-            role = st.selectbox("Select your role", list(ROLE_PASSWORDS.keys()))
-            pwd  = st.text_input("Password", type="password", placeholder="Enter your password")
-            sub  = st.form_submit_button("Sign In to Dashboard  →", use_container_width=True)
-            if sub:
-                if ROLE_PASSWORDS.get(role, "") == pwd:
-                    st.session_state.authenticated    = True
-                    st.session_state.current_role     = role
-                    st.session_state.active_dashboard = allowed(role)[0]
-                    st.session_state.active_tab       = "Overview"
-                    st.session_state.login_error      = False
-                    st.rerun()
-                else:
-                    st.session_state.login_error = True
-                    st.rerun()
-
-        # ── CARD BOTTOM ───────────────────────────────────────────────────────────
-        st.markdown(f"""
-<div class="lc-bot">
-  <div class="lc-note">
-    {_ico_lock}
-    <div class="lc-note-txt">
-      Prototype access layer only. Production would require secure authentication,
-      password hashing, audit logging, and full role-based access control.
-    </div>
-  </div>
-</div>""", unsafe_allow_html=True)
+<div class="login-left">
+  {_visual}
+</div>
+""", unsafe_allow_html=True)
+        with right_col:
+            _logo = logo_img(h=124) if LOGO_SRC else _ico_mark
+            st.markdown(f"""
+<div class="login-form-head">
+  <div class="login-logo-pill">{_logo}</div>
+  <div class="login-title">Login to Your Account</div>
+  <div class="login-subtitle">Select your portal role and enter your access password.</div>
+  {f'<div class="login-error">{_ico_lock_sm}<span>Invalid password for selected role.</span></div>' if st.session_state.get("login_error") else ''}
+</div>
+""", unsafe_allow_html=True)
+            with st.form("login_form", clear_on_submit=False):
+                role = st.selectbox("Role", list(ROLE_PASSWORDS.keys()))
+                pwd = st.text_input("Password", type="password", placeholder="Enter your password")
+                sub = st.form_submit_button("Log in", use_container_width=True)
+                if sub:
+                    if ROLE_PASSWORDS.get(role, "") == pwd:
+                        st.session_state.authenticated = True
+                        st.session_state.current_role = role
+                        st.session_state.active_dashboard = allowed(role)[0]
+                        st.session_state.active_tab = "Overview"
+                        st.session_state.login_error = False
+                        st.query_params["role"] = role
+                        st.rerun()
+                    else:
+                        st.session_state.login_error = True
+                        st.rerun()
+    return
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEADER
@@ -740,22 +724,18 @@ def render_header():
     fname = uname.split()[0]
     now   = datetime.datetime.now().strftime("%H:%M")
 
-    hdr_col1, hdr_col2 = st.columns([9, 1])
+    hdr_col1, hdr_col2 = st.columns([8, 2])
     with hdr_col1:
         st.markdown(f"""
-<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;
-  background:linear-gradient(135deg,rgba(9,20,36,0.97),rgba(7,16,28,0.94));
-  border:1px solid rgba(34,211,238,0.12);border-radius:14px;
-  padding:14px 22px;margin-bottom:14px;
-  box-shadow:0 2px 24px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.03);">
+<div class="app-shell-header">
 
   <div style="display:flex;align-items:center;gap:14px;">
-    {logo_img(h=34)}
+    {logo_img(h=58)}
     <div>
       <div style="font-size:10px;color:#6B7FA3;margin-bottom:2px;">
-        Welcome back, {fname} &nbsp;·&nbsp;
+        Welcome back, {fname} &nbsp;/&nbsp;
         <span style="color:#22D3EE;">{now}</span>
-        &nbsp;<span style="color:#4ADE80;">●</span>
+        &nbsp;<span style="color:#4ADE80;">Live</span>
       </div>
       <div style="font-size:22px;font-weight:800;color:{cfg['accent']};letter-spacing:.01em;line-height:1.1;">
         {cfg['title']}
@@ -765,34 +745,38 @@ def render_header():
   </div>
 
   <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-    <div style="background:rgba(9,20,36,0.8);border:1px solid rgba(34,211,238,0.15);
-      border-radius:8px;padding:5px 12px;font-size:11px;color:#6B7FA3;">
-      {dash} View &nbsp;▾
+    <div class="header-chip">
+      {dash} View &nbsp;{svg_icon("chevron", 12, "#6B7FA3")}
     </div>
-    <div style="background:rgba(9,20,36,0.8);border:1px solid rgba(34,211,238,0.15);
-      border-radius:8px;padding:5px 12px;font-size:11px;color:#6B7FA3;">
-      Live Data Active
+    <div class="header-chip">
+      Live data active
     </div>
     <span style="background:rgba(74,222,128,0.1);color:#4ADE80;
       border:1px solid rgba(74,222,128,0.25);border-radius:20px;
       padding:4px 12px;font-size:11px;font-weight:600;">
-      ● All systems operational
+      Operational
     </span>
   </div>
 </div>""", unsafe_allow_html=True)
     with hdr_col2:
-        _drawer_label = "X Close" if st.session_state.get("admin_drawer_open") else "Filters"
-        if st.button(_drawer_label, key="admin_drawer_toggle", use_container_width=True):
-            st.session_state.admin_drawer_open = not st.session_state.get("admin_drawer_open", False)
-            st.rerun()
+        btn_left, btn_right = st.columns(2, gap="small", vertical_alignment="center")
+        with btn_left:
+            _drawer_label = "Close" if st.session_state.get("admin_drawer_open") else "Filters"
+            if st.button(_drawer_label, key="admin_drawer_toggle", use_container_width=True):
+                st.session_state.admin_drawer_open = not st.session_state.get("admin_drawer_open", False)
+                st.rerun()
+        with btn_right:
+            if st.button("Logout", key="header_logout", use_container_width=True):
+                logout()
+                st.rerun()
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# ADMIN DRAWER — dashboard switcher + filters
+# ADMIN DRAWER - dashboard switcher + filters
 # ═══════════════════════════════════════════════════════════════════════════════
 def render_admin_drawer():
     v    = st.session_state
     role = v.current_role or ""
-    uname, utitle = ROLE_META.get(role,("User","—"))
+    uname, utitle = ROLE_META.get(role,("User","-"))
 
     # ── Profile ──
     st.markdown(f"""
@@ -806,7 +790,7 @@ def render_admin_drawer():
   <div>
     <div style="font-size:12px;font-weight:600;color:#F0F4F8;">{uname}</div>
     <div style="font-size:10px;color:#6B7FA3;">{utitle}</div>
-    <div style="font-size:9px;color:#4ADE80;margin-top:1px;">● Online</div>
+    <div style="font-size:9px;color:#4ADE80;margin-top:1px;">{svg_icon("check", 10, "#4ADE80")} Online</div>
   </div>
 </div>""", unsafe_allow_html=True)
 
@@ -855,38 +839,21 @@ def render_admin_drawer():
 <div style="background:rgba(9,20,36,0.6);border:1px solid rgba(34,211,238,0.08);
   border-radius:10px;padding:10px 12px;">
   <div style="font-size:9px;color:#3A4A5E;text-transform:uppercase;letter-spacing:.12em;margin-bottom:6px;">Data Intelligence</div>
-  <div style="font-size:11px;color:#6B7FA3;margin-bottom:4px;">🔄 Live data active</div>
-  <div style="font-size:11px;color:#6B7FA3;margin-bottom:4px;">🛡️ 96.4% data quality</div>
-  <div style="font-size:11px;color:#F87171;">⚠ {v.alert_count} alert(s) active</div>
+  <div style="font-size:11px;color:#6B7FA3;margin-bottom:5px;display:flex;align-items:center;gap:7px;">{svg_icon("sync", 13, "#6B7FA3")} Live data active</div>
+  <div style="font-size:11px;color:#6B7FA3;margin-bottom:5px;display:flex;align-items:center;gap:7px;">{svg_icon("shield", 13, "#6B7FA3")} 96.4% data quality</div>
+  <div style="font-size:11px;color:#F87171;display:flex;align-items:center;gap:7px;">{svg_icon("alert", 13, "#F87171")} {v.alert_count} alert(s) active</div>
 </div>""", unsafe_allow_html=True)
 
-    if st.button("⇦ Logout", use_container_width=True, key="rp_logout"):
+    if st.button("Logout", use_container_width=True, key="rp_logout"):
         logout(); st.rerun()
 
     st.markdown("""
 <div style="margin-top:12px;font-size:9px;color:#1E2D3D;text-align:center;padding:0 4px;line-height:1.5;">
-  Prototype v1.0 · Review only · Not for production use
+  Prototype v1.0  -  Review only  -  Not for production use
 </div>""", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # CONTEXT CHIPS
-# ═══════════════════════════════════════════════════════════════════════════════
-def render_chips(df):
-    v     = st.session_state
-    noise = int(_truthy_series(df, "is_bot").sum()) if df is not None and "is_bot" in df.columns else 0
-    st.markdown(f"""
-<div style="margin-bottom:12px;">
-  <span class="chip">Period: Jan–Apr 2025</span>
-  <span class="chip">Market: {v.selected_market}</span>
-  <span class="chip">Service: {v.svc_filter}</span>
-  <span class="chip">Segment: {v.seg_filter}</span>
-  <span class="chip">Outcome: {v.outcome_filter}</span>
-  <span class="chip">Filtered Noise: {noise:,}</span>
-  <span class="chip">Quality: 96.4%</span>
-</div>""", unsafe_allow_html=True)
-
-# ═══════════════════════════════════════════════════════════════════════════════
-# LIVE PULSE  (1-second fragment)
 # ═══════════════════════════════════════════════════════════════════════════════
 def render_chips(df):
     v = st.session_state
@@ -1018,7 +985,7 @@ def _live_map_nodes(df):
     df_m["last_seen"] = pd.to_datetime(df_m["last_seen"], errors="coerce").dt.strftime("%H:%M:%S").fillna("--")
     return df_m
 
-def render_sadc_map(mode="sales", height=400, df=None, live_rows=0):
+def render_sadc_map(mode="sales", height=400, df=None):
     df_m = _live_map_nodes(df)
     max_customers = max(1, int(df_m["customers"].max()))
     df_m["sz"] = 10 + (df_m["customers"] / max_customers * 46)
@@ -1034,32 +1001,77 @@ def render_sadc_map(mode="sales", height=400, df=None, live_rows=0):
 
     fig = go.Figure()
     for status, grp in df_m.groupby("status"):
+        col = COLOR_MAP[status]
         fig.add_trace(go.Scattermap(
-            lat=grp.lat,lon=grp.lon,mode="markers",name=status,
-            marker=dict(size=grp["sz"],color=COLOR_MAP[status],opacity=0.88,sizemode="area"),
-            text=[hover[df_m.index.get_loc(i)] for i in grp.index],hoverinfo="text"))
+            lat=grp.lat, lon=grp.lon, mode="markers", name=status,
+            marker=dict(
+                size=grp["sz"], color=col, opacity=0.9, sizemode="area",
+            ),
+            text=[hover[df_m.index.get_loc(i)] for i in grp.index],
+            hoverinfo="text",
+        ))
     fig.update_layout(
-        map=dict(style="carto-darkmatter",center=dict(lat=-20,lon=26),zoom=2.9),
-        height=height,margin=dict(l=0,r=0,t=0,b=0),
-        paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",
-        legend=dict(bgcolor="rgba(9,20,36,0.85)",bordercolor="rgba(34,211,238,0.18)",
-                    borderwidth=1,font=dict(color="#F0F4F8",size=10),orientation="v",x=0.01,y=0.98))
+        map=dict(style="carto-darkmatter", center=dict(lat=-20, lon=26), zoom=2.9),
+        height=height, margin=dict(l=0, r=0, t=0, b=0),
+        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+        hoverlabel=dict(bgcolor="rgba(7,14,26,0.95)", bordercolor="rgba(34,211,238,0.3)",
+                        font=dict(color="#F0F4F8", size=11, family="Inter")),
+        legend=dict(bgcolor="rgba(9,20,36,0.9)", bordercolor="rgba(34,211,238,0.2)",
+                    borderwidth=1, font=dict(color="#F0F4F8", size=10, family="Inter"),
+                    orientation="v", x=0.01, y=0.98),
+    )
     st.markdown(f'<div class="cn-card"><div class="sec-label">{title}</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:8px;">{sub} | map remains stable while regional counters update</div>', unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ── CHART LAYOUT HELPER ───────────────────────────────────────────────────────
 def _cl(fig, h=250):
-    fig.update_layout(height=h,margin=dict(l=0,r=0,t=8,b=0),
-        paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(7,16,28,0.6)",
-        font=dict(color="#6B7FA3",size=10),
-        xaxis=dict(gridcolor="rgba(34,211,238,0.05)",color="#6B7FA3",showgrid=True),
-        yaxis=dict(gridcolor="rgba(34,211,238,0.05)",color="#6B7FA3",showgrid=True),
-        legend=dict(bgcolor="rgba(0,0,0,0)",font=dict(color="#6B7FA3",size=9),
-                    orientation="h",y=-0.22,x=0))
+    fig.update_layout(
+        height=max(h, 260),
+        margin=dict(l=46, r=22, t=18, b=54),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(8,17,24,0.44)",
+        font=dict(color="#CBD5E1", size=11, family="Inter"),
+        hovermode="x unified",
+        hoverlabel=dict(
+            bgcolor="rgba(7,14,26,0.95)",
+            bordercolor="rgba(45,212,191,0.28)",
+            font=dict(color="#F0F4F8", size=11, family="Inter"),
+        ),
+        xaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True,
+            zeroline=False,
+            showspikes=True, spikesnap="cursor",
+            spikecolor="rgba(45,212,191,0.22)", spikethickness=1,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
+        yaxis=dict(
+            gridcolor="rgba(148,163,184,0.10)", color="#94A3B8", showgrid=True,
+            zeroline=False,
+            tickfont=dict(size=10, color="#CBD5E1"),
+            title_font=dict(size=10, color="#94A3B8"),
+            automargin=True,
+        ),
+        legend=dict(
+            bgcolor="rgba(7,16,28,0.72)",
+            bordercolor="rgba(148,163,184,0.16)", borderwidth=1,
+            font=dict(color="#CBD5E1", size=10, family="Inter"),
+            orientation="h", y=-0.30, x=0,
+        ),
+    )
+    fig.update_traces(marker_line_width=0, selector=dict(type="bar"))
+    fig.update_traces(line=dict(width=2.4), selector=dict(type="scatter"))
 
-def ph(title, icon="⬡", note="Coming in next build"):
-    st.markdown(f'<div class="ph-card"><div style="font-size:22px;opacity:.4;">{icon}</div><div style="font-size:12px;font-weight:600;">{title}</div><div style="font-size:10px;color:#2A3A4E;">{note}</div></div>', unsafe_allow_html=True)
+def ph(title, icon="chart", note="Coming in next build"):
+    st.markdown(
+        f'<div class="ph-card">'
+        f'<div style="font-size:22px;opacity:.55;color:#8A98A6;">{svg_icon(icon, 22, "currentColor")}</div>'
+        f'<div style="font-size:12px;font-weight:600;">{title}</div>'
+        f'<div style="font-size:10px;color:#2A3A4E;">{note}</div></div>',
+        unsafe_allow_html=True,
+    )
 
 def ph_grid(cards, n=3):
     for i in range(0,len(cards),n):
@@ -1071,49 +1083,16 @@ def ph_grid(cards, n=3):
 # ═══════════════════════════════════════════════════════════════════════════════
 # SALES OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _sales_kpis(df):
-    # Derive all values from today's live stream; filters do not apply to KPI cards.
-    human_df = _human_df(df)
-    stats = _kpi_stats(df)
-    baseline, baseline_label = _baseline_stats(st.session_state.get("_sales_df_cache"))
-
-    pot_cust = int(_truthy_series(human_df, "potential_customer_signal").sum()) if len(human_df) > 0 else 0
-    demo_req = int(_truthy_series(human_df, "has_demo_request").sum()) if len(human_df) > 0 else 0
-    pot_rev_m = round(_num_series(human_df, "estimated_deal_value").sum() / 1e6, 1) if len(human_df) > 0 else 0.0
-
-    if "country" in human_df.columns and len(human_df) > 0:
-        vc = human_df["country"].value_counts()
-        top_market = vc.index[0] if len(vc) > 0 else "South Africa"
-        top_pct    = int(vc.iloc[0] / len(human_df) * 100) if len(vc) > 0 else 36
-    else:
-        top_market, top_pct = "South Africa", 36
-
-    # ISO code for flagcdn
-    _ISO = {"South Africa":"za","Zambia":"zm","Mozambique":"mz","Botswana":"bw",
-            "Angola":"ao","Zimbabwe":"zw","Namibia":"na","Malawi":"mw",
-            "Democratic Republic of the Congo":"cd"}
-    iso = _ISO.get(top_market, "za")
-    flag_img = f'<img src="https://flagcdn.com/20x15/{iso}.png" alt="{top_market}" style="height:16px;width:auto;border-radius:2px;margin-right:5px;vertical-align:middle;" />'
-
-    pipeline_pct = min(99, int(pot_rev_m / 95 * 100)) if pot_rev_m else 87
-
-    kpis = [
-        ("Pipeline Target Attainment", f"{pipeline_pct}%", f"${pot_rev_m}M / $95M target", "On Watch", "watch", "anchor"),
-        ("Potential Customers",        f"{pot_cust:,}",    "vs last period",               f"▲ {max(1, pot_cust//6)}%",  "up", ""),
-        ("Demo Requests",              f"{demo_req:,}",    "vs last period",               f"▲ {max(1, demo_req//5)}%",  "up", ""),
-        ("Potential Opportunity Value", f"${pot_rev_m}M",  "modelled, not booked revenue", "",  "", ""),
-        ("Top Sales Market",           f"{flag_img}{top_market}", f"{top_pct}% of total potential", "", "", ""),
-    ]
-    cols = st.columns(5, gap="small")
-    cls_map = {"up":"delta-up","watch":"delta-watch","down":"delta-down"}
-    for col, (lbl, val, sub, chg, cls, extra) in zip(cols, kpis):
-        with col:
-            delta = f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            anchor_style = "border-color:rgba(34,211,238,0.45);box-shadow:0 0 22px rgba(34,211,238,0.15);" if extra == "anchor" else ""
-            st.markdown(f'<div class="kpi-card" style="min-height:132px;{anchor_style}"><div class="kpi-label">{lbl}</div><div class="kpi-value" style="font-size:1.75rem;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
+_GROWTH_FALLBACK = {
+    "mo":      ["Jan","Feb","Mar","Apr","May","Jun"],
+    "pc_vals": [820, 940, 1050, 1180, 1248, None],
+    "dr_vals": [210, 245, 275,  295,  312,  None],
+    "target":  [900, 950, 1000, 1100, 1200, 1300],
+    "prev":    [760, 820, 940,  1050, 1180, 1248],
+}
 
 def _sales_growth(df):
-    # Group df by month to derive monthly trend
+    mo = pc_vals = dr_vals = target = prev = None
     if df is not None and "date" in df.columns and len(df) > 0:
         try:
             df2 = df.copy()
@@ -1125,35 +1104,61 @@ def _sales_growth(df):
                 _pc = _human.groupby("_month")["_pc_signal"].sum().tail(6)
             else:
                 _pc = _grp.size().tail(6)
+            # Need at least 3 months of data for a meaningful trend - otherwise fall back
+            if len(_pc) < 3:
+                raise ValueError("Insufficient monthly data")
             if "has_demo_request" in df2.columns:
                 _human["_demo_signal"] = _truthy_series(_human, "has_demo_request").astype(int)
                 _dr = _human.groupby("_month")["_demo_signal"].sum().reindex(_pc.index, fill_value=0).tail(6)
             else:
                 _dr = (_pc * 0.25).astype(int)
-            mo = [str(p) for p in _pc.index]
+            # Format periods as readable short month labels (e.g. "Jan 25")
+            mo      = [pd.Period(p).to_timestamp().strftime("%b %y") for p in _pc.index]
             pc_vals = [int(v) for v in _pc.tolist()]
             dr_vals = [int(v) for v in _dr.tolist()]
             target  = [max(v, 900) + 100 * i for i, v in enumerate(pc_vals)]
-            prev    = [int(v * 0.88) for v in pc_vals[1:]] + [None] if len(pc_vals) > 1 else pc_vals
+            prev    = [int(v * 0.88) for v in pc_vals[1:]] + [None] if len(pc_vals) > 1 else list(pc_vals)
         except Exception:
-            mo = ["Jan","Feb","Mar","Apr","May","Jun"]
-            pc_vals = [820,940,1050,1180,1248,None]
-            dr_vals = [210,245,275,295,312,None]
-            target  = [900,950,1000,1100,1200,1300]
-            prev    = [760,820,940,1050,1180,1248]
-    else:
-        mo = ["Jan","Feb","Mar","Apr","May","Jun"]
-        pc_vals = [820,940,1050,1180,1248,None]
-        dr_vals = [210,245,275,295,312,None]
-        target  = [900,950,1000,1100,1200,1300]
-        prev    = [760,820,940,1050,1180,1248]
+            pass
+
+    if mo is None:
+        mo      = _GROWTH_FALLBACK["mo"]
+        pc_vals = _GROWTH_FALLBACK["pc_vals"]
+        dr_vals = _GROWTH_FALLBACK["dr_vals"]
+        target  = _GROWTH_FALLBACK["target"]
+        prev    = _GROWTH_FALLBACK["prev"]
 
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=mo, y=pc_vals, name="Potential Customers", line=dict(color="#22D3EE",width=2), mode="lines+markers", marker=dict(size=4), hovertemplate="<b>%{x}</b><br>Customers: %{y}<extra></extra>"))
-    fig.add_trace(go.Scatter(x=mo, y=dr_vals, name="Demo Requests",       line=dict(color="#4ADE80",width=2), mode="lines+markers", marker=dict(size=4), hovertemplate="<b>%{x}</b><br>Demos: %{y}<extra></extra>"))
-    fig.add_trace(go.Scatter(x=mo, y=target,  name="Target",              line=dict(color="#A855F7",width=1.5,dash="dash"), mode="lines", hovertemplate="<b>%{x}</b><br>Target: %{y}<extra></extra>"))
-    fig.add_trace(go.Scatter(x=mo, y=prev,    name="Prev. Month",         line=dict(color="#3A4A5E",width=1.5,dash="dot"),  mode="lines", hovertemplate="<b>%{x}</b><br>Prev: %{y}<extra></extra>"))
+    fig.add_trace(go.Scatter(
+        x=mo, y=pc_vals, name="Potential Customers",
+        line=dict(color="#22D3EE", width=2.5),
+        mode="lines+markers",
+        marker=dict(size=7, symbol="circle", color="#22D3EE",
+                    line=dict(color="rgba(255,255,255,0.25)", width=1.5)),
+        fill="tozeroy", fillcolor="rgba(34,211,238,0.06)",
+        hovertemplate="Customers: <b>%{y}</b><extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=mo, y=dr_vals, name="Demo Requests",
+        line=dict(color="#4ADE80", width=2),
+        mode="lines+markers",
+        marker=dict(size=6, symbol="circle", color="#4ADE80",
+                    line=dict(color="rgba(255,255,255,0.2)", width=1)),
+        fill="tozeroy", fillcolor="rgba(74,222,128,0.04)",
+        hovertemplate="Demos: <b>%{y}</b><extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=mo, y=target, name="Target",
+        line=dict(color="#A855F7", width=1.5, dash="dash"), mode="lines",
+        hovertemplate="Target: <b>%{y}</b><extra></extra>",
+    ))
+    fig.add_trace(go.Scatter(
+        x=mo, y=prev, name="Prev. Period",
+        line=dict(color="#3A4A5E", width=1.5, dash="dot"), mode="lines",
+        hovertemplate="Prev: <b>%{y}</b><extra></extra>",
+    ))
     _cl(fig, 230)
+    fig.update_xaxes(type="category")
     st.markdown('<div class="cn-card"><div class="sec-label">Sales Growth Trend</div>', unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1174,17 +1179,66 @@ def _pipeline_funnel(df):
     else:
         awareness, engaged, qualified, proposal, won, conv = 7624, 3210, 1248, 512, 198, 2.6
 
+    stages = ["Awareness", "Engaged", "Qualified", "Proposal", "Won"]
+    counts = [int(awareness), int(engaged), int(qualified), int(proposal), int(won)]
+    colors = ["#38BDF8", "#2DD4BF", "#FBBF24", "#F59E0B", "#4ADE80"]
+    retained = [100] + [
+        round((counts[i] / counts[i - 1] * 100), 1) if counts[i - 1] else 0
+        for i in range(1, len(counts))
+    ]
+
     fig = go.Figure(go.Funnel(
-        y=["Awareness","Engaged","Qualified","Proposal","Won"],
-        x=[awareness, engaged, qualified, proposal, won],
-        textinfo="value+percent initial",
-        marker=dict(color=["#22D3EE","#14B8A6","#FBBF24","#F59E0B","#4ADE80"], line=dict(width=0)),
-        textfont=dict(color="#F0F4F8", size=11),
-        hovertemplate="<b>%{y}</b><br>%{x:,}<br>%{percentInitial:.1%}<extra></extra>"))
-    fig.update_layout(height=230, margin=dict(l=0,r=0,t=8,b=0),
-        paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#6B7FA3",size=10))
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Pipeline Funnel</div><div style="font-size:9px;color:#6B7FA3;margin-bottom:6px;">Overall Conversion: <b style=\'color:#4ADE80;\'>{conv}%</b></div>', unsafe_allow_html=True)
+        y=stages,
+        x=counts,
+        textinfo="none",
+        marker=dict(
+            color=colors,
+            line=dict(color="rgba(5,12,18,0.80)", width=1.5),
+        ),
+        connector=dict(line=dict(color="rgba(148,163,184,0.18)", width=1.2)),
+        opacity=0.94,
+        hovertemplate="<b>%{label}</b><br>Volume: %{value:,}<br>Retained from previous: %{percentPrevious:.1%}<extra></extra>",
+    ))
+    fig.update_layout(
+        height=214,
+        margin=dict(l=82, r=14, t=8, b=8),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        font=dict(color="#6B7FA3", size=10, family="Inter"),
+        hoverlabel=dict(bgcolor="rgba(7,14,26,0.95)", bordercolor="rgba(34,211,238,0.3)",
+                        font=dict(color="#F0F4F8", size=11, family="Inter")),
+        funnelmode="stack",
+        showlegend=False,
+        yaxis=dict(tickfont=dict(color="#CBD5E1", size=11, family="Inter")),
+    )
+    stage_rows = "".join(
+        f'<div style="display:grid;grid-template-columns:10px 1fr auto auto;gap:8px;align-items:center;'
+        f'padding:5px 0;border-top:1px solid rgba(148,163,184,0.08);">'
+        f'<span style="width:8px;height:8px;border-radius:2px;background:{color};display:inline-block;"></span>'
+        f'<span style="font-size:10px;color:#CBD5E1;font-weight:700;">{stage}</span>'
+        f'<span style="font-size:10px;color:#F8FAFC;font-variant-numeric:tabular-nums;">{count:,}</span>'
+        f'<span style="font-size:10px;color:#94A3B8;font-variant-numeric:tabular-nums;">{pct:.1f}%</span>'
+        f'</div>'
+        for stage, count, pct, color in zip(stages, counts, retained, colors)
+    )
+    st.markdown(f"""
+<div class="cn-card">
+  <div class="sec-label">Pipeline Funnel</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+    <span class="chip">Overall conversion: <b style="color:#4ADE80;">{conv}%</b></span>
+    <span class="chip">Qualified: <b style="color:#FBBF24;">{qualified:,}</b></span>
+    <span class="chip">Won: <b style="color:#4ADE80;">{won:,}</b></span>
+  </div>
+""", unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
+    st.markdown(
+        f'<div style="margin-top:2px;">'
+        f'<div style="display:grid;grid-template-columns:10px 1fr auto auto;gap:8px;'
+        f'font-size:8px;color:#64748B;text-transform:uppercase;letter-spacing:.12em;font-weight:800;padding-bottom:4px;">'
+        f'<span></span><span>Stage</span><span>Volume</span><span>Retained</span></div>'
+        f'{stage_rows}</div>',
+        unsafe_allow_html=True,
+    )
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _service_donut(df):
@@ -1192,39 +1246,61 @@ def _service_donut(df):
         try:
             human = _human_df(df)
             human["_deal_value_num"] = _num_series(human, "estimated_deal_value")
-            rev = human.groupby("service_name")["_deal_value_num"].sum()
+            rev = human.groupby("service_name")["_deal_value_num"].sum().sort_values(ascending=False).head(6)
             total = rev.sum()
             labels = rev.index.tolist()
-            values = [round(v / total * 100, 1) for v in rev.values]
+            values = (rev / 1e6).round(2).values.tolist()
             total_str = f"${total/1e6:.1f}M"
         except Exception:
             labels = ["AI Solutions","Cybersecurity","Cloud & Data","Advisory & Training","Other"]
-            values = [38, 25, 20, 10, 7]
+            values = [31.4, 20.7, 16.5, 8.3, 5.7]
             total_str = "$82.6M"
     else:
         labels = ["AI Solutions","Cybersecurity","Cloud & Data","Advisory & Training","Other"]
-        values = [38, 25, 20, 10, 7]
+        values = [31.4, 20.7, 16.5, 8.3, 5.7]
         total_str = "$82.6M"
 
+    total_value = float(sum(values) or 1)
+    top_label = labels[0] if labels else "Top service"
+    top_share = round(values[0] / total_value * 100, 1) if values else 0
+    palette = ["#38BDF8", "#2DD4BF", "#FBBF24", "#F59E0B", "#7C6EE6", "#64748B"]
+    pull_vals = [0.035] + [0] * (len(labels) - 1)
     fig = go.Figure(go.Pie(
-        labels=labels, values=values, hole=0.62,
-        marker=dict(colors=["#22D3EE","#A855F7","#14B8A6","#FBBF24","#3A4A5E"], line=dict(color="rgba(0,0,0,0.4)",width=1)),
-        textfont=dict(color="#F0F4F8", size=10),
-        hovertemplate="<b>%{label}</b>: %{percent}<extra></extra>"))
-    fig.add_annotation(text=total_str, x=0.5, y=0.58, font=dict(size=14,color="#FFFFFF",family="Inter"), showarrow=False)
-    fig.add_annotation(text="Opportunity",  x=0.5, y=0.43, font=dict(size=9, color="#6B7FA3",family="Inter"), showarrow=False)
-    fig.update_layout(height=230, margin=dict(l=0,r=0,t=8,b=0), paper_bgcolor="rgba(0,0,0,0)",
-        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color="#6B7FA3",size=9), orientation="v", x=1))
-    st.markdown('<div class="cn-card"><div class="sec-label">Modelled Opportunity / Service Mix</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;">Estimated deal value from synthetic signals, not confirmed revenue.</div>', unsafe_allow_html=True)
+        labels=labels, values=values, hole=0.64,
+        pull=pull_vals,
+        marker=dict(
+            colors=palette[:len(labels)],
+            line=dict(color="rgba(7,14,26,0.92)", width=2),
+        ),
+        textinfo="none",
+        hovertemplate="<b>%{label}</b><br>Value: $%{value:.1f}M<br>Share: %{percent}<extra></extra>",
+        direction="clockwise",
+        sort=True,
+    ))
+    fig.add_annotation(text=f"<b>{total_str}</b>", x=0.5, y=0.58,
+                       font=dict(size=18, color="#F8FAFC", family="Inter"), showarrow=False)
+    fig.add_annotation(text="modelled value", x=0.5, y=0.43,
+                       font=dict(size=9, color="#6B7FA3", family="Inter"), showarrow=False)
+    fig.update_layout(
+        height=250,
+        margin=dict(l=0, r=0, t=8, b=8),
+        paper_bgcolor="rgba(0,0,0,0)",
+        hoverlabel=dict(bgcolor="rgba(7,14,26,0.95)", bordercolor="rgba(34,211,238,0.3)",
+                        font=dict(color="#F0F4F8", size=11, family="Inter")),
+        legend=dict(bgcolor="rgba(7,16,28,0.85)", bordercolor="rgba(34,211,238,0.1)", borderwidth=1,
+                    font=dict(color="#CBD5E1", size=9, family="Inter"), orientation="h", y=-0.10, x=0),
+    )
+    st.markdown(f"""
+<div class="cn-card">
+  <div class="sec-label">Modelled Opportunity / Service Mix</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+    <span class="chip">Top service: <b style="color:#38BDF8;">{top_label}</b></span>
+    <span class="chip">Share: <b style="color:#2DD4BF;">{top_share}%</b></span>
+    <span class="chip">Modelled, not booked revenue</span>
+  </div>
+""", unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
-
-def _leaderboard():
-    data=[("South Africa","450","$18.2M","▲22%"),("Zambia","180","$9.5M","▲14%"),
-          ("Mozambique","140","$7.2M","▲18%"),("Botswana","95","$4.8M","▲8%"),("Angola","72","$3.1M","▲31%")]
-    rows="".join(f'<div class="lb-row"><span style="flex:1;color:#F0F4F8;font-weight:500;">{n}</span><span style="color:#22D3EE;margin-right:10px;">{c}</span><span style="color:#6B7FA3;margin-right:10px;">{r}</span><span style="color:#4ADE80;font-weight:600;">{ch}</span></div>' for n,c,r,ch in data)
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Regional Leaderboard</div><div style="font-size:9px;color:#3A4A5E;display:flex;margin-bottom:6px;"><span style="flex:1;"></span><span style="margin-right:10px;">Customers</span><span style="margin-right:10px;">Revenue</span><span>vs 30d</span></div>{rows}</div>', unsafe_allow_html=True)
-
 
 def _live_country_leaderboard(df):
     """Data-driven country leaderboard table from filtered df."""
@@ -1265,8 +1341,8 @@ def _live_country_leaderboard(df):
 
         iso  = _ISO.get(c, "za")
         flag = f'<img src="https://flagcdn.com/20x15/{iso}.png" alt="{c}" style="height:13px;width:auto;border-radius:1px;margin-right:6px;vertical-align:middle;" />'
-        trend     = "▲" if cust > 50 else "▼"
-        trend_col = "#76FF36" if trend == "▲" else "#F87171"
+        trend     = "+" if cust > 50 else "▼"
+        trend_col = "#76FF36" if trend == "+" else "#F87171"
         rows_data.append((flag, c, cust, rev_s, trend, trend_col))
 
     # Sort by customer count descending
@@ -1296,27 +1372,6 @@ def _live_country_leaderboard(df):
     </thead>
     <tbody>{rows_html}</tbody>
   </table>
-</div>""", unsafe_allow_html=True)
-
-def _sales_right():
-    st.markdown("""
-<div class="cn-card">
-  <div class="sec-label">Regional Priority</div>
-  <div style="font-size:18px;font-weight:800;color:#22D3EE;margin-bottom:4px;">South Africa</div>
-  <div style="font-size:10px;color:#6B7FA3;">Largest opportunity pool · High impact focus</div>
-  <div style="margin-top:8px;font-size:11px;color:#4ADE80;font-weight:600;">→ Scale outreach now</div>
-</div>
-<div class="cn-card">
-  <div class="sec-label">Strategic Signals</div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> New Solution Interest — <b>High</b></div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> Digital Transformation — <b>Accelerating</b></div>
-  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#FBBF24;">●</span> Budget Confidence — <b>Positive</b></div>
-</div>
-<div class="cn-card">
-  <div class="sec-label">Sales Risk Outlook</div>
-  <div style="font-size:28px;font-weight:800;color:#4ADE80;text-align:center;padding:6px 0;
-    text-shadow:0 0 20px rgba(74,222,128,0.3);">LOW</div>
-  <div style="font-size:10px;color:#6B7FA3;text-align:center;">Stable outlook across SADC region</div>
 </div>""", unsafe_allow_html=True)
 
 def _sales_kpis(df):
@@ -1369,12 +1424,11 @@ def render_sales_overview(df):
 
     # ── Live KPI Section ──
     st.markdown("""
-<div style="padding:16px 20px;border-radius:20px;border:1px solid rgba(255,255,255,0.10);
-  background:rgba(7,14,22,0.74);margin-bottom:14px;">
+<div class="headline-strip" style="margin-bottom:14px;">
   <div style="font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
     color:#00F5D4;margin-bottom:4px;">What is currently going on</div>
   <div style="font-size:12px;color:rgba(245,247,250,0.55);margin-bottom:14px;">
-    Live Sales indicators for the selected period and market.</div>
+    Sales indicators for the selected period and market.</div>
 """, unsafe_allow_html=True)
 
     # Try live fragment for KPI refresh
@@ -1403,7 +1457,7 @@ def render_sales_overview(df):
 
     map_col, tbl_col = st.columns([2.2, 1], gap="small")
     with map_col:
-        render_sadc_map("sales", 420, None, 0)
+        render_sadc_map("sales", 420)
     with tbl_col:
         try:
             @st.fragment(run_every=1)
@@ -1431,19 +1485,6 @@ def render_sales_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # MARKETING OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _mkt_kpis():
-    kpis=[("Engaged Visitors","3,840","vs last 30 days","▲ 24%","up"),
-          ("Engagement Rate","28.4%","across SADC","▲ 4.2 pts","up"),
-          ("Best Campaign Market","South Africa","31% engagement rate","",""),
-          ("Best Landing Page","AI Solutions","42% of conversions","",""),
-          ("Under-Promoted","Cybersecurity","High conv, low visits","⚠ Opportunity","watch")]
-    cols=st.columns(5,gap="small")
-    cls_map={"up":"delta-up","watch":"delta-watch"}
-    for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
-        with col:
-            delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
-
 def _opportunity_matrix():
     countries=["South Africa","Zambia","Mozambique","Botswana","Angola","Zimbabwe","Namibia","Malawi"]
     fig=go.Figure(go.Scatter(x=[4200,1800,1400,950,720,1100,550,480],y=[31,28,25,22,24,27,20,18],
@@ -1463,17 +1504,16 @@ def _promo_gap():
     fig.add_trace(go.Bar(x=svcs,y=[35,28,22,10,5],name="Visit Share %",marker_color="#3A4A5E",hovertemplate="<b>%{x}</b><br>Visit Share: %{y}%<extra></extra>"))
     fig.add_trace(go.Bar(x=svcs,y=[42,24,18,12,4],name="Conversion Share %",marker_color="#22D3EE",hovertemplate="<b>%{x}</b><br>Conversion: %{y}%<extra></extra>"))
     _cl(fig,220); fig.update_layout(barmode="group",bargap=0.28)
-    st.markdown('<div class="cn-card"><div class="sec-label">Service Promotion Gap</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;">⚠ Cybersecurity: high conversion, low visit share → under-promoted</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="cn-card"><div class="sec-label">Service Promotion Gap</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;display:flex;align-items:center;gap:6px;">{svg_icon("alert", 13, "#FBBF24")} Cybersecurity: high conversion, low visit share to under-promoted</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
 
 def _content_funnel():
     fig=go.Figure(go.Funnel(y=["Landing Page","Service Page","AI/Contact Interest","Demo / Event Action"],x=[8500,3800,1640,520],
-        textinfo="value+percent initial",
-        marker=dict(color=["#22D3EE","#14B8A6","#A855F7","#4ADE80"],line=dict(width=0)),
-        textfont=dict(color="#F0F4F8",size=11),
+        textinfo="none",
+        marker=dict(color=["#38BDF8","#2DD4BF","#7C6EE6","#4ADE80"],line=dict(color="rgba(5,12,18,0.78)",width=1.5)),
         hovertemplate="<b>%{y}</b><br>%{x:,}<br>%{percentInitial:.1%}<extra></extra>"))
-    fig.update_layout(height=220,margin=dict(l=0,r=0,t=8,b=0),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#6B7FA3",size=10))
+    fig.update_layout(height=250,margin=dict(l=100,r=18,t=10,b=12),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#CBD5E1",size=11),yaxis=dict(tickfont=dict(color="#CBD5E1",size=10),automargin=True))
     st.markdown('<div class="cn-card"><div class="sec-label">Content Journey Funnel</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1482,9 +1522,10 @@ def _activity_heatmap():
     np.random.seed(7)
     z=np.random.randint(10,180,(7,24)); z[1:5,8:18]+=100
     fig=go.Figure(go.Heatmap(z=z,x=[f"{h:02d}:00" for h in range(24)],y=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
-        colorscale=[[0,"rgba(7,16,28,0.9)"],[0.5,"rgba(34,211,238,0.4)"],[1,"#22D3EE"]],
+        colorscale=[[0,"rgba(15,23,42,0.85)"],[0.45,"rgba(45,212,191,0.34)"],[1,"#38BDF8"]],
+        xgap=1, ygap=1,
         hovertemplate="<b>%{y} %{x}</b><br>Activity: %{z}<extra></extra>",showscale=False))
-    fig.update_layout(height=220,margin=dict(l=0,r=0,t=8,b=0),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(7,16,28,0.6)",font=dict(color="#6B7FA3",size=9),xaxis=dict(tickangle=-45,color="#6B7FA3"),yaxis=dict(color="#6B7FA3"))
+    fig.update_layout(height=250,margin=dict(l=42,r=12,t=10,b=54),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(8,17,24,0.44)",font=dict(color="#CBD5E1",size=10),xaxis=dict(tickangle=-45,color="#CBD5E1",tickfont=dict(size=9),automargin=True),yaxis=dict(color="#CBD5E1",tickfont=dict(size=10),automargin=True))
     st.markdown('<div class="cn-card"><div class="sec-label">Human Activity Timing</div><div style="font-size:9px;color:#6B7FA3;margin-bottom:6px;">Best: Tue–Thu, 09:00–17:00</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1494,13 +1535,13 @@ def _mkt_right():
 <div class="cn-card">
   <div class="sec-label">Best Campaign Market</div>
   <div style="font-size:18px;font-weight:800;color:#14B8A6;">South Africa</div>
-  <div style="font-size:10px;color:#6B7FA3;margin-top:4px;">31% engagement · Highest quality audience</div>
+  <div style="font-size:10px;color:#6B7FA3;margin-top:4px;">31% engagement  -  Highest quality audience</div>
 </div>
 <div class="cn-card">
   <div class="sec-label">Campaign Signals</div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> AI Solutions — <b>High Intent</b></div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#FBBF24;">●</span> Cybersecurity — <b>Under-Promoted</b></div>
-  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> Cloud & Data — <b>Growing</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> AI Solutions - <b>High Intent</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#FBBF24;">●</span> Cybersecurity - <b>Under-Promoted</b></div>
+  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> Cloud & Data - <b>Growing</b></div>
 </div>
 <div class="cn-card">
   <div class="sec-label">Audience Quality</div>
@@ -1542,7 +1583,7 @@ def render_marketing_overview(df):
     render_live_pulse()
     ml,mr=st.columns([1.7,1],gap="small")
     with ml:
-        render_sadc_map("marketing", 380, None, 0)
+        render_sadc_map("marketing", 380)
     with mr:
         if _MARKETING_VIEWS_OK:
             st.markdown(render_marketing_drawer(), unsafe_allow_html=True)
@@ -1557,28 +1598,6 @@ def render_marketing_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXECUTIVE OVERVIEW
 # ═══════════════════════════════════════════════════════════════════════════════
-def _exec_kpis():
-    kpis=[("Growth Direction","+42%","vs same period last year","▲ Strong","up"),
-          ("Potential Customers","1,248","generated this period","▲ 18%","up"),
-          ("AI Assistant Traction","29.4%","of sessions engage AI","▲ 4.1 pts","up"),
-          ("Active SADC Markets","10/16","target markets active","▲ 2 new","up"),
-          ("Strategic Risk Alerts","3","requires executive review","⚠ Monitor","watch")]
-    cols=st.columns(5,gap="small")
-    cls_map={"up":"delta-up","watch":"delta-watch"}
-    for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
-        with col:
-            delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else ""
-            st.markdown(f'<div class="kpi-card"><div class="kpi-label">{lbl}</div><div class="kpi-value-sm" style="color:#A855F7;">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
-    st.markdown("""
-<div style="background:linear-gradient(90deg,rgba(168,85,247,0.07),rgba(34,211,238,0.04));
-  border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:10px 16px;margin:8px 0;">
-  <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A855F7;">Board Summary · </span>
-  <span style="font-size:12px;color:#F0F4F8;">
-    AI Assistant traction is strong across core and strategic hubs.
-    Protect core markets while selectively testing high-growth opportunities.
-  </span>
-</div>""", unsafe_allow_html=True)
-
 def _strategic_growth():
     mo=["Jan","Feb","Mar","Apr","May","Jun"]
     fig=go.Figure()
@@ -1615,7 +1634,7 @@ def _forecast_90():
     fig.add_trace(go.Scatter(x=fwd+fwd[::-1],y=fu+fl[::-1],fill="toself",fillcolor="rgba(34,211,238,0.06)",line=dict(width=0),name="Confidence"))
     fig.add_trace(go.Scatter(x=fwd,y=tg,name="Target Aim",line=dict(color="#A855F7",width=1.5,dash="dash"),mode="lines"))
     _cl(fig,230)
-    st.markdown('<div class="cn-card"><div class="sec-label">90-Day Forecast</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;">⚠ Rule-based linear forecast, not predictive AI.</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="cn-card"><div class="sec-label">90-Day Forecast</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;display:flex;align-items:center;gap:6px;">{svg_icon("alert", 13, "#FBBF24")} Rule-based linear forecast, not predictive AI.</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar":False})
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1625,13 +1644,13 @@ def _exec_right():
   <div class="sec-label">Regional Priority</div>
   <div style="font-size:14px;font-weight:700;color:#A855F7;">South Africa + Zambia</div>
   <div style="font-size:10px;color:#6B7FA3;margin-top:4px;">Core + Strategic Hub anchors</div>
-  <div style="font-size:11px;color:#4ADE80;margin-top:6px;font-weight:600;">✓ Invest — protect lead</div>
+  <div style="font-size:11px;color:#4ADE80;margin-top:6px;font-weight:600;">Done Invest - protect lead</div>
 </div>
 <div class="cn-card">
   <div class="sec-label">Strategic Signals</div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> AI Solutions — <b>Accelerating</b></div>
-  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> SADC Expansion — <b>On Track</b></div>
-  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#F87171;">●</span> Zimbabwe — <b>Monitor</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#4ADE80;">●</span> AI Solutions - <b>Accelerating</b></div>
+  <div style="font-size:11px;margin-bottom:5px;color:#F0F4F8;"><span style="color:#22D3EE;">●</span> SADC Expansion - <b>On Track</b></div>
+  <div style="font-size:11px;color:#F0F4F8;"><span style="color:#F87171;">●</span> Zimbabwe - <b>Monitor</b></div>
 </div>
 <div class="cn-card">
   <div class="sec-label">Risk Outlook</div>
@@ -1666,7 +1685,7 @@ def _exec_kpis(df=None):
     st.markdown(f"""
 <div style="background:linear-gradient(90deg,rgba(168,85,247,0.07),rgba(34,211,238,0.04));
   border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:10px 16px;margin:8px 0;">
-  <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A855F7;">Board Summary · </span>
+  <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:#A855F7;">Board Summary  -  </span>
   <span style="font-size:12px;color:#F0F4F8;">
     Live simulation is based on the selected CyberNova dataset. Opportunity value is a modelled estimate, not audited revenue.
   </span>
@@ -1685,7 +1704,7 @@ def render_executive_overview(df):
     render_live_pulse()
     ml,mr=st.columns([1.7,1],gap="small")
     with ml:
-        render_sadc_map("executive", 380, None, 0)
+        render_sadc_map("executive", 380)
     with mr:
         if _EXECUTIVE_VIEWS_OK:
             st.markdown(render_executive_drawer(), unsafe_allow_html=True)
@@ -1699,39 +1718,39 @@ def render_executive_overview(df):
 # ═══════════════════════════════════════════════════════════════════════════════
 # ANALYTICS / FORECASTING / DATA TABS
 # ═══════════════════════════════════════════════════════════════════════════════
-def render_analytics_tab(dash,df):
-    CARDS={"Sales":[("Funnel by Market","📊"),("Funnel by Service","📊"),("Repeat Visitor Conversion","🔄"),
-                    ("Potential Customer Segment Quality","💎"),("Sales Insight Assistant","🤖"),("Sales Hotzones Map","🗺️"),
-                    ("Top Service Demand","📈"),("Potential Customers by Country","🌍"),("Demo Intent by Hour","⏰"),("Conversion Rate by Stage","🎯")],
-           "Marketing":[("Audience Segments Over Time","📈"),("Country Engagement Breakdown","🌍"),
-                        ("Landing Page Performance","📄"),("SADC Reach Map + Ranking","🗺️"),("Service Promotion Gap Detail","📊"),("Marketing Insight Assistant","🤖")],
-           "Executive":[("Regional Target Table","📋"),("Market Contribution Analysis","📊"),
-                        ("AI Assistant by Market","🤖"),("Risk / Anomaly Trend","⚠️"),("Executive Insight Assistant","🌐")]}
+def render_analytics_tab(dash):
+    CARDS={"Sales":[("Funnel by Market","chart"),("Funnel by Service","chart"),("Repeat Visitor Conversion","sync"),
+                    ("Potential Customer Segment Quality","diamond"),("Sales Insight Assistant","bot"),("Sales Hotzones Map","map"),
+                    ("Top Service Demand","chart"),("Potential Customers by Country","globe"),("Demo Intent by Hour","clock"),("Conversion Rate by Stage","target")],
+           "Marketing":[("Audience Segments Over Time","chart"),("Country Engagement Breakdown","globe"),
+                        ("Landing Page Performance","file"),("SADC Reach Map + Ranking","map"),("Service Promotion Gap Detail","chart"),("Marketing Insight Assistant","bot")],
+           "Executive":[("Regional Target Table","file"),("Market Contribution Analysis","chart"),
+                        ("AI Assistant by Market","bot"),("Risk / Anomaly Trend","alert"),("Executive Insight Assistant","globe")]}
     ph_grid(CARDS.get(dash,[]))
 
 def render_forecasting_tab(dash):
-    CARDS={"Sales":[("Forecast Summary","📋"),("Forecast Confidence","🎯"),("30-Day Potential Customer Forecast","📈"),
-                    ("Demo Request Forecast","📊"),("AI-to-Demo What-If Analysis","🤖"),("Forecast vs Target","🏁"),
-                    ("Sales Readiness Recommendations","💡"),("Market Outlook","🗺️"),("Risk Outlook","⚠️"),("Alert Center","🔔")],
-           "Marketing":[("Audience Growth Forecast","📈"),("Engaged Sessions Forecast","📊"),
-                        ("Campaign What-If Scenario","🤖"),("Campaign Target Tracker","🏁"),("Campaign Recommendation","💡")],
-           "Executive":[("90-Day Potential Customer Forecast","📈"),("Regional Expansion Forecast","🗺️"),
-                        ("AI Traction Forecast","🤖"),("Risk / Anomaly Outlook","⚠️"),("Investment Recommendation","💡"),("Forecast vs Target","🏁")]}
+    CARDS={"Sales":[("Forecast Summary","file"),("Forecast Confidence","target"),("30-Day Potential Customer Forecast","chart"),
+                    ("Demo Request Forecast","chart"),("AI-to-Demo What-If Analysis","bot"),("Forecast vs Target","flag"),
+                    ("Sales Readiness Recommendations","lightbulb"),("Market Outlook","map"),("Risk Outlook","alert"),("Alert Center","bell")],
+           "Marketing":[("Audience Growth Forecast","chart"),("Engaged Sessions Forecast","chart"),
+                        ("Campaign What-If Scenario","bot"),("Campaign Target Tracker","flag"),("Campaign Recommendation","lightbulb")],
+           "Executive":[("90-Day Potential Customer Forecast","chart"),("Regional Expansion Forecast","map"),
+                        ("AI Traction Forecast","bot"),("Risk / Anomaly Outlook","alert"),("Investment Recommendation","lightbulb"),("Forecast vs Target","flag")]}
     ph_grid(CARDS.get(dash,[]))
 
 def render_data_tab(dash,df):
-    CARDS={"Sales":[("Sales Action Queue","✅"),("Potential Customers Table","📋"),("Evidence Snapshot","📂"),
-                    ("Export Center","💾"),("Data Quality Summary","🔍"),("Methodology & Assumptions","📖"),
-                    ("Potential Revenue by Region","💰"),("New Potential Customers Trend","📈"),("Top Customers by Revenue","🏆")],
-           "Marketing":[("Campaign Opportunity Table","📋"),("Filtered Audience Data","📂"),("Evidence Pack CSV","💾"),
-                        ("Weekly PDF Report","📄"),("Monthly PDF Report","📄"),("Methodology Note","📖"),("Landing Page Export","📑"),("Campaign Performance Export","📊")],
-           "Executive":[("Executive Decision Brief","📋"),("Regional Priority Table","🗺️"),("Risk Evidence Table","⚠️"),
-                        ("Executive Summary CSV","💾"),("Filtered Data CSV","📂"),("Weekly PDF Report","📄"),("Monthly PDF Report","📄"),("Methodology Note","📖")]}
+    CARDS={"Sales":[("Sales Action Queue","check"),("Potential Customers Table","file"),("Evidence Snapshot","folder"),
+                    ("Export Center","download"),("Data Quality Summary","search"),("Methodology & Assumptions","book"),
+                    ("Potential Revenue by Region","money"),("New Potential Customers Trend","chart"),("Top Customers by Revenue","briefcase")],
+           "Marketing":[("Campaign Opportunity Table","file"),("Filtered Audience Data","folder"),("Evidence Pack CSV","download"),
+                        ("Weekly PDF Report","file"),("Monthly PDF Report","file"),("Methodology Note","book"),("Landing Page Export","file"),("Campaign Performance Export","chart")],
+           "Executive":[("Executive Decision Brief","file"),("Regional Priority Table","map"),("Risk Evidence Table","alert"),
+                        ("Executive Summary CSV","download"),("Filtered Data CSV","folder"),("Weekly PDF Report","file"),("Monthly PDF Report","file"),("Methodology Note","book")]}
     ph_grid(CARDS.get(dash,[]))
     if df is not None:
         st.markdown('<div class="cn-card"><div class="sec-label">Quick Export</div>', unsafe_allow_html=True)
         h=_human_df(df)
-        st.download_button("⬇ Download Filtered Data (CSV)",h.head(5000).to_csv(index=False).encode(),f"cybernova_{dash.lower()}.csv","text/csv",use_container_width=True)
+        st.download_button("Download Filtered Data (CSV)",h.head(5000).to_csv(index=False).encode(),f"cybernova_{dash.lower()}.csv","text/csv",use_container_width=True)
         st.markdown('</div>', unsafe_allow_html=True)
 
 # ── STATUS BAR ────────────────────────────────────────────────────────────────
@@ -1744,7 +1763,7 @@ def render_status_bar():
   <div class="si">AI Insights <span>12 new</span></div>
   <div class="si">Alerts <span class="pill-warn">{v.alert_count} active</span></div>
   <div class="si">Status <span class="pill-ok">Operational</span></div>
-  <div style="margin-left:auto;font-size:10px;color:#2A3A4E;">CyberNova BI Portal · Prototype v1.0</div>
+  <div style="margin-left:auto;font-size:10px;color:#2A3A4E;">CyberNova BI Portal  -  Prototype v1.0</div>
 </div>""", unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1753,6 +1772,7 @@ def render_status_bar():
 def main():
     inject_css()
     init_state()
+    restore_from_query_params()
 
     if not st.session_state.authenticated:
         render_login()
@@ -1782,7 +1802,7 @@ def main():
         with st.spinner(""):
             df = load_data()
             if df is None:
-                st.toast("Using mock data — CSV not found", icon="⚠️")
+                st.toast("Using mock data - CSV not found")
                 df = mock_data()
 
         st.session_state["_live_unfiltered_df"] = df
@@ -1853,7 +1873,7 @@ def main():
             elif dash=="Executive" and _EXECUTIVE_VIEWS_OK:
                 render_executive_analytics(df_f)
             else:
-                render_analytics_tab(dash, df_f)
+                render_analytics_tab(dash)
         with t_fc:
             if dash=="Sales" and _SALES_VIEWS_OK:
                 render_sales_forecasting(df_f)
@@ -1879,4 +1899,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
