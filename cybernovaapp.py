@@ -544,224 +544,169 @@ def render_login():
     _ico_role = """<svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#76FF36" stroke-width="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="#76FF36" stroke-width="2" stroke-linecap="round"/></svg>"""
     _ico_lock = """<svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" stroke="#76FF36" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#76FF36" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="16" r="1.5" fill="#76FF36"/></svg>"""
     _ico_lock_sm = """<svg width="13" height="13" viewBox="0 0 24 24" fill="none"><rect x="3" y="11" width="18" height="11" rx="3" stroke="#F87171" stroke-width="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="#F87171" stroke-width="2" stroke-linecap="round"/></svg>"""
+    _login_visual_path = _BASE / "Screenshot 2026-05-07 at 03.12.07.png"
+    _login_visual_src = ""
+    if _login_visual_path.exists():
+        _login_visual_src = "data:image/png;base64," + base64.b64encode(_login_visual_path.read_bytes()).decode()
 
-    # ── LOGIN CSS ──
     st.markdown("""
 <style>
 div.block-container{padding:0!important;max-width:100%!important;}
-[data-testid="stApp"]{
-  background:
-    radial-gradient(ellipse at 22% 48%,rgba(0,245,212,0.08) 0%,transparent 50%),
-    radial-gradient(ellipse at 78% 22%,rgba(118,255,54,0.06) 0%,transparent 46%),
-    radial-gradient(ellipse at 55% 80%,rgba(0,200,230,0.04) 0%,transparent 40%),
-    #020509 !important;
-}
-/* vertically centre the page content */
+[data-testid="stApp"]{background:#D7D7D7!important;}
 section[data-testid="stMain"]{display:flex;align-items:center;min-height:100vh;}
-section[data-testid="stMain"] > div{width:100%;}
+section[data-testid="stMain"]>div{width:100%;}
+[data-testid="stHeader"],[data-testid="stToolbar"],#MainMenu,footer{display:none!important;}
+div[data-testid="stHorizontalBlock"]{gap:0!important;}
 
-/* ── card top (HTML block) ── */
-.lc-top{
-  position:relative;overflow:hidden;
+.login-left{
+  height:682px;display:flex;align-items:center;justify-content:flex-end;overflow:hidden;
+  background:transparent;
+}
+.login-left-image{
+  height:682px;width:auto;max-width:100%;display:block;object-fit:contain;object-position:right center;
+  border-radius:10px 0 0 10px;
+}
+.login-left-fallback{
+  height:100%;display:flex;align-items:center;justify-content:center;padding:52px;
+  background:linear-gradient(135deg,#1647D8 0%,#7C6EE6 48%,#2DD4BF 120%);
+  color:white;font-size:32px;font-weight:800;line-height:1.16;
+}
+
+.login-form-head{
+  height:238px;box-sizing:border-box;border-radius:0 10px 0 0;padding:34px 54px 0;
   background:
-    radial-gradient(circle at 80% 20%,rgba(0,245,212,0.09),transparent 38%),
-    radial-gradient(circle at 15% 80%,rgba(118,255,54,0.08),transparent 32%),
-    rgba(7,14,22,0.90);
-  border:1px solid rgba(255,255,255,0.10);
-  border-bottom:none;
-  border-radius:22px 22px 0 0;
-  padding:32px 40px 24px;
-  backdrop-filter:blur(24px);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,0.06);
+    linear-gradient(180deg,rgba(13,25,34,.98),rgba(8,17,24,.98))!important;
+  border-top:1px solid rgba(0,255,209,.22);
+  border-right:1px solid rgba(0,255,209,.16);
+  box-shadow:18px 18px 42px rgba(0,0,0,.24);
 }
-.lc-top::before{
-  content:'';position:absolute;top:-90px;right:-60px;
-  width:320px;height:320px;border-radius:50%;
-  border:1px solid rgba(0,245,212,0.05);
-  animation:lcArc 10s ease-in-out infinite;pointer-events:none;
+.login-logo-pill{
+  display:inline-flex;align-items:center;gap:10px;padding:10px 16px;border-radius:8px;
+  background:rgba(245,247,250,.055);color:#F5F7FA;font-size:14px;font-weight:800;margin-bottom:70px;
+  border:1px solid rgba(34,211,238,.18);
 }
-@keyframes lcArc{0%,100%{opacity:.3;transform:scale(1);}50%{opacity:.7;transform:scale(1.06);}}
+.login-title{font-size:30px;font-weight:800;color:#F5F7FA;letter-spacing:0;margin-bottom:10px;}
+.login-subtitle{font-size:14px;color:#9AA7B0;line-height:1.45;}
 
-/* ── card form body (Streamlit form sits here) ── */
 div[data-testid="stForm"]{
-  background:rgba(7,14,22,0.90)!important;
-  border:none!important;
-  border-left:1px solid rgba(255,255,255,0.10)!important;
-  border-right:1px solid rgba(255,255,255,0.10)!important;
-  padding:0 40px!important;
-  border-radius:0!important;
-  backdrop-filter:blur(24px);
+  height:444px!important;min-height:444px!important;box-sizing:border-box!important;
+  border:none!important;border-radius:0 0 10px 0!important;
+  padding:12px 54px 44px!important;
+  background:
+    linear-gradient(180deg,rgba(8,17,24,.98),rgba(3,7,12,.99))!important;
+  border-right:1px solid rgba(0,255,209,.16)!important;
+  border-bottom:1px solid rgba(0,255,209,.16)!important;
+  box-shadow:18px 24px 42px rgba(0,0,0,.26);
 }
-/* ── card bottom (HTML block) ── */
-.lc-bot{
-  background:rgba(7,14,22,0.90);
-  border:1px solid rgba(255,255,255,0.10);
-  border-top:none;
-  border-radius:0 0 22px 22px;
-  padding:16px 40px 28px;
-  backdrop-filter:blur(24px);
-  box-shadow:0 24px 80px rgba(0,0,0,0.65);
+div[data-testid="stForm"] div[data-testid="stVerticalBlock"]{
+  gap:18px!important;
 }
-/* error bar sits between top and form - give it card sides */
-.lc-err-wrap{
-  background:rgba(7,14,22,0.90);
-  border-left:1px solid rgba(255,255,255,0.10);
-  border-right:1px solid rgba(255,255,255,0.10);
-  padding:0 40px 4px;
+div[data-testid="stForm"] label{
+  color:#DDE7EE!important;font-size:13px!important;font-weight:750!important;
+  letter-spacing:0!important;text-transform:none!important;margin-bottom:7px!important;
 }
-.lc-err{
-  background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.28);
-  border-radius:8px;padding:9px 13px;color:#F87171;font-size:12px;
-  display:flex;align-items:center;gap:8px;
+div[data-testid="stSelectbox"]>div>div,
+div[data-testid="stTextInput"]>div{
+  min-height:52px!important;border:1px solid rgba(34,211,238,.18)!important;border-radius:9px!important;
+  background:#0B1620!important;color:#F5F7FA!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.04)!important;
 }
-
-/* logo row */
-.lc-logo-row{display:flex;align-items:center;gap:11px;margin-bottom:20px;}
-.lc-wm-main{font-size:14px;font-weight:800;color:#F5F7FA;letter-spacing:.07em;line-height:1;}
-.lc-wm-sub{font-size:9px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:#00F5D4;margin-top:3px;line-height:1;}
-/* status pill */
-.lc-status{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;
-  border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);
-  margin-bottom:18px;float:right;margin-top:-4px;}
-.lc-sdot{width:6px;height:6px;border-radius:50%;background:#76FF36;animation:lcDot 2s ease-in-out infinite;}
-@keyframes lcDot{0%,100%{box-shadow:0 0 0 0 rgba(118,255,54,.4);}50%{box-shadow:0 0 0 5px rgba(118,255,54,0);}}
-.lc-stext{font-size:11px;color:rgba(245,247,250,0.55);}
-/* heading */
-.lc-heading{font-size:26px;font-weight:800;color:#F5F7FA;line-height:1.15;letter-spacing:-.01em;
-  margin-bottom:6px;clear:both;}
-.lc-sub{font-size:12px;color:rgba(245,247,250,0.55);margin-bottom:18px;line-height:1.5;}
-/* feature chips row */
-.lc-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
-.lc-chip{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;
-  font-size:11px;font-weight:600;}
-.lc-chip.g{background:rgba(118,255,54,0.07);border:1px solid rgba(118,255,54,0.22);color:#76FF36;}
-.lc-chip.c{background:rgba(0,245,212,0.07);border:1px solid rgba(0,245,212,0.22);color:#00F5D4;}
-/* divider */
-.lc-div{height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.12),transparent);
-  margin-bottom:0;}
-/* security note */
-.lc-note{display:flex;gap:10px;align-items:flex-start;padding:12px 14px;
-  border-radius:9px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);}
-.lc-note-txt{font-size:11px;line-height:1.45;color:rgba(245,247,250,0.50);}
-
-/* ── widget overrides ── */
-div[data-testid="stSelectbox"] > label,
-div[data-testid="stTextInput"] > label{
-  color:rgba(245,247,250,0.55)!important;font-size:11px!important;
-  font-weight:600!important;letter-spacing:.08em!important;
-  text-transform:uppercase!important;margin-bottom:5px!important;
+div[data-testid="stSelectbox"]>div>div{
+  cursor:pointer!important;display:flex!important;align-items:center!important;
+  padding:0 50px 0 18px!important;
+  background:linear-gradient(180deg,#10202B 0%,#0B1620 100%)!important;
+  position:relative!important;
 }
-div[data-testid="stSelectbox"] > div > div{
-  background:rgba(4,8,15,0.95)!important;
-  border:1px solid rgba(255,255,255,0.11)!important;
-  border-radius:9px!important;min-height:44px!important;
-  color:#F5F7FA!important;font-size:13px!important;
+div[data-testid="stSelectbox"]>div>div::after{
+  content:"";position:absolute;right:18px;top:50%;width:8px;height:8px;
+  border-right:2px solid #22D3EE;border-bottom:2px solid #22D3EE;
+  transform:translateY(-65%) rotate(45deg);pointer-events:none;opacity:.9;
 }
-div[data-testid="stSelectbox"] > div > div:focus-within{
-  border-color:rgba(118,255,54,0.45)!important;
-  box-shadow:0 0 0 2px rgba(118,255,54,0.09)!important;
+div[data-testid="stSelectbox"] svg{display:none!important;}
+div[data-testid="stSelectbox"] div,
+div[data-testid="stSelectbox"] span,
+div[data-testid="stTextInput"] input{
+  color:#F5F7FA!important;font-size:14px!important;font-weight:600!important;
 }
-div[data-testid="stTextInput"] > div{
-  background:rgba(4,8,15,0.95)!important;
-  border:1px solid rgba(255,255,255,0.11)!important;
-  border-radius:9px!important;min-height:44px!important;
+div[data-testid="stSelectbox"] span{
+  line-height:52px!important;display:flex!important;align-items:center!important;
 }
-div[data-testid="stTextInput"] > div > input{
-  background:transparent!important;color:#F5F7FA!important;
-  font-size:13px!important;min-height:42px!important;padding:0 13px!important;
+div[data-testid="stTextInput"] input{min-height:50px!important;padding:0 18px!important;background:transparent!important;}
+div[data-testid="stTextInput"] input::placeholder{color:#66727D!important;}
+div[data-testid="stSelectbox"]>div>div:focus-within,
+div[data-testid="stTextInput"]>div:focus-within{
+  border-color:rgba(34,211,238,.44)!important;
+  box-shadow:0 0 0 3px rgba(34,211,238,.10), inset 0 1px 0 rgba(255,255,255,.05)!important;
 }
-div[data-testid="stTextInput"] > div:focus-within{
-  border-color:rgba(118,255,54,0.45)!important;
-  box-shadow:0 0 0 2px rgba(118,255,54,0.09)!important;
+div[data-testid="stFormSubmitButton"]>button{
+  height:52px!important;margin-top:118px!important;border-radius:9px!important;
+  border:1px solid rgba(34,211,238,.30)!important;
+  background:linear-gradient(180deg,#101B26 0%,#081018 100%)!important;
+  color:#F5F7FA!important;font-size:15px!important;font-weight:800!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.08)!important;
 }
-div[data-testid="stFormSubmitButton"] > button{
-  width:100%!important;height:48px!important;margin-top:4px!important;
-  border-radius:9px!important;border:none!important;
-  font-size:14px!important;font-weight:800!important;color:#021008!important;
-  background:linear-gradient(90deg,#76FF36,#00F5D4)!important;
-  transition:all .18s!important;animation:lcBtn 3.5s ease-in-out infinite!important;
+div[data-testid="stFormSubmitButton"]>button:hover{
+  border-color:rgba(0,255,209,.42)!important;
+  background:linear-gradient(180deg,#122433 0%,#09141D 100%)!important;
+  filter:none!important;transform:none!important;
 }
-div[data-testid="stFormSubmitButton"] > button:hover{
-  filter:brightness(1.08)!important;transform:translateY(-1px)!important;
+.login-error{
+  background:#FEF2F2;border:1px solid #FECACA;color:#B91C1C;border-radius:8px;
+  padding:9px 12px;font-size:12px;margin-top:12px;display:flex;gap:8px;align-items:center;
 }
-div[data-testid="stFormSubmitButton"] > button:active{transform:translateY(0)!important;}
-@keyframes lcBtn{
-  0%,100%{box-shadow:0 0 20px rgba(0,245,212,.14),0 0 20px rgba(118,255,54,.10);}
-  50%{box-shadow:0 0 36px rgba(0,245,212,.24),0 0 36px rgba(118,255,54,.18);}
+@media(max-width:980px){
+  .login-left{display:none;}
+  .login-form-head{border-radius:10px 10px 0 0;}
+  div[data-testid="stForm"]{border-radius:0 0 10px 10px!important;}
+  div[data-testid="stForm"],.login-form-head{box-shadow:0 18px 42px rgba(15,23,42,.16);}
 }
-div[data-testid="stVerticalBlock"]>div{padding-top:3px!important;padding-bottom:3px!important;}
-</style>""", unsafe_allow_html=True)
+</style>
+""", unsafe_allow_html=True)
 
     if "login_error" not in st.session_state:
         st.session_state.login_error = False
 
-    # single centered column
-    _, card_col, _ = st.columns([1, 1.4, 1])
-
-    with card_col:
-        _logo = logo_img(h=34) if LOGO_SRC else _ico_mark
-
-        # ── CARD TOP ──────────────────────────────────────────────────────────────
-        st.markdown(f"""
-<div class="lc-top">
-  <div class="lc-status">
-    {_ico_shield_sm}
-    <div class="lc-sdot"></div>
-    <span class="lc-stext">All systems operational</span>
-  </div>
-  <div class="lc-logo-row">
-    {_logo}
-    <div>
-      <div class="lc-wm-main">CYBERNOVA</div>
-      <div class="lc-wm-sub">BI PORTAL</div>
-    </div>
-  </div>
-  <div class="lc-heading">Sign in to your<br/>intelligence workspace</div>
-  <div class="lc-sub">Your role unlocks the right dashboard, charts, and decisions.</div>
-  <div class="lc-chips">
-    <span class="lc-chip g">{_ico_pulse} Live Pulse</span>
-    <span class="lc-chip c">{_ico_chart} Strategic Analytics</span>
-    <span class="lc-chip g">{_ico_role} Role-Based Access</span>
-  </div>
-  <div class="lc-div"></div>
-</div>""", unsafe_allow_html=True)
-
-        # ── ERROR (card sides maintained) ─────────────────────────────────────────
-        if st.session_state.get("login_error"):
+    _, shell_col, _ = st.columns([0.42, 5.7, 0.42])
+    with shell_col:
+        left_col, right_col = st.columns([0.82, 1.0], gap=None)
+        with left_col:
+            _visual = (
+                f'<img class="login-left-image" src="{_login_visual_src}" alt="CyberNova dashboard preview"/>'
+                if _login_visual_src else
+                '<div class="login-left-fallback">CyberNova BI<br/>Made Clear</div>'
+            )
             st.markdown(f"""
-<div class="lc-err-wrap">
-  <div class="lc-err">{_ico_lock_sm}<span>Invalid password for selected role.</span></div>
-</div>""", unsafe_allow_html=True)
-
-        # ── FORM (stForm CSS gives it matching card sides) ─────────────────────────
-        with st.form("login_form", clear_on_submit=False):
-            role = st.selectbox("Select your role", list(ROLE_PASSWORDS.keys()))
-            pwd  = st.text_input("Password", type="password", placeholder="Enter your password")
-            sub  = st.form_submit_button("Sign In to Dashboard  to", use_container_width=True)
-            if sub:
-                if ROLE_PASSWORDS.get(role, "") == pwd:
-                    st.session_state.authenticated    = True
-                    st.session_state.current_role     = role
-                    st.session_state.active_dashboard = allowed(role)[0]
-                    st.session_state.active_tab       = "Overview"
-                    st.session_state.login_error      = False
-                    st.query_params["role"] = role
-                    st.rerun()
-                else:
-                    st.session_state.login_error = True
-                    st.rerun()
-
-        # ── CARD BOTTOM ───────────────────────────────────────────────────────────
-        st.markdown(f"""
-<div class="lc-bot">
-  <div class="lc-note">
-    {_ico_lock}
-    <div class="lc-note-txt">
-      Prototype access layer only. Production would require secure authentication,
-      password hashing, audit logging, and full role-based access control.
-    </div>
-  </div>
-</div>""", unsafe_allow_html=True)
+<div class="login-left">
+  {_visual}
+</div>
+""", unsafe_allow_html=True)
+        with right_col:
+            _logo = logo_img(h=26) if LOGO_SRC else _ico_mark
+            st.markdown(f"""
+<div class="login-form-head">
+  <div class="login-logo-pill">{_logo}<span>CyberNova</span></div>
+  <div class="login-title">Login to Your Account</div>
+  <div class="login-subtitle">Select your portal role and enter your access password.</div>
+  {f'<div class="login-error">{_ico_lock_sm}<span>Invalid password for selected role.</span></div>' if st.session_state.get("login_error") else ''}
+</div>
+""", unsafe_allow_html=True)
+            with st.form("login_form", clear_on_submit=False):
+                role = st.selectbox("Role", list(ROLE_PASSWORDS.keys()))
+                pwd = st.text_input("Password", type="password", placeholder="Enter your password")
+                sub = st.form_submit_button("Log in", use_container_width=True)
+                if sub:
+                    if ROLE_PASSWORDS.get(role, "") == pwd:
+                        st.session_state.authenticated = True
+                        st.session_state.current_role = role
+                        st.session_state.active_dashboard = allowed(role)[0]
+                        st.session_state.active_tab = "Overview"
+                        st.session_state.login_error = False
+                        st.query_params["role"] = role
+                        st.rerun()
+                    else:
+                        st.session_state.login_error = True
+                        st.rerun()
+    return
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # HEADER
