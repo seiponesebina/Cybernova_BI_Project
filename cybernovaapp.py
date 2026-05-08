@@ -38,6 +38,7 @@ st.set_page_config(page_title="CyberNova BI Portal", layout="wide",
 
 ENRICH_PATH = str(_BASE / "data" / "output" / "cybernova_enriched_logs.csv")
 FAST_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.pkl"
+PARQUET_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.parquet"
 
 # ── LOGO ──────────────────────────────────────────────────────────────────────
 def _load_logo():
@@ -315,16 +316,21 @@ label,.stSelectbox label,.stTextInput label,.stDateInput label{color:var(--muted
         st.markdown(f"<style>{extra_css}</style>", unsafe_allow_html=True)
 
 # ── DATA ──────────────────────────────────────────────────────────────────────
-@st.cache_data(show_spinner=False)
-def load_data():
+@st.cache_resource(show_spinner=False)
+def _load_data_cached(csv_mtime, fast_cache_mtime):
     try:
         csv_path = pathlib.Path(ENRICH_PATH)
         cache_needs_write = False
-        if FAST_CACHE_PATH.exists() and FAST_CACHE_PATH.stat().st_mtime >= csv_path.stat().st_mtime:
+        parquet_needs_write = False
+        if PARQUET_CACHE_PATH.exists() and PARQUET_CACHE_PATH.stat().st_mtime >= csv_path.stat().st_mtime:
+            df = pd.read_parquet(PARQUET_CACHE_PATH)
+        elif FAST_CACHE_PATH.exists() and FAST_CACHE_PATH.stat().st_mtime >= csv_path.stat().st_mtime:
             df = pd.read_pickle(FAST_CACHE_PATH)
+            parquet_needs_write = True
         else:
             df = pd.read_csv(ENRICH_PATH, low_memory=False)
             cache_needs_write = True
+            parquet_needs_write = True
         if "timestamp" in df.columns and not pd.api.types.is_datetime64_any_dtype(df["timestamp"]):
             df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
         if "date" in df.columns and not pd.api.types.is_datetime64_any_dtype(df["date"]):
@@ -336,8 +342,23 @@ def load_data():
                 df.to_pickle(FAST_CACHE_PATH)
             except Exception:
                 pass
+        if parquet_needs_write:
+            try:
+                df.to_parquet(PARQUET_CACHE_PATH, index=False)
+            except Exception:
+                pass
         return df
     except Exception: return None
+
+
+def load_data():
+    csv_path = pathlib.Path(ENRICH_PATH)
+    csv_mtime = csv_path.stat().st_mtime if csv_path.exists() else 0
+    fast_cache_mtime = max(
+        FAST_CACHE_PATH.stat().st_mtime if FAST_CACHE_PATH.exists() else 0,
+        PARQUET_CACHE_PATH.stat().st_mtime if PARQUET_CACHE_PATH.exists() else 0,
+    )
+    return _load_data_cached(csv_mtime, fast_cache_mtime)
 
 def mock_data():
     np.random.seed(42); n=3000
@@ -1803,7 +1824,10 @@ def main():
             d_start = st.session_state.get("date_start")
             d_end = st.session_state.get("date_end")
             if d_start and d_end:
-                df_dates = pd.to_datetime(df[date_col], errors="coerce")
+                if pd.api.types.is_datetime64_any_dtype(df[date_col]):
+                    df_dates = df[date_col]
+                else:
+                    df_dates = pd.to_datetime(df[date_col], errors="coerce")
                 mask = (df_dates.dt.date >= d_start) & (df_dates.dt.date <= d_end)
                 df_date_filtered = df[mask]
                 if not df_date_filtered.empty:
@@ -1850,12 +1874,24 @@ def main():
         render_chips(df_f)
 
         dash = st.session_state.active_dashboard
-        t_ov, t_an, t_fc, t_de = st.tabs(["Overview","Analytics","Forecasting","Data & Export"])
-        with t_ov:
+        tab_options = ["Overview", "Analytics", "Forecasting", "Data & Export"]
+        active_tab = st.session_state.get("active_tab", "Overview")
+        if active_tab not in tab_options:
+            active_tab = "Overview"
+        selected_tab = st.radio(
+            "Dashboard section",
+            tab_options,
+            index=tab_options.index(active_tab),
+            horizontal=True,
+            label_visibility="collapsed",
+            key="active_tab",
+        )
+
+        if selected_tab == "Overview":
             if dash=="Sales":       render_sales_overview(df_f)
             elif dash=="Marketing": render_marketing_overview(df_f)
             else:                   render_executive_overview(df_f)
-        with t_an:
+        elif selected_tab == "Analytics":
             if dash=="Sales" and _SALES_VIEWS_OK:
                 render_sales_analytics(df_f)
             elif dash=="Marketing" and _MARKETING_VIEWS_OK:
@@ -1864,7 +1900,7 @@ def main():
                 render_executive_analytics(df_f)
             else:
                 render_analytics_tab(dash)
-        with t_fc:
+        elif selected_tab == "Forecasting":
             if dash=="Sales" and _SALES_VIEWS_OK:
                 render_sales_forecasting(df_f)
             elif dash=="Marketing" and _MARKETING_VIEWS_OK:
@@ -1873,7 +1909,7 @@ def main():
                 render_executive_forecasting(df_f)
             else:
                 render_forecasting_tab(dash)
-        with t_de:
+        else:
             d_start = st.session_state.get("date_start")
             d_end = st.session_state.get("date_end")
             if dash=="Sales" and _SALES_VIEWS_OK:

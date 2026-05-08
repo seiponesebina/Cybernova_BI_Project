@@ -337,6 +337,82 @@ th {
   box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.18) inset !important;
 }
 
+div[role="radiogroup"] {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  max-width: none;
+  padding: 0;
+  margin: 0 auto 7px;
+  background: rgba(7, 14, 22, 0.78);
+  border: 1px solid rgba(120, 255, 220, 0.16);
+  border-radius: 5px;
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.18);
+  min-height: 22px !important;
+  max-height: 26px !important;
+  align-items: center !important;
+  overflow: hidden;
+}
+
+div[role="radiogroup"] label {
+  flex: 1;
+  justify-content: center;
+  min-height: 20px !important;
+  max-height: 24px !important;
+  height: 22px !important;
+  border-radius: 4px;
+  margin: 0 !important;
+  padding: 0 14px !important;
+  font-family: "Inter", sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+  align-items: center !important;
+}
+
+div[role="radiogroup"] label > div:first-child {
+  display: none !important;
+}
+
+div[role="radiogroup"] label > div {
+  min-height: 0 !important;
+  height: 18px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  align-items: center !important;
+}
+
+div[role="radiogroup"] label [data-testid="stMarkdownContainer"] {
+  min-height: 0 !important;
+  height: 16px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+div[role="radiogroup"] label p {
+  font-family: "Inter", sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 750 !important;
+  letter-spacing: 0 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  color: rgba(226, 232, 240, 0.72) !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+}
+
+div[role="radiogroup"] label:has(input:checked) {
+  background: rgba(45, 212, 191, 0.10);
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.18) inset;
+}
+
+div[role="radiogroup"] label:has(input:checked) p {
+  color: #FFFFFF !important;
+}
+
 div[data-testid="stDownloadButton"] > button,
 .stDownloadButton > button {
   background: linear-gradient(180deg, #202A33 0%, #151C24 100%) !important;
@@ -659,7 +735,7 @@ div[data-testid="stDownloadButton"] > button:active,
 }
 
 .js-plotly-plot .plotly .modebar {
-  opacity: 1;
+  opacity: 0;
   transition: opacity 160ms ease;
 }
 
