@@ -1,0 +1,61 @@
+Implement a simulated live replay feature for the CyberNova Streamlit dashboard.
+
+Do not replace the existing historical dataset. Add a separate live stream queue dataset and progressively reveal rows from it during dashboard runtime.
+
+Requirements:
+
+1. Create or support a file called data/live_stream_queue.csv
+- It should contain about 30,000 synthetic IIS-style log rows.
+- The rows should cover the next 14 days from the project demo date.
+- It must use the same columns as the main enriched CyberNova dataset where possible.
+- Include timestamp, date, time, ip_address, method, uri, status_code, user_agent, country, service, segment, is_bot, is_warm_lead, campaign, opportunity_value, response_time_ms, bytes_sent, and funnel_stage where available.
+
+2. Add Live Replay Mode to the dashboard
+- Add a toggle called “Live replay mode”.
+- When off, the dashboard uses only the historical dataset.
+- When on, the dashboard combines the historical dataset with the currently released live rows.
+
+3. Progressive row release
+- Use Streamlit session_state to track how many live rows have been released.
+- Every refresh, add the next batch of live rows from live_stream_queue.csv.
+- Use a safe default batch size, e.g. 50 to 200 rows per refresh.
+- Add replay speed options: Slow, Normal, Fast.
+- Do not require the user to wait two weeks. This is a simulated replay.
+
+4. Auto refresh
+- Refresh the dashboard every 3 to 5 seconds while live replay mode is active.
+- If streamlit_autorefresh is available, use it.
+- If not available, implement a safe fallback that does not crash.
+
+5. Dashboard recalculation
+- All KPIs, charts, filters, warm lead counts, service demand charts, country rankings, and executive summaries must use the combined dataframe when Live Replay Mode is active.
+- Existing filters must still work.
+
+6. Add a Live Feed Evidence Panel
+Show:
+- Live mode status
+- New rows added this session
+- Total rows currently visible
+- Last log timestamp
+- Last URI
+- Last country
+- Last status code
+- Replay speed
+
+7. Add a visible label
+Use this wording:
+“Simulated live replay using synthetic IIS logs”
+
+8. Defensive coding
+- Do not crash if live_stream_queue.csv is missing.
+- If missing, show a warning: “Live stream queue not found. Generate live data first.”
+- Do not duplicate large code blocks.
+- Reuse existing loading and filtering functions.
+- Keep the app deployable on Streamlit Community Cloud.
+
+Acceptance criteria:
+- The dashboard can run normally without live replay.
+- When live replay is enabled, new rows appear gradually.
+- KPIs update as live rows are released.
+- A screenshot can prove live rows processed, last refresh time, and changing metrics.
+- The feature is clearly labelled as simulated live replay using synthetic data.

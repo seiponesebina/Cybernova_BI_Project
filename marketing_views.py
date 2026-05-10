@@ -115,6 +115,140 @@ def inject_marketing_css():
   border-radius:14px; padding:14px 16px; margin-bottom:8px;
   transition:border-color .2s, transform .15s; cursor:pointer; }
 .mkt-export-card:hover { border-color:rgba(34,211,238,0.4); transform:translateY(-1px); }
+.st-key-marketing_analytics_scope div[data-testid="element-container"],
+.st-key-marketing_forecasting_scope div[data-testid="element-container"],
+.st-key-marketing_data_scope div[data-testid="element-container"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-marketing_analytics_scope div[data-testid="stVerticalBlock"],
+.st-key-marketing_forecasting_scope div[data-testid="stVerticalBlock"],
+.st-key-marketing_data_scope div[data-testid="stVerticalBlock"] {
+  gap: 14px !important;
+}
+.st-key-marketing_analytics_scope div[data-testid="stColumn"],
+.st-key-marketing_forecasting_scope div[data-testid="stColumn"],
+.st-key-marketing_data_scope div[data-testid="stColumn"] {
+  min-width: 0 !important;
+}
+.st-key-marketing_analytics_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-marketing_forecasting_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-marketing_data_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-marketing_analytics_scope .cn-card,
+.st-key-marketing_forecasting_scope .cn-card,
+.st-key-marketing_data_scope .cn-card,
+.st-key-marketing_analytics_scope .kpi-card,
+.st-key-marketing_forecasting_scope .kpi-card,
+.st-key-marketing_data_scope .kpi-card,
+.st-key-marketing_data_scope .mkt-export-card {
+  width: 100%;
+  min-width: 0;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  overflow: visible;
+  box-sizing: border-box;
+  position: relative;
+  transition: border-color .2s, box-shadow .2s, transform .15s;
+}
+.st-key-marketing_analytics_scope .sec-label,
+.st-key-marketing_forecasting_scope .sec-label,
+.st-key-marketing_data_scope .sec-label {
+  min-height: 22px;
+  line-height: 1.25;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.st-key-marketing_analytics_scope .cn-card:hover,
+.st-key-marketing_forecasting_scope .cn-card:hover,
+.st-key-marketing_data_scope .cn-card:hover,
+.st-key-marketing_forecasting_scope .kpi-card:hover {
+  border-color: rgba(20,184,166,0.58) !important;
+  box-shadow: 0 0 30px rgba(20,184,166,0.18), 0 0 16px rgba(34,211,238,0.10), 0 2px 20px rgba(0,0,0,0.50) !important;
+  transform: translateY(-1px);
+}
+.st-key-marketing_analytics_scope .cn-card::after,
+.st-key-marketing_forecasting_scope .cn-card::after,
+.st-key-marketing_forecasting_scope .kpi-card::after {
+  display: none;
+  position: absolute;
+  z-index: 30;
+  left: 12px;
+  right: 12px;
+  top: calc(100% + 7px);
+  padding: 9px 10px;
+  border-radius: 10px;
+  background: rgba(4,9,15,.98);
+  border: 1px solid rgba(20,184,166,.38);
+  box-shadow: 0 14px 30px rgba(0,0,0,.42), 0 0 20px rgba(20,184,166,.15);
+  color: #DDE7EE;
+  font-size: 10.5px;
+  line-height: 1.35;
+  font-weight: 650;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.st-key-marketing_analytics_scope .cn-card::after {
+  content: "Insight: use this view to diagnose campaign behavior behind the overview recommendation.";
+}
+.st-key-marketing_forecasting_scope .cn-card::after,
+.st-key-marketing_forecasting_scope .kpi-card::after {
+  content: "Model note: this is a rule-based directional forecast using filtered activity and scenario assumptions. It is not predictive AI.";
+}
+.st-key-marketing_analytics_scope .cn-card:hover::after,
+.st-key-marketing_forecasting_scope .cn-card:hover::after,
+.st-key-marketing_forecasting_scope .kpi-card:hover::after {
+  display: block;
+}
+.st-key-marketing_analytics_scope div[data-testid="stPlotlyChart"],
+.st-key-marketing_forecasting_scope div[data-testid="stPlotlyChart"],
+.st-key-marketing_data_scope div[data-testid="stPlotlyChart"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  margin-bottom: 6px !important;
+}
+.st-key-marketing_analytics_scope .js-plotly-plot,
+.st-key-marketing_forecasting_scope .js-plotly-plot,
+.st-key-marketing_data_scope .js-plotly-plot {
+  max-width: 100% !important;
+}
+.st-key-marketing_analytics_scope [data-testid="stMarkdownContainer"],
+.st-key-marketing_forecasting_scope [data-testid="stMarkdownContainer"],
+.st-key-marketing_data_scope [data-testid="stMarkdownContainer"] {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+.st-key-marketing_analytics_scope table,
+.st-key-marketing_forecasting_scope table,
+.st-key-marketing_data_scope table {
+  width: 100%;
+  table-layout: fixed;
+}
+.st-key-marketing_analytics_scope th,
+.st-key-marketing_analytics_scope td,
+.st-key-marketing_forecasting_scope th,
+.st-key-marketing_forecasting_scope td,
+.st-key-marketing_data_scope th,
+.st-key-marketing_data_scope td {
+  white-space: normal !important;
+  overflow-wrap: anywhere !important;
+}
+.st-key-marketing_data_scope div[data-testid="stDataFrame"],
+.st-key-marketing_data_scope div[data-testid="stDataFrameResizable"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+}
+.st-key-marketing_data_scope .stDownloadButton button {
+  white-space: normal !important;
+  min-height: 42px;
+  height: auto;
+  line-height: 1.25;
+  padding: 10px 12px;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -124,7 +258,7 @@ def _cl(fig, h=210):
     """Apply consistent dark chart layout."""
     fig.update_layout(
         height=h,
-        margin=dict(l=50, r=24, t=18, b=58),
+        margin=dict(l=50, r=26, t=24, b=70),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(8,17,24,0.44)",
         font=dict(color="#CBD5E1", size=11, family="Inter"),
@@ -154,7 +288,7 @@ def _cl(fig, h=210):
             borderwidth=1,
             font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.30,
+            y=-0.24,
             x=0,
         ),
     )
@@ -541,7 +675,11 @@ def _sadc_reach_map():
         ),
     )
 
-    _card_open("SADC Campaign Reach Map")
+    _card_open("Campaign Hotzones Map")
+    st.markdown(
+        '<div style="font-size:11px;color:#6B7FA3;margin:-2px 0 8px;">Use this map to explore where marketing activity is coming from.</div>',
+        unsafe_allow_html=True,
+    )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
 
     # Ranking table below map
@@ -626,28 +764,29 @@ def render_marketing_analytics(df):
     if df is None:
         df = _mock_df()
 
-    # Row 1 - 2 columns
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _audience_segments_over_time(df)
-    with c2:
-        _country_engagement_breakdown()
+    with st.container(key="marketing_analytics_scope"):
+        # Row 1 - 2 columns
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _audience_segments_over_time(df)
+        with c2:
+            _country_engagement_breakdown()
 
-    # Row 2 - full width landing page table
-    _landing_page_performance()
+        # Row 2 - full width landing page table
+        _landing_page_performance()
 
-    # Row 3 - 2 columns
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _service_promotion_gap()
-    with c2:
-        _channel_source_quality()
+        # Row 3 - 2 columns
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _service_promotion_gap()
+        with c2:
+            _channel_source_quality()
 
-    # Row 4 - full width map + ranking
-    _sadc_reach_map()
+        # Row 4 - full width map + ranking
+        _sadc_reach_map()
 
-    # Row 5 - full width insight assistant
-    _marketing_insight_assistant()
+        # Row 5 - full width insight assistant
+        _marketing_insight_assistant()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -952,29 +1091,30 @@ def render_marketing_forecasting(df):
     if df is None:
         df = _mock_df()
 
-    # KPI row
-    _forecast_kpis()
-    st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
+    with st.container(key="marketing_forecasting_scope"):
+        # KPI row
+        _forecast_kpis()
+        st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
-    # Row 1
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _audience_growth_forecast()
-    with c2:
-        _engaged_sessions_forecast()
+        # Row 1
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _audience_growth_forecast()
+        with c2:
+            _engaged_sessions_forecast()
 
-    # Row 2
-    _campaign_whatif()
+        # Row 2
+        _campaign_whatif()
 
-    # Row 3
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _campaign_target_tracker()
-    with c2:
-        _campaign_recommendations()
+        # Row 3
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _campaign_target_tracker()
+        with c2:
+            _campaign_recommendations()
 
-    # Row 4
-    _marketing_alerts()
+        # Row 4
+        _marketing_alerts()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1466,24 +1606,26 @@ def render_marketing_data(df, date_start=None, date_end=None):
     if df is None:
         df = _mock_df()
 
-    # Row 1 - Campaign opportunity table
-    _campaign_opportunity_table()
-
-    # Row 2 - Filtered audience data
-    _filtered_audience_data(df, date_start=date_start, date_end=date_end)
-
-    # Row 3 - Evidence snapshot + Export center
-    c1, c2, c3 = st.columns([1, 1, 1.6], gap="small")
-    with c1:
-        _evidence_snapshot(df)
-    with c2:
-        _marketing_summary_statistics(df)
-    with c3:
+    with st.container(key="marketing_data_scope"):
+        # Row 1 - Export center
         _export_center(df)
 
-    # Row 4 - Data quality + Methodology
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _data_quality_summary()
-    with c2:
-        _methodology_note()
+        # Row 2 - Campaign opportunity table
+        _campaign_opportunity_table()
+
+        # Row 3 - Filtered audience data
+        _filtered_audience_data(df, date_start=date_start, date_end=date_end)
+
+        # Row 4 - Evidence snapshot + summary statistics
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _evidence_snapshot(df)
+        with c2:
+            _marketing_summary_statistics(df)
+
+        # Row 5 - Data quality + Methodology
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _data_quality_summary()
+        with c2:
+            _methodology_note()

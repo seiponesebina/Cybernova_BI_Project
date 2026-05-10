@@ -42,7 +42,7 @@ def _cl(fig, h=210):
     """Apply consistent dark Executive chart layout."""
     fig.update_layout(
         height=h,
-        margin=dict(l=50, r=24, t=18, b=58),
+        margin=dict(l=50, r=26, t=24, b=70),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(8,17,24,0.44)",
         font=dict(color="#CBD5E1", size=11, family="Inter"),
@@ -78,7 +78,7 @@ def _cl(fig, h=210):
             borderwidth=1,
             font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.30,
+            y=-0.24,
             x=0,
         ),
     )
@@ -275,6 +275,83 @@ def inject_executive_css():
   padding: 16px 18px;
   margin-bottom: 8px;
   backdrop-filter: blur(12px);
+}
+.st-key-executive_analytics_scope div[data-testid="element-container"],
+.st-key-executive_forecasting_scope div[data-testid="element-container"],
+.st-key-executive_data_scope div[data-testid="element-container"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-executive_analytics_scope div[data-testid="stVerticalBlock"],
+.st-key-executive_forecasting_scope div[data-testid="stVerticalBlock"],
+.st-key-executive_data_scope div[data-testid="stVerticalBlock"] {
+  gap: 12px !important;
+}
+.st-key-executive_analytics_scope div[data-testid="stColumn"],
+.st-key-executive_forecasting_scope div[data-testid="stColumn"],
+.st-key-executive_data_scope div[data-testid="stColumn"] {
+  min-width: 0 !important;
+}
+.st-key-executive_analytics_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-executive_forecasting_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-executive_data_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-executive_analytics_scope .cn-card,
+.st-key-executive_forecasting_scope .cn-card,
+.st-key-executive_data_scope .cn-card,
+.st-key-executive_forecasting_scope .exec-kpi-card,
+.st-key-executive_analytics_scope .signal-metric-card,
+.st-key-executive_forecasting_scope .scenario-card,
+.st-key-executive_data_scope .exec-insight-card {
+  width: 100%;
+  min-width: 0;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  overflow: visible;
+  box-sizing: border-box;
+}
+.st-key-executive_analytics_scope div[data-testid="stPlotlyChart"],
+.st-key-executive_forecasting_scope div[data-testid="stPlotlyChart"],
+.st-key-executive_data_scope div[data-testid="stPlotlyChart"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.st-key-executive_analytics_scope .js-plotly-plot,
+.st-key-executive_forecasting_scope .js-plotly-plot,
+.st-key-executive_data_scope .js-plotly-plot {
+  max-width: 100% !important;
+}
+.st-key-executive_analytics_scope [data-testid="stMarkdownContainer"],
+.st-key-executive_forecasting_scope [data-testid="stMarkdownContainer"],
+.st-key-executive_data_scope [data-testid="stMarkdownContainer"] {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+.st-key-executive_analytics_scope .exec-table,
+.st-key-executive_forecasting_scope .exec-table,
+.st-key-executive_data_scope .exec-table {
+  min-width: 720px;
+}
+.st-key-executive_analytics_scope .cn-card:has(.exec-table),
+.st-key-executive_forecasting_scope .cn-card:has(.exec-table),
+.st-key-executive_data_scope .cn-card:has(.exec-table) {
+  overflow-x: auto;
+}
+.st-key-executive_data_scope div[data-testid="stDataFrame"],
+.st-key-executive_data_scope div[data-testid="stDataFrameResizable"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow-x: auto !important;
+}
+.st-key-executive_data_scope .stDownloadButton button {
+  white-space: normal !important;
+  min-height: 42px;
+  height: auto;
+  line-height: 1.25;
+  padding: 10px 12px;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -568,26 +645,27 @@ def render_executive_analytics(df):
     """Render Executive Analytics tab - 6 cards."""
     inject_executive_css()
 
-    # Card 1: Regional Target Table - full width
-    _regional_target_table()
+    with st.container(key="executive_analytics_scope"):
+        # Card 1: Regional Target Table - full width
+        _regional_target_table()
 
-    # Cards 2 + 3: 2 columns
-    c1, c2 = st.columns(2, gap="small")
-    with c1:
-        _market_contribution_chart()
-    with c2:
-        _ai_by_market_chart()
+        # Cards 2 + 3: 2 columns
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _market_contribution_chart()
+        with c2:
+            _ai_by_market_chart()
 
-    # Card 4: Risk / Anomaly Trend - full width
-    _risk_anomaly_trend()
+        # Card 4: Risk / Anomaly Trend - full width
+        _risk_anomaly_trend()
 
-    # Card 5: Strategic Signals - 5 cols
-    _card_open("Strategic Signals Breakdown")
-    _strategic_signals_grid()
-    _card_close()
+        # Card 5: Strategic Signals - 5 cols
+        _card_open("Strategic Signals Breakdown")
+        _strategic_signals_grid()
+        _card_close()
 
-    # Card 6: Executive Insight Assistant - full width
-    _exec_insight_assistant()
+        # Card 6: Executive Insight Assistant - full width
+        _exec_insight_assistant()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -929,31 +1007,32 @@ def render_executive_forecasting(df):
     """Render Executive Forecasting tab - 8 items."""
     inject_executive_css()
 
-    # Item 1: KPI row
-    _forecast_kpi_row()
-    st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
+    with st.container(key="executive_forecasting_scope"):
+        # Item 1: KPI row
+        _forecast_kpi_row()
+        st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
-    # Item 2: 90-day forecast chart - full width
-    _forecast_90d_chart()
+        # Item 2: 90-day forecast chart - full width
+        _forecast_90d_chart()
 
-    # Item 3: Regional Expansion Forecast table - full width
-    _regional_expansion_forecast()
+        # Item 3: Regional Expansion Forecast table - full width
+        _regional_expansion_forecast()
 
-    # Item 4 + 5: AI Traction Forecast and Forecast vs Target (2 rows together)
-    _ai_traction_forecast_chart()
-    _forecast_vs_target_area()
+        # Item 4 + 5: AI Traction Forecast and Forecast vs Target
+        _ai_traction_forecast_chart()
+        _forecast_vs_target_area()
 
-    # Item 6 + 7 in a row
-    c1, c2 = st.columns([1, 1.5], gap="small")
-    with c1:
-        _risk_anomaly_gauge()
-    with c2:
-        _investment_recommendation()
+        # Item 6 + 7 in a row
+        c1, c2 = st.columns([1, 1.5], gap="medium")
+        with c1:
+            _risk_anomaly_gauge()
+        with c2:
+            _investment_recommendation()
 
-    # Item 8: Scenario cards
-    _card_open("Scenario Planning")
-    _scenario_cards()
-    _card_close()
+        # Item 8: Scenario cards
+        _card_open("Scenario Planning")
+        _scenario_cards()
+        _card_close()
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1432,27 +1511,28 @@ def render_executive_data(df, date_start=None, date_end=None):
     """Render Executive Data and Export tab."""
     inject_executive_css()
 
-    # Item 1: Decision Brief
-    _decision_brief()
-
-    # Item 2: Regional Priority Table
-    _regional_priority_table()
-
-    # Item 3: Risk Evidence Table
-    _risk_evidence_table()
-
-    # Item 4: Filtered Strategic Data
-    _filtered_strategic_data(df, date_start, date_end)
-
-    # Item 5: Summary statistics + Export Center
-    c1, c2 = st.columns([0.85, 1.35], gap="small")
-    with c1:
-        _executive_summary_statistics(df)
-    with c2:
+    with st.container(key="executive_data_scope"):
+        # Item 1: Export Center
         _export_center(df)
 
-    # Item 6: Data Quality Summary
-    _data_quality_summary()
+        # Item 2: Decision Brief
+        _decision_brief()
 
-    # Item 7: Methodology Note
-    _methodology_note()
+        # Item 3: Regional Priority Table
+        _regional_priority_table()
+
+        # Item 4: Risk Evidence Table
+        _risk_evidence_table()
+
+        # Item 5: Filtered Strategic Data
+        _filtered_strategic_data(df, date_start, date_end)
+
+        # Item 6: Summary statistics
+        _executive_summary_statistics(df)
+
+        # Item 7 + 8: Data Quality Summary + Methodology Note
+        c1, c2 = st.columns(2, gap="medium")
+        with c1:
+            _data_quality_summary()
+        with c2:
+            _methodology_note()

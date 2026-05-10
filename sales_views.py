@@ -84,7 +84,7 @@ def inject_sales_css():
   -webkit-backdrop-filter: blur(12px);
   transition: transform .22s, border-color .22s, box-shadow .22s;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .cyber-card::before {
   content: '';
@@ -118,6 +118,8 @@ def inject_sales_css():
   display: flex;
   align-items: center;
   gap: 6px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 /* ── KPI grid ────────────────────────────────────────────────────────────── */
 .kpi-grid {
@@ -264,6 +266,8 @@ def inject_sales_css():
   margin-bottom: 8px;
   cursor: pointer;
   transition: border-color .2s, transform .15s;
+  min-width: 0;
+  overflow: hidden;
 }
 .export-btn-card:hover {
   border-color: rgba(0,255,209,0.45);
@@ -312,6 +316,105 @@ def inject_sales_css():
   background: rgba(255,216,74,0.05);
   border-color: rgba(255,216,74,0.2);
 }
+/* Sales tab layout safety: override global app height/stretch rules inside these tabs. */
+.st-key-sales_analytics_scope div[data-testid="element-container"],
+.st-key-sales_forecasting_scope div[data-testid="element-container"],
+.st-key-sales_data_scope div[data-testid="element-container"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-sales_analytics_scope div[data-testid="stVerticalBlock"],
+.st-key-sales_forecasting_scope div[data-testid="stVerticalBlock"],
+.st-key-sales_data_scope div[data-testid="stVerticalBlock"] {
+  gap: 12px !important;
+}
+.st-key-sales_analytics_scope div[data-testid="stColumn"],
+.st-key-sales_forecasting_scope div[data-testid="stColumn"],
+.st-key-sales_data_scope div[data-testid="stColumn"] {
+  min-width: 0 !important;
+}
+.st-key-sales_analytics_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-sales_forecasting_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"],
+.st-key-sales_data_scope div[data-testid="stColumn"] > div[data-testid="stVerticalBlock"] {
+  height: auto !important;
+  min-height: 0 !important;
+}
+.st-key-sales_analytics_scope .cyber-card,
+.st-key-sales_forecasting_scope .cyber-card,
+.st-key-sales_data_scope .cyber-card {
+  width: 100%;
+  min-width: 0;
+  padding: 16px 18px;
+  margin-bottom: 12px;
+  overflow: visible;
+}
+.st-key-sales_analytics_scope div[data-testid="stPlotlyChart"],
+.st-key-sales_forecasting_scope div[data-testid="stPlotlyChart"],
+.st-key-sales_data_scope div[data-testid="stPlotlyChart"] {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+.st-key-sales_analytics_scope .js-plotly-plot,
+.st-key-sales_forecasting_scope .js-plotly-plot,
+.st-key-sales_data_scope .js-plotly-plot {
+  max-width: 100% !important;
+}
+.st-key-sales_data_scope .stDownloadButton button {
+  white-space: normal !important;
+  min-height: 42px;
+  line-height: 1.2 !important;
+  padding: 8px 10px !important;
+}
+.st-key-sales_analytics_scope [data-testid="stMarkdownContainer"],
+.st-key-sales_forecasting_scope [data-testid="stMarkdownContainer"],
+.st-key-sales_data_scope [data-testid="stMarkdownContainer"] {
+  min-width: 0 !important;
+  overflow-wrap: anywhere;
+}
+.st-key-sales_forecasting_scope .sv-kpi-card {
+  min-height: 104px;
+  padding: 12px 13px;
+}
+.st-key-sales_forecasting_scope .kpi-value {
+  font-size: 1.38rem;
+}
+.st-key-sales_forecasting_scope .forecast-signal-card,
+.st-key-sales_forecasting_scope .alert-item,
+.st-key-sales_data_scope .export-btn-card,
+.st-key-sales_data_scope .quality-bar-row {
+  max-width: 100%;
+  min-width: 0;
+}
+.st-key-sales_forecasting_scope div[role="slider"],
+.st-key-sales_forecasting_scope .stSlider {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.st-key-sales_analytics_scope table,
+.st-key-sales_data_scope table {
+  table-layout: fixed;
+  width: 100%;
+}
+.st-key-sales_data_scope .dataframe,
+.st-key-sales_data_scope div[data-testid="stDataFrame"] {
+  max-width: 100% !important;
+  overflow: auto !important;
+}
+@media (max-width: 1100px) {
+  .st-key-sales_analytics_scope .cyber-card,
+  .st-key-sales_forecasting_scope .cyber-card,
+  .st-key-sales_data_scope .cyber-card {
+    padding: 12px 13px;
+  }
+  .sv-kpi-card {
+    min-height: 112px;
+    padding: 13px 14px;
+  }
+  .kpi-value {
+    font-size: 1.45rem;
+  }
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -323,7 +426,7 @@ def _chart_layout(fig, h=210):
     """Apply consistent dark chart layout."""
     fig.update_layout(
         height=h,
-        margin=dict(l=50, r=24, t=18, b=58),
+        margin=dict(l=50, r=26, t=24, b=70),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(8,17,24,0.44)",
         font=dict(color="#CBD5E1", size=11, family="Inter"),
@@ -353,7 +456,7 @@ def _chart_layout(fig, h=210):
             borderwidth=1,
             font=dict(color="#CBD5E1", size=10, family="Inter"),
             orientation="h",
-            y=-0.30,
+            y=-0.24,
             x=0,
         ),
     )
@@ -841,7 +944,12 @@ def _mini_hotzones_map():
                     borderwidth=1, font=dict(color="#F8FAFC", size=9), orientation="v", x=0.01, y=0.98),
     )
 
-    _card_start("Sales Hotzones Map", "map")
+    _card_start("Regional Opportunity Map", "map")
+    st.markdown(
+        '<div style="font-size:10px;color:#8A98A6;margin-bottom:6px;">'
+        'Use this map to explore where potential customers are coming from.</div>',
+        unsafe_allow_html=True,
+    )
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     _card_end()
 
@@ -1008,24 +1116,25 @@ def _conversion_by_stage():
 def render_sales_analytics(df):
     inject_sales_css()
 
-    # Row 1
-    c1, c2, c3, c4 = st.columns(4, gap="small")
-    with c1: _funnel_by_market()
-    with c2: _funnel_by_service()
-    with c3: _repeat_visitor_conv()
-    with c4: _segment_quality_bubble()
+    with st.container(key="sales_analytics_scope"):
+        c1, c2 = st.columns(2, gap="medium")
+        with c1: _funnel_by_market()
+        with c2: _funnel_by_service()
 
-    # Row 2
-    c1, c2, c3 = st.columns([1.3, 1, 1], gap="small")
-    with c1: _sales_insight_assistant()
-    with c2: _mini_hotzones_map()
-    with c3: _top_service_demand()
+        c1, c2 = st.columns(2, gap="medium")
+        with c1: _repeat_visitor_conv()
+        with c2: _segment_quality_bubble()
 
-    # Row 3
-    c1, c2, c3 = st.columns([1.3, 1, 1], gap="small")
-    with c1: _customers_by_country()
-    with c2: _demo_intent_heatmap()
-    with c3: _conversion_by_stage()
+        c1, c2 = st.columns([1.15, 1], gap="medium")
+        with c1: _sales_insight_assistant()
+        with c2: _mini_hotzones_map()
+
+        c1, c2, c3 = st.columns([1.05, 1, 1], gap="medium")
+        with c1: _top_service_demand()
+        with c2: _demo_intent_heatmap()
+        with c3: _conversion_by_stage()
+
+        _customers_by_country()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1207,7 +1316,7 @@ def _whatif_analysis():
         ("High",    30,  "rgba(124,255,79,0.08)",   "rgba(124,255,79,0.25)",  _GREEN),
     ]
 
-    cols = st.columns(3)
+    cols = st.columns(3, gap="small")
     for col, (label, pct, bg, border, color) in zip(cols, scenarios):
         demos  = int(total_visitors * pct / 100)
         convs  = int(demos * conv_rate_won)
@@ -1218,14 +1327,14 @@ def _whatif_analysis():
         with col:
             st.markdown(
                 f'<div style="background:{bg};border:1px solid {border};border-radius:12px;'
-                f'padding:14px;margin-bottom:8px;">'
+                f'padding:10px 11px;margin-bottom:8px;min-width:0;overflow:hidden;">'
                 f'<div style="font-size:10px;font-weight:700;color:{color};text-transform:uppercase;'
                 f'letter-spacing:.1em;margin-bottom:8px;">{label} ({pct}%)</div>'
-                f'<div style="font-size:13px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">'
+                f'<div style="font-size:12px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">'
                 f'Demos: {demos:,}</div>'
-                f'<div style="font-size:13px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">'
+                f'<div style="font-size:12px;font-weight:700;color:#F8FAFC;margin-bottom:4px;">'
                 f'Conversions: {convs}</div>'
-                f'<div style="font-size:14px;font-weight:800;color:{color};margin-bottom:4px;">'
+                f'<div style="font-size:13px;font-weight:800;color:{color};margin-bottom:4px;">'
                 f'Revenue: P{rev:.2f}M</div>'
                 f'<div style="font-size:10px;color:{gap_c};">Gap to Target: {gap_s}</div>'
                 f'</div>',
@@ -1408,27 +1517,27 @@ def _alert_center_risk():
 def render_sales_forecasting(df):
     inject_sales_css()
 
-    # Forecast KPI row
-    _forecast_kpis()
-    st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
+    with st.container(key="sales_forecasting_scope"):
+        _forecast_kpis()
+        st.markdown("<div style='height:6px;'></div>", unsafe_allow_html=True)
 
-    # Row 1
-    c1, c2, c3 = st.columns(3, gap="small")
-    with c1: _customer_forecast_30d()
-    with c2: _demo_request_forecast()
-    with c3: _forecast_vs_target()
+        c1, c2 = st.columns(2, gap="medium")
+        with c1: _customer_forecast_30d()
+        with c2: _demo_request_forecast()
 
-    # Row 2
-    c1, c2, c3 = st.columns([1.4, 1, 0.8], gap="small")
-    with c1: _whatif_analysis()
-    with c2: _readiness_checklist()
-    with c3: _forecast_confidence_gauge()
+        _whatif_analysis()
 
-    # Row 3
-    c1, c2, c3 = st.columns(3, gap="small")
-    with c1: _market_outlook()
-    with c2: _forecast_signals()
-    with c3: _alert_center_risk()
+        c1, c2 = st.columns([1.05, 1], gap="medium")
+        with c1: _forecast_vs_target()
+        with c2: _forecast_confidence_gauge()
+
+        c1, c2 = st.columns([1, 1], gap="medium")
+        with c1: _readiness_checklist()
+        with c2: _forecast_signals()
+
+        c1, c2 = st.columns([1, 1], gap="medium")
+        with c1: _market_outlook()
+        with c2: _alert_center_risk()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -1979,24 +2088,24 @@ def _export_center(df):
 def render_sales_data(df):
     inject_sales_css()
 
-    # Row 1
-    c1, c2, c3 = st.columns([0.9, 1.5, 0.9], gap="small")
-    with c1: _action_queue()
-    with c2: _customers_table()
-    with c3: _evidence_snapshot()
+    with st.container(key="sales_data_scope"):
+        _export_center(df)
 
-    # Row 2
-    c1, c2 = st.columns([0.85, 1.65], gap="small")
-    with c1: _sales_summary_statistics(df)
-    with c2: _export_center(df)
+        c1, c2 = st.columns([1.1, 1.55], gap="medium")
+        with c1:
+            _action_queue()
+            _evidence_snapshot()
+        with c2:
+            _customers_table()
 
-    # Row 3
-    c1, c2 = st.columns(2, gap="small")
-    with c1: _data_quality_summary()
-    with c2: _methodology()
+        c1, c2 = st.columns([1, 1.25], gap="medium")
+        with c1: _sales_summary_statistics(df)
+        with c2: _data_quality_summary()
 
-    # Row 4
-    c1, c2, c3 = st.columns(3, gap="small")
-    with c1: _revenue_by_region()
-    with c2: _new_customers_trend()
-    with c3: _top_customers_revenue()
+        c1, c2 = st.columns([1, 1], gap="medium")
+        with c1: _methodology()
+        with c2: _revenue_by_region()
+
+        c1, c2 = st.columns([1, 1.12], gap="medium")
+        with c1: _new_customers_trend()
+        with c2: _top_customers_revenue()

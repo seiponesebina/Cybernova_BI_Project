@@ -1,0 +1,239 @@
+Refine the CyberNova Reach / Marketing dashboard ONLY.
+
+Do not rebuild the full app. Do not change the Sales or Executive dashboards unless a shared helper component needs a safe style fix. Keep the current dark CyberNova theme, top header, role selector, status badges, filter chips, tabs, and existing data pipeline.
+
+Goal:
+Make the Marketing dashboard answer this question immediately:
+“What campaign action should marketing take right now?”
+
+Current problem:
+The Marketing Overview still feels too exploratory. The map dominates the page, the filter drawer consumes too much space, the bubble chart is unreadable, the funnel lacks drop-off percentages, and the heatmap is too small to be useful. The page should feel like a campaign decision dashboard, not a map/reporting screen.
+
+Implement the following changes carefully.
+
+1. Close or hide the filter drawer by default
+- The right-side filter drawer must NOT be open by default.
+- The “Filters” button should open it as a slide-over, drawer, modal, or collapsible panel.
+- When closed, the dashboard should use the full available width.
+- Do not remove existing filters.
+- Do not break existing filter state.
+- The drawer should have a clear Close button.
+
+2. Reorder and rename the Marketing KPI cards
+Replace the current KPI order with this order:
+
+Card 1:
+Title: Meaningful Actions Taken Today
+Value: existing engagement rate, currently around 55.7%
+Subtext: “Visitors did something valuable”
+Use this as the most important KPI.
+
+Card 2:
+Title: Audience Quality Score
+Value: existing quality score, currently around 91%
+Subtext: “How relevant our traffic is”
+
+Card 3:
+Title: Best Market to Target Now
+Value: existing best campaign market, currently Botswana
+Subtext: “Highest current campaign opportunity”
+
+Card 4:
+Title: Visitors Today
+Value: existing engaged visitors count, currently around 59
+Subtext: use existing comparison. If the drop is negative, explain plainly, e.g. “today vs yesterday” or “lower than yesterday”
+
+Card 5:
+Title: Best Entry Page
+Value: existing best landing page, currently General Website
+Subtext: “Where visitors start most often”
+
+Make all KPI cards equal height, aligned, responsive, and readable. The first KPI should have slightly stronger visual emphasis.
+
+3. Add a top “Campaign Insight” card
+Directly below the KPI cards, add one full-width insight card.
+
+Title:
+Campaign Insight
+
+The card should generate one plain-English recommendation from existing data.
+
+Examples of acceptable output:
+- “Cybersecurity is converting well but has lower visit share — promote it more this week.”
+- “Botswana has the strongest engagement right now — prioritise campaigns there.”
+- “Most visitors enter through the general website — guide them faster to service pages.”
+
+Do not hard-code only one sentence if the data supports dynamic logic. Use simple rule-based logic from available metrics. If the required data is missing, show a safe fallback:
+“Campaign activity is being monitored. No strong recommendation available yet.”
+
+4. Replace the large map on the Marketing Overview
+Remove the large “Campaign Hotzones” map from the Overview tab.
+
+Replace it with a ranked country table titled:
+Market Priority Table
+
+Columns:
+- Country
+- Visitors
+- Engagement Rate
+- Opportunity
+- Recommended Action
+
+Example actions:
+- “Prioritise”
+- “Maintain”
+- “Watch”
+- “Low priority”
+
+The table should show the top 5 markets only and be scannable in 3 seconds.
+
+Move the existing map to the Analytics tab under this title:
+Campaign Hotzones Map
+
+Add this explanation:
+“Use this map to explore where marketing activity is coming from.”
+
+5. Replace the unreadable bubble chart
+The current Market Opportunity Matrix bubble chart has overlapping labels and is not readable.
+
+Replace it on the Overview with a simple grouped or dual-axis style country comparison chart:
+Title:
+Visitors vs Engagement by Market
+
+Show:
+- Visitors per country
+- Engagement rate per country
+
+Requirements:
+- No overlapping labels.
+- Clear x-axis and y-axis labels.
+- Top 5 countries only.
+- Keep it readable at dashboard scale.
+- If dual-axis is too complex in the current charting setup, use two aligned bar charts or a simple table/chart combination.
+
+6. Improve the Content Journey Funnel
+Keep the funnel, but make it more useful.
+
+Title:
+Content Journey Funnel
+
+Stages:
+- Landing Page
+- Service Page
+- AI/Contact Interest
+- Demo/Event Action
+
+Add drop-off percentages between each stage, for example:
+“↓ 42% drop”
+
+The user should be able to see where visitors are being lost.
+
+Add a short insight below the funnel:
+“Largest drop-off: Service Page to AI/Contact Interest”
+Use real calculated values if possible.
+
+7. Fix the Human Activity Timing panel
+The current heatmap is too small and unreadable.
+
+Option A, preferred:
+Replace the small heatmap on Overview with a simple plain-English callout card.
+
+Title:
+Best Time to Run Campaigns
+
+Main text:
+Use existing timing data to show something like:
+“Best campaign window: Tue–Thu, 09:00–17:00”
+
+Subtext:
+“Based on human activity patterns”
+
+Option B:
+If keeping the heatmap, make it much larger, readable, and move it to Analytics. Do not keep a tiny decorative heatmap on Overview.
+
+8. Keep and improve the Service Promotion Gap chart
+Keep this chart because it is useful.
+
+Rename it:
+Service Promotion Gap
+
+Add a plain-English explanation below the chart:
+“This compares visitor interest with promotion share to show where marketing may be under-promoting services.”
+
+Make labels readable. Avoid rotated labels if possible. If rotation is necessary, keep the chart tall enough.
+
+9. Suggested new Overview layout
+After the KPI cards and Campaign Insight card, use this layout:
+
+Top:
+- KPI cards
+- Campaign Insight full-width card
+
+Main body:
+Left column:
+- Market Priority Table
+- Best Time to Run Campaigns callout
+
+Center column:
+- Visitors vs Engagement by Market
+- Content Journey Funnel with drop-off percentages
+
+Right column:
+- Service Promotion Gap
+- Recommended Campaign Actions
+
+Recommended Campaign Actions panel should include 3–5 plain-English actions such as:
+- “Promote Cybersecurity more this week.”
+- “Prioritise Botswana campaigns.”
+- “Improve service-page calls to action.”
+- “Push demo/event actions harder from high-traffic pages.”
+
+10. Language cleanup
+Replace unclear BI jargon with plain English:
+- “Engaged Visitors” → “Visitors Today”
+- “Engagement Rate” → “Meaningful Actions Taken Today”
+- “Best Campaign Market” → “Best Market to Target Now”
+- “Best Landing Page” → “Best Entry Page”
+- “Audience Quality” → “Audience Quality Score”
+- “Campaign Hotzones” is okay only for the Analytics map, not the Overview action layout.
+- “Bot/Crawler Traffic Excluded” is good; keep it.
+
+11. Analytics tab
+Move exploratory visuals here:
+- Campaign Hotzones Map
+- Full heatmap if retained
+- Bubble/matrix chart only if fixed and readable
+- Descriptive statistics
+- Country/service/time breakdowns
+
+12. Defensive coding requirements
+- Do not crash if columns are missing.
+- Add safe fallback messages where needed.
+- Reuse existing helper functions where possible.
+- Do not duplicate large blocks unnecessarily.
+- Keep all calculations tied to the active filters.
+- Keep the status code filter and bot/crawler traffic exclusion filter working.
+- Keep the tabs working.
+- Keep the logout button working.
+
+13. Visual polish
+- Maintain the premium dark CyberNova look.
+- Use consistent card heights.
+- Avoid cramped panels.
+- Make section headings clear.
+- Avoid text overflow.
+- Ensure charts have readable axis labels.
+- Do not allow the map or any one chart to dominate the Overview.
+- Overview should feel action-led, not exploratory.
+
+Acceptance criteria:
+- The filter drawer is closed by default.
+- The Marketing Overview no longer has the huge map.
+- The first thing the user sees is campaign performance and a clear campaign recommendation.
+- KPI cards are reordered and renamed in plain English.
+- Bubble chart is replaced or fixed so labels do not overlap.
+- Funnel includes drop-off percentages.
+- Heatmap is either enlarged/moved to Analytics or replaced with a useful callout.
+- Market Priority Table appears on Overview.
+- Service Promotion Gap remains but is easier to understand.
+- The dashboard clearly tells a marketer what to do next.

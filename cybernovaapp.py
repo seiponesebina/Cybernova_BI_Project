@@ -39,6 +39,14 @@ st.set_page_config(page_title="CyberNova BI Portal", layout="wide",
 ENRICH_PATH = str(_BASE / "data" / "output" / "cybernova_enriched_logs.csv")
 FAST_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.pkl"
 PARQUET_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.parquet"
+LIVE_QUEUE_PATH = _BASE / "data" / "live_stream_queue.csv"
+LIVE_REPLAY_SPEEDS = {
+    "Slow": {"rows_per_tick": 35},
+    "Normal": {"rows_per_tick": 70},
+    "Fast": {"rows_per_tick": 140},
+}
+LIVE_REPLAY_MAX_VISIBLE_ROWS = 30000
+LIVE_REPLAY_REFRESH_MS = 5000
 
 # ── LOGO ──────────────────────────────────────────────────────────────────────
 def _load_logo():
@@ -159,10 +167,16 @@ div[data-testid="element-container"]{height:100%!important;}
   border:1px solid var(--border);border-radius:12px;
   padding:8px 12px;
   box-shadow:0 2px 16px rgba(0,0,0,0.45);backdrop-filter:blur(12px);
-  transition:border-color .2s,transform .15s;cursor:default;
+  transition:border-color .2s,transform .15s,box-shadow .2s;cursor:default;
   height:100%;box-sizing:border-box;
+  position:relative;overflow:visible;
 }
-.kpi-card:hover{border-color:var(--border-a);transform:translateY(-1px);}
+.kpi-card:hover{border-color:var(--border-a);transform:translateY(-1px);box-shadow:0 0 26px rgba(34,211,238,.18),0 2px 16px rgba(0,0,0,.45);}
+.kpi-hover-insight{display:none;position:absolute;z-index:20;left:8px;right:8px;top:calc(100% + 5px);padding:7px 8px;border-radius:9px;background:rgba(4,9,15,.98);border:1px solid rgba(34,211,238,.32);box-shadow:0 12px 26px rgba(0,0,0,.36),0 0 18px rgba(34,211,238,.12);color:#DDE7EE;font-size:10px;line-height:1.25;text-transform:none;letter-spacing:0;font-weight:600;}
+.kpi-card:hover .kpi-hover-insight{display:block;}
+.pipeline-card{position:relative;overflow:visible!important;}
+.pipeline-card:hover{border-color:rgba(34,211,238,.45);box-shadow:0 0 26px rgba(34,211,238,.18),0 2px 16px rgba(0,0,0,.45);}
+.pipeline-card:hover .kpi-hover-insight{display:block;}
 .kpi-label{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
 .kpi-value{font-size:1.25rem;font-weight:800;color:#FFFFFF;line-height:1.1;margin-bottom:3px;}
 .kpi-value-sm{font-size:1.15rem;font-weight:700;color:#FFFFFF;line-height:1.1;margin-bottom:4px;}
@@ -187,6 +201,33 @@ div[data-testid="element-container"]{height:100%!important;}
 .pulse-updated{margin-left:auto;font-size:9px;color:#66727D;white-space:nowrap;}
 .pulse-wrap-compact .pulse-updated{font-size:8px;}
 .marketing-overview-tight-start{height:0;margin-top:-6px;margin-bottom:-2px;}
+.marketing-overview-safe div[data-testid="element-container"]{height:auto!important;min-height:0!important;}
+.marketing-overview-safe div[data-testid="stVerticalBlock"]{gap:10px!important;}
+.marketing-overview-safe div[data-testid="stColumn"]{min-width:0!important;display:flex!important;flex-direction:column!important;}
+.marketing-overview-safe div[data-testid="stColumn"]>div[data-testid="stVerticalBlock"]{height:auto!important;min-height:0!important;gap:9px!important;}
+.marketing-overview-safe div[data-testid="stPlotlyChart"]{width:100%!important;min-width:0!important;overflow:hidden!important;margin-bottom:4px!important;}
+.marketing-overview-safe .js-plotly-plot{max-width:100%!important;}
+.marketing-overview-safe .cn-card{width:100%;min-width:0;overflow:hidden!important;padding:9px 11px!important;margin-bottom:9px!important;position:relative;z-index:1;transition:border-color .2s,box-shadow .2s,transform .15s;}
+.marketing-overview-safe .cn-card:hover{border-color:rgba(20,184,166,.58)!important;box-shadow:0 0 30px rgba(20,184,166,.18),0 0 16px rgba(34,211,238,.10),0 2px 20px rgba(0,0,0,.50)!important;transform:translateY(-1px);}
+.marketing-overview-safe .sec-label{min-height:20px;line-height:1.22;white-space:normal;overflow-wrap:anywhere;}
+.marketing-kpi-card{min-height:82px!important;padding:8px 10px!important;justify-content:space-between!important;overflow:visible!important;z-index:4;}
+.marketing-kpi-card.marketing-kpi-anchor{border-color:rgba(20,184,166,.55)!important;box-shadow:0 0 28px rgba(20,184,166,.18),0 2px 16px rgba(0,0,0,.45)!important;}
+.marketing-kpi-card:hover{border-color:rgba(20,184,166,.62)!important;box-shadow:0 0 30px rgba(20,184,166,.22),0 0 18px rgba(34,211,238,.12),0 2px 16px rgba(0,0,0,.45)!important;}
+.marketing-overview-safe .kpi-hover-insight{display:none;position:absolute;z-index:40;left:10px;right:10px;top:calc(100% + 7px);padding:9px 10px;border-radius:10px;background:rgba(4,9,15,.98);border:1px solid rgba(20,184,166,.38);box-shadow:0 14px 30px rgba(0,0,0,.42),0 0 20px rgba(20,184,166,.15);color:#DDE7EE;font-size:10.5px;line-height:1.35;font-weight:650;text-transform:none;letter-spacing:0;}
+.marketing-overview-safe .kpi-card:hover .kpi-hover-insight{display:block;}
+.mkt-insight-action{background:linear-gradient(135deg,rgba(20,184,166,.14),rgba(34,211,238,.06));border:1px solid rgba(20,184,166,.32);border-left:3px solid #14B8A6;border-radius:10px;padding:8px 12px;margin:6px 0 14px;box-shadow:0 0 22px rgba(20,184,166,.08);position:relative;z-index:2;clear:both;}
+.mkt-insight-action .title{font-size:9px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:#14B8A6;margin-bottom:3px;}
+.mkt-insight-action .text{font-size:14px;line-height:1.25;font-weight:800;color:#F8FAFC;overflow-wrap:anywhere;}
+.mkt-mini-table{width:100%;border-collapse:collapse;font-size:10px;color:#CBD5E1;table-layout:fixed;}
+.mkt-mini-table th{color:#6B7FA3;font-size:7.5px;text-transform:uppercase;letter-spacing:.06em;font-weight:800;padding:3px 3px;border-bottom:1px solid rgba(20,184,166,.14);text-align:left;}
+.mkt-mini-table td{padding:4px 3px;border-bottom:1px solid rgba(148,163,184,.08);vertical-align:top;overflow-wrap:anywhere;}
+.mkt-mini-table th,.mkt-mini-table td{white-space:normal!important;min-width:0!important;}
+.mkt-action-list{display:grid;gap:5px;margin-top:0;}
+.mkt-action-line{display:flex;gap:7px;align-items:flex-start;color:#DDE7EE;font-size:10.5px;line-height:1.25;padding:5px 7px;border:1px solid rgba(20,184,166,.12);border-radius:8px;background:rgba(20,184,166,.045);}
+.mkt-callout-main{font-size:14px;font-weight:850;color:#F8FAFC;line-height:1.2;margin:3px 0 3px;overflow-wrap:anywhere;}
+.mkt-callout-sub{font-size:10px;color:#6B7FA3;line-height:1.25;}
+.mkt-funnel-drop{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid rgba(148,163,184,.08);font-size:9.5px;color:#CBD5E1;}
+.mkt-funnel-drop b{color:#FBBF24;}
 .executive-overview-tight-start{height:0;margin-top:-6px;margin-bottom:-2px;}
 .executive-kpi-card{display:flex;flex-direction:column;justify-content:flex-start;}
 .executive-kpi-card .kpi-label,
@@ -199,6 +240,32 @@ div[data-testid="element-container"]{height:100%!important;}
 .executive-insight-below{margin-top:6px;}
 .executive-drawer-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-items:stretch;}
 .executive-drawer-grid .cn-card{height:100%;margin-bottom:0!important;}
+.sales-action-panel .action-line{font-size:11px;color:#DDE7EE;margin:7px 0;line-height:1.35;}
+.sales-action-panel .action-line b{color:#22D3EE;}
+.sales-mini-table{width:100%;border-collapse:collapse;font-size:10px;color:#CBD5E1;}
+.sales-mini-table th{color:#6B7FA3;font-size:9px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;padding:4px 3px;border-bottom:1px solid rgba(34,211,238,.12);}
+.sales-mini-table td{padding:5px 3px;border-bottom:1px solid rgba(148,163,184,.08);vertical-align:top;}
+.sales-mini-table th,.sales-mini-table td{white-space:normal;overflow-wrap:anywhere;}
+.sales-overview-contact .cn-card,.cn-card.sales-overview-contact{padding:6px 8px!important;margin-bottom:5px!important;}
+.sales-overview-contact .sec-label{margin-bottom:3px!important;padding-bottom:3px!important;}
+.sales-overview-contact .regional-live-card,.regional-live-card.sales-overview-contact{min-height:0!important;}
+.sales-overview-contact .regional-table th{padding:3px 2px!important;font-size:8px!important;}
+.sales-overview-contact .regional-table td{padding:4px 2px!important;font-size:9px!important;}
+.sales-overview-contact .regional-market span{max-width:82px;display:inline-block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+.sales-overview-map-note{font-size:9px;color:#6B7FA3;margin-bottom:2px;line-height:1.2;}
+.trend-anchor{display:inline-flex;align-items:center;gap:5px;margin-bottom:4px;padding:2px 7px;border-radius:999px;background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.24);color:#4ADE80;font-size:9px;font-weight:800;max-width:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sales-next-action{margin:8px 0 8px;padding:8px 0;border-top:1px solid rgba(34,211,238,.12);border-bottom:1px solid rgba(34,211,238,.12);font-size:20px;line-height:1.25;font-weight:850;color:#F8FAFC;}
+.sales-next-action b{color:#4ADE80;}
+.sales-insights-list{padding:8px 0 0;margin:0;color:#DDE7EE;font-size:11px;line-height:1.35;}
+.sales-insights-list div{margin:4px 0;}
+.sales-overview-safe div[data-testid="stColumn"]{min-width:0!important;}
+.sales-overview-safe div[data-testid="stPlotlyChart"]{min-width:0!important;overflow:hidden!important;}
+.sales-overview-safe .cn-card{overflow:hidden!important;}
+.st-key-sales_regional_opportunity_map{background:linear-gradient(145deg,rgba(12,24,44,0.92),rgba(8,18,34,0.88));border:1px solid rgba(34,211,238,0.12);border-radius:14px;padding:6px 8px;margin-bottom:5px;box-shadow:0 2px 20px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.03);overflow:hidden;}
+.st-key-sales_regional_opportunity_map:hover{border-color:rgba(34,211,238,0.45);box-shadow:0 4px 32px rgba(0,212,255,0.1),inset 0 1px 0 rgba(255,255,255,0.03);}
+.sales-overview-map-card{min-height:366px;}
+.sales-overview-side-card{min-height:0;}
+.sales-priority{display:inline-flex;align-items:center;justify-content:center;min-width:22px;border-radius:999px;background:rgba(34,211,238,.12);border:1px solid rgba(34,211,238,.25);color:#22D3EE;font-weight:800;}
 /* Section label */
 .sec-label{font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
   color:var(--cyan);margin-bottom:4px;padding-bottom:4px;
@@ -360,6 +427,124 @@ def load_data():
     )
     return _load_data_cached(csv_mtime, fast_cache_mtime)
 
+@st.cache_data(show_spinner=False)
+def _load_live_queue_cached(queue_mtime):
+    if not LIVE_QUEUE_PATH.exists():
+        return None
+    try:
+        df = pd.read_csv(LIVE_QUEUE_PATH, low_memory=False)
+        if "timestamp" in df.columns:
+            df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
+        if "date" in df.columns:
+            df["date"] = pd.to_datetime(df["date"], errors="coerce")
+        return df
+    except Exception:
+        return None
+
+def load_live_queue():
+    queue_mtime = LIVE_QUEUE_PATH.stat().st_mtime if LIVE_QUEUE_PATH.exists() else 0
+    return _load_live_queue_cached(queue_mtime)
+
+def _normalize_live_queue(live_df):
+    if live_df is None or live_df.empty:
+        return pd.DataFrame()
+    live = live_df.copy()
+    rename_map = {
+        "service": "service_name",
+        "campaign": "campaign_name",
+        "opportunity_value": "estimated_deal_value",
+        "bytes_sent": "bytes_transferred",
+    }
+    live = live.rename(columns={k: v for k, v in rename_map.items() if k in live.columns and v not in live.columns})
+    if "service_name" not in live.columns and "uri" in live.columns:
+        live["service_name"] = live["uri"].astype(str).str.replace("/", "", regex=False).str.replace(".php", "", regex=False).str.replace("-", " ", regex=False).str.title()
+    if "potential_customer_signal" not in live.columns:
+        live["potential_customer_signal"] = _truthy_series(live, "is_warm_lead")
+    if "has_demo_request" not in live.columns:
+        uri = live["uri"].astype(str) if "uri" in live.columns else pd.Series("", index=live.index)
+        stage = live["funnel_stage"].astype(str) if "funnel_stage" in live.columns else pd.Series("", index=live.index)
+        live["has_demo_request"] = uri.str.contains("demo", case=False, na=False) | stage.str.contains("demo", case=False, na=False)
+    if "has_event_signup" not in live.columns:
+        uri = live["uri"].astype(str) if "uri" in live.columns else pd.Series("", index=live.index)
+        stage = live["funnel_stage"].astype(str) if "funnel_stage" in live.columns else pd.Series("", index=live.index)
+        live["has_event_signup"] = uri.str.contains("event", case=False, na=False) | stage.str.contains("event", case=False, na=False)
+    if "is_engaged_session" not in live.columns:
+        stage = live["funnel_stage"].astype(str) if "funnel_stage" in live.columns else pd.Series("", index=live.index)
+        live["is_engaged_session"] = (
+            _truthy_series(live, "potential_customer_signal")
+            | _truthy_series(live, "has_demo_request")
+            | _truthy_series(live, "has_event_signup")
+            | stage.str.contains("service|contact|demo|event|ai", case=False, na=False)
+        )
+    if "has_ai_interest" not in live.columns:
+        service = live["service_name"].astype(str) if "service_name" in live.columns else pd.Series("", index=live.index)
+        uri = live["uri"].astype(str) if "uri" in live.columns else pd.Series("", index=live.index)
+        live["has_ai_interest"] = service.str.contains("AI|Assistant|Predictive", case=False, na=False) | uri.str.contains("ai", case=False, na=False)
+    if "status_class" not in live.columns and "status_code" in live.columns:
+        status_num = pd.to_numeric(live["status_code"], errors="coerce").fillna(0).astype(int)
+        live["status_class"] = (status_num // 100).astype(str) + "xx"
+    if "hour" not in live.columns and "timestamp" in live.columns:
+        live["hour"] = pd.to_datetime(live["timestamp"], errors="coerce").dt.hour
+    live["_source"] = "live_replay"
+    for c in ["is_bot", "is_warm_lead", "potential_customer_signal", "has_demo_request", "has_event_signup", "is_engaged_session", "has_ai_interest"]:
+        if c in live.columns:
+            live[c] = _truthy_series(live, c)
+    return live
+
+def _combine_historical_live(historical_df, live_rows):
+    if live_rows is None or live_rows.empty:
+        return historical_df
+    hist = historical_df if historical_df is not None else pd.DataFrame()
+    live = _normalize_live_queue(live_rows)
+    for col in live.columns:
+        if col not in hist.columns:
+            hist[col] = pd.NA
+    for col in hist.columns:
+        if col not in live.columns:
+            live[col] = pd.NA
+    live = live[list(hist.columns)]
+    return pd.concat([hist, live], ignore_index=True, copy=False)
+
+def _release_live_rows(queue_df=None):
+    if not LIVE_QUEUE_PATH.exists():
+        st.session_state.live_rows_released = 0
+        return pd.DataFrame()
+    speed = st.session_state.get("live_replay_speed", "Normal")
+    cfg = LIVE_REPLAY_SPEEDS.get(speed, LIVE_REPLAY_SPEEDS["Normal"])
+    old = int(st.session_state.get("live_rows_released", 0))
+    if old >= LIVE_REPLAY_MAX_VISIBLE_ROWS:
+        old = 0
+        st.session_state.live_rows_released = 0
+        st.session_state.live_replay_started_at = datetime.datetime.now().isoformat()
+    rows_per_tick = int(cfg.get("rows_per_tick", 50))
+    prev = min(LIVE_REPLAY_MAX_VISIBLE_ROWS, max(rows_per_tick, old + rows_per_tick))
+    st.session_state.live_rows_released = max(old, prev)
+    prev = int(st.session_state.live_rows_released)
+    st.session_state.live_rows_added_session = max(0, prev)
+    st.session_state.live_last_refresh = datetime.datetime.now().strftime("%H:%M:%S")
+    try:
+        live = pd.read_csv(LIVE_QUEUE_PATH, nrows=prev, low_memory=False)
+    except Exception:
+        st.session_state.live_rows_released = 0
+        return pd.DataFrame()
+    if live.empty:
+        return live
+    live = live.tail(LIVE_REPLAY_MAX_VISIBLE_ROWS).copy()
+    if not live.empty and "timestamp" in live.columns:
+        now = pd.Timestamp.now().floor("s")
+        live["timestamp"] = pd.date_range(end=now, periods=len(live), freq="s")
+        live["date"] = live["timestamp"].dt.normalize()
+        live["time"] = live["timestamp"].dt.strftime("%H:%M:%S")
+        live["hour"] = live["timestamp"].dt.hour
+    return live
+
+def _maybe_autorefresh_live():
+    try:
+        from streamlit_autorefresh import st_autorefresh
+        st_autorefresh(interval=LIVE_REPLAY_REFRESH_MS, key="live_feed_tick")
+    except Exception:
+        return
+
 def mock_data():
     np.random.seed(42); n=3000
     _end = datetime.date.today()
@@ -493,11 +678,16 @@ def init_state():
     d = {"authenticated":False,"current_role":None,"active_dashboard":"Sales","active_tab":"Overview",
          "selected_market":"All","date_start":_d_start,"date_end":_d_end,
          "svc_filter":"All Services","seg_filter":"All Segments","outcome_filter":"All",
+         "status_filter":"All Status Codes",
          "s_cust":1248,"s_demos":312,"s_rev":82.6,
          "m_aud":3840,"m_visits":1240,"m_qual":78,
          "e_demand":9200,"e_ai":29,"e_alerts":3,"alert_count":2,
          "sales_drawer_open":True,
          "admin_drawer_open":False,
+         "live_replay_speed":"Normal",
+         "live_rows_released":0,
+         "live_rows_added_session":0,
+         "live_last_refresh":"--",
          "_sales_df_cache":None,
          "_marketing_df_cache":None,
          "_executive_df_cache":None}
@@ -540,6 +730,8 @@ def reset_filters_to_default():
         "rp_seg": "All Segments",
         "outcome_filter": "All",
         "rp_out": "All",
+        "status_filter": "All Status Codes",
+        "rp_status": "All Status Codes",
     }
     for key, value in updates.items():
         st.session_state[key] = value
@@ -695,7 +887,13 @@ div[data-testid="stTextInput"] input{
 div[data-testid="stSelectbox"] span{
   line-height:52px!important;display:flex!important;align-items:center!important;
 }
-div[data-testid="stTextInput"] input{min-height:50px!important;padding:0 18px!important;background:transparent!important;}
+div[data-testid="stTextInput"] input{
+  min-height:50px!important;
+  padding:0 18px!important;
+  background:#FFFFFF!important;
+  color:#0B1620!important;
+  -webkit-text-fill-color:#0B1620!important;
+}
 div[data-testid="stTextInput"] input::placeholder{color:#66727D!important;}
 div[data-testid="stSelectbox"]>div>div:focus-within,
 div[data-testid="stTextInput"]>div:focus-within{
@@ -794,7 +992,7 @@ def render_header():
     {logo_img(h=36)}
     <div>
       <div style="font-size:10px;color:#6B7FA3;margin-bottom:1px;">
-        Welcome back, {fname} &nbsp;/&nbsp;
+        Welcome Back, {fname} &nbsp;/&nbsp;
         <span style="color:#22D3EE;">{now}</span>
         &nbsp;<span style="color:#4ADE80;">Live</span>
       </div>
@@ -838,6 +1036,9 @@ def render_admin_drawer():
     v    = st.session_state
     role = v.current_role or ""
     uname, utitle = ROLE_META.get(role,("User","-"))
+    if st.button("Close Filters", key="drawer_close_filters", use_container_width=True):
+        st.session_state.admin_drawer_open = False
+        st.rerun()
 
     # ── Profile ──
     st.markdown(f"""
@@ -895,6 +1096,11 @@ def render_admin_drawer():
     outs = ["All","Potential Customer","Demo Request","Engaged","Bounce"]
     v.outcome_filter = st.selectbox("Visit Outcome", outs, key="rp_out")
 
+    status_options = ["All Status Codes", "200", "304", "404", "500"]
+    if v.get("status_filter") not in status_options:
+        v.status_filter = "All Status Codes"
+    v.status_filter = st.selectbox("HTTP Status Code", status_options, key="rp_status")
+
     c1,c2 = st.columns(2)
     with c1:
         if st.button("Apply", use_container_width=True, key="rp_apply"): st.rerun()
@@ -936,9 +1142,10 @@ def render_chips(df):
   <span class="chip">Service: {v.svc_filter}</span>
   <span class="chip">Segment: {v.seg_filter}</span>
   <span class="chip">Outcome: {v.outcome_filter}</span>
-  <span class="chip">Filtered Noise: {noise:,}</span>
+  <span class="chip">Status: {v.get("status_filter", "All Status Codes")}</span>
+  <span class="chip">Bot/Crawler Traffic Excluded: {noise:,}</span>
   <span class="chip">Quality: {quality}%</span>
-  <span class="chip">Revenue: modelled opportunity, not booked sales</span>
+  <span class="chip">Revenue: estimated opportunity, not booked sales</span>
 </div>""", unsafe_allow_html=True)
 
 @st.fragment(run_every=1)
@@ -1100,6 +1307,82 @@ def render_sadc_map(mode="sales", height=400, df=None):
     st.markdown('</div>', unsafe_allow_html=True)
 
 # ── CHART LAYOUT HELPER ───────────────────────────────────────────────────────
+def _compact_regional_opportunity_map(df):
+    df_m = _live_map_nodes(df)
+    max_customers = max(1, int(df_m["customers"].max()))
+    df_m["sz"] = 9 + (df_m["customers"] / max_customers * 34)
+
+    fig = go.Figure(go.Scattergeo(
+        lat=df_m["lat"],
+        lon=df_m["lon"],
+        mode="markers+text",
+        marker=dict(size=df_m["sz"], color="#22D3EE", opacity=0.84, line=dict(color="rgba(240,244,248,.45)", width=1)),
+        text=df_m["country"].str.replace("South Africa", "SA", regex=False).str.replace("Mozambique", "Moz", regex=False),
+        textposition="top center",
+        textfont=dict(color="#CBD5E1", size=8, family="Inter"),
+        customdata=df_m[["customers", "demos", "revenue", "last_seen"]],
+        hovertemplate="<b>%{text}</b><br>Potential customers: %{customdata[0]:,}<br>Demo requests: %{customdata[1]:,}<br>Value: %{customdata[2]}<br>Last signal: %{customdata[3]}<extra></extra>",
+        showlegend=False,
+    ))
+    fig.update_geos(
+        scope="africa",
+        projection_type="natural earth",
+        lataxis_range=[-36, -6],
+        lonaxis_range=[10, 37],
+        showland=True,
+        landcolor="rgba(15,23,42,.92)",
+        showocean=True,
+        oceancolor="rgba(3,7,18,.90)",
+        showcountries=True,
+        countrycolor="rgba(34,211,238,.18)",
+        coastlinecolor="rgba(34,211,238,.12)",
+        bgcolor="rgba(0,0,0,0)",
+    )
+    fig.update_layout(
+        height=318,
+        margin=dict(l=0, r=0, t=0, b=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        hoverlabel=dict(
+            bgcolor="rgba(7,14,26,0.95)",
+            bordercolor="rgba(34,211,238,0.3)",
+            font=dict(color="#F0F4F8", size=10, family="Inter"),
+        ),
+    )
+
+    summary = df_m.sort_values(["customers", "demos"], ascending=False).head(5)
+    top = summary.iloc[0] if len(summary) else None
+    anchor = f"{top['country']} leads with {int(top['demos']):,} demos" if top is not None else "No live market trend yet"
+
+    with st.container(key="sales_regional_opportunity_map"):
+        st.markdown(f"""
+<div class="sec-label">Regional Opportunity Map</div>
+<div class="trend-anchor">{svg_icon("trend", 11, "#4ADE80")} Trend anchor: {anchor}</div>
+<div class="sales-overview-map-note">Live regional follow-up demand. Bubble size reflects potential customers.</div>
+""", unsafe_allow_html=True)
+        st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+def _regional_opportunity_board(df):
+    df_m = _live_map_nodes(df)
+    summary = df_m.sort_values(["customers", "demos"], ascending=False).head(5)
+    rows = ""
+    for _, r in summary.iterrows():
+        rows += f"""
+<tr>
+  <td>{r['country']}</td>
+  <td style="text-align:right;">{int(r['customers']):,}</td>
+  <td style="text-align:right;">{int(r['demos']):,}</td>
+  <td style="text-align:right;">{r['revenue']}</td>
+</tr>"""
+    st.markdown(f"""
+<div class="cn-card sales-overview-contact sales-overview-side-card">
+  <div class="sec-label">Top 5 Countries</div>
+  <table class="sales-mini-table">
+    <thead><tr><th>Country</th><th style="text-align:right;">Customers</th><th style="text-align:right;">Demos</th><th style="text-align:right;">Value</th></tr></thead>
+    <tbody>{rows}</tbody>
+  </table>
+</div>""", unsafe_allow_html=True)
+
 def _cl(fig, h=145):
     fig.update_layout(
         height=h,
@@ -1227,9 +1510,10 @@ def _sales_growth(df):
         line=dict(color="#3A4A5E", width=1.5, dash="dot"), mode="lines",
         hovertemplate="Prev: <b>%{y}</b><extra></extra>",
     ))
-    _cl(fig, 145)
+    _cl(fig, 118)
     fig.update_xaxes(type="category")
-    st.markdown('<div class="cn-card"><div class="sec-label">Sales Growth Trend</div>', unsafe_allow_html=True)
+    fig.update_layout(yaxis_title="Website visits from target markets")
+    st.markdown('<div class="cn-card"><div class="sec-label">Sales Growth / Sessions Trend</div>', unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1256,6 +1540,11 @@ def _pipeline_funnel(df):
         round((counts[i] / counts[i - 1] * 100), 1) if counts[i - 1] else 0
         for i in range(1, len(counts))
     ]
+    dropoffs = [
+        (f"{stages[i - 1]} to {stages[i]}", round(100 - retained[i], 1))
+        for i in range(1, len(stages))
+    ]
+    biggest_drop = max(dropoffs, key=lambda x: x[1]) if dropoffs else ("the funnel", 0)
 
     fig = go.Figure(go.Funnel(
         y=stages,
@@ -1270,7 +1559,7 @@ def _pipeline_funnel(df):
         hovertemplate="<b>%{label}</b><br>Volume: %{value:,}<br>Retained from previous: %{percentPrevious:.1%}<extra></extra>",
     ))
     fig.update_layout(
-        height=145,
+        height=128,
         margin=dict(l=70, r=10, t=4, b=4),
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
@@ -1281,7 +1570,7 @@ def _pipeline_funnel(df):
         showlegend=False,
         yaxis=dict(tickfont=dict(color="#CBD5E1", size=11, family="Inter")),
     )
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Pipeline Funnel</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Conversion: <b style="color:#4ADE80;">{conv}%</b> &nbsp;·&nbsp; Won: <b style="color:#4ADE80;">{won:,}</b></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="cn-card pipeline-card"><div class="sec-label">Pipeline Health</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Conversion: <b style="color:#4ADE80;">{conv}%</b> | Won: <b style="color:#4ADE80;">{won:,}</b></div><div class="kpi-hover-insight">Biggest drop-off is between {biggest_drop[0]} ({biggest_drop[1]}%). Focus follow-up here first.</div>', unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1323,17 +1612,17 @@ def _service_donut(df):
     ))
     fig.add_annotation(text=f"<b>{total_str}</b>", x=0.5, y=0.58,
                        font=dict(size=18, color="#F8FAFC", family="Inter"), showarrow=False)
-    fig.add_annotation(text="modelled value", x=0.5, y=0.43,
+    fig.add_annotation(text="estimated value", x=0.5, y=0.43,
                        font=dict(size=9, color="#6B7FA3", family="Inter"), showarrow=False)
     fig.update_layout(
-        height=145,
+        height=118,
         margin=dict(l=0, r=0, t=6, b=6),
         paper_bgcolor="rgba(0,0,0,0)",
         showlegend=False,
         hoverlabel=dict(bgcolor="rgba(7,14,26,0.95)", bordercolor="rgba(34,211,238,0.3)",
                         font=dict(color="#F0F4F8", size=11, family="Inter")),
     )
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Service Mix</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Top: <b style="color:#38BDF8;">{top_label}</b> &nbsp;·&nbsp; Share: <b style="color:#2DD4BF;">{top_share}%</b></div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="cn-card"><div class="sec-label">Services Customers Are Interested In</div><div style="font-size:10px;color:#6B7FA3;margin-bottom:4px;">Based on filtered lead activity. Top: <b style="color:#38BDF8;">{top_label}</b> | Share: <b style="color:#2DD4BF;">{top_share}%</b></div>', unsafe_allow_html=True)
     st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1394,7 +1683,7 @@ def _live_country_leaderboard(df):
 </tr>"""
 
     st.markdown(f"""
-<div class="cn-card regional-live-card">
+<div class="cn-card regional-live-card sales-overview-contact">
   <div class="sec-label">Regional Live Leaderboard</div>
   <table class="regional-table">
     <thead>
@@ -1408,6 +1697,133 @@ def _live_country_leaderboard(df):
     <tbody>{rows_html}</tbody>
   </table>
 </div>""", unsafe_allow_html=True)
+
+def _warm_leads_breakdown(df):
+    human = _human_df(df)
+    uri = human["uri"].astype(str).str.lower() if "uri" in human.columns else pd.Series("", index=human.index)
+    demo = human[uri.str.contains("/scheduledemo.php", na=False)]
+    event = human[uri.str.contains("/event.php", na=False)]
+
+    def _row(label, subdf, color):
+        count = len(subdf)
+        top_country = _top_value(subdf, "country", "--") if count else "--"
+        top_service = _top_value(subdf, "service_name", "--") if count else "--"
+        value = _fmt_money(_num_series(subdf, "estimated_deal_value").sum()) if count else "P0"
+        return f"""
+<tr>
+  <td><b style="color:{color};">{label}</b></td>
+  <td style="text-align:right;">{count:,}</td>
+  <td>{top_country}</td>
+  <td>{top_service}</td>
+  <td style="text-align:right;">{value}</td>
+</tr>"""
+
+    st.markdown(f"""
+<div class="cn-card sales-overview-contact">
+  <div class="sec-label">Warm Leads Breakdown</div>
+  <table class="sales-mini-table">
+    <thead><tr><th>Lead type</th><th style="text-align:right;">Count</th><th>Country</th><th>Service interest</th><th style="text-align:right;">Value</th></tr></thead>
+    <tbody>
+      {_row("Demo Requests", demo, "#4ADE80")}
+      {_row("Event Signups", event, "#FBBF24")}
+    </tbody>
+  </table>
+</div>""", unsafe_allow_html=True)
+
+def _sales_action_panel(df):
+    human = _human_df(df)
+    stats = _kpi_stats(human)
+    top_market = stats.get("top_market", "--")
+    top_service = stats.get("top_service", "--")
+    demo_count = int(_truthy_series(human, "has_demo_request").sum()) if "has_demo_request" in human.columns else 0
+    recommendations = [
+        f"Call <b>{demo_count:,}</b> demo request leads first.",
+        f"<b>{top_market}</b> has the strongest opportunity in this filtered view.",
+        f"Lead with <b>{top_service}</b>; it is the strongest current service interest.",
+        "Check event signups after demo requests; they are next-best follow-up signals.",
+    ]
+    st.markdown(f"""
+<div class="cn-card sales-action-panel">
+  <div class="sec-label">What To Do Next</div>
+  {''.join(f'<div class="action-line">{svg_icon("check", 13, "#4ADE80")} {item}</div>' for item in recommendations)}
+</div>""", unsafe_allow_html=True)
+
+def _sales_next_action(df):
+    human = _human_df(df)
+    stats = _kpi_stats(human)
+    demo_count = int(_truthy_series(human, "has_demo_request").sum()) if "has_demo_request" in human.columns else 0
+    top_market = stats.get("top_market", "the top market")
+    top_service = stats.get("top_service", "the strongest service")
+    st.markdown(
+        f'<div class="sales-next-action">What To Do Next: <b>Call demo request leads first</b> '
+        f'({demo_count:,} waiting), then focus {top_market} with {top_service} as the first pitch.</div>',
+        unsafe_allow_html=True,
+    )
+
+def _sales_insights_under_trend(df):
+    human = _human_df(df)
+    stats = _kpi_stats(human)
+    demo_count = int(_truthy_series(human, "has_demo_request").sum()) if "has_demo_request" in human.columns else 0
+    event_count = int(_truthy_series(human, "has_event_signup").sum()) if "has_event_signup" in human.columns else 0
+    st.markdown(f"""
+<div class="sales-insights-list">
+  <div>{svg_icon("check", 12, "#4ADE80")} Demo queue: <b>{demo_count:,}</b> leads should be handled before general browsing traffic.</div>
+  <div>{svg_icon("map", 12, "#22D3EE")} Market focus: <b>{stats.get("top_market", "--")}</b> is currently the strongest filtered region.</div>
+  <div>{svg_icon("target", 12, "#FBBF24")} Event signups: <b>{event_count:,}</b> are second-priority follow-up signals.</div>
+</div>""", unsafe_allow_html=True)
+
+def _sales_srs_evidence_panels(df):
+    st.markdown('<div style="height:8px;"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="sec-label" style="margin-top:4px;">SRS Evidence Checks</div>', unsafe_allow_html=True)
+    c1, c2 = st.columns([1, 1], gap="small")
+    with c1:
+        processed = len(df) if df is not None else 0
+        bot_count = int(_truthy_series(df, "is_bot").sum()) if df is not None and "is_bot" in df.columns else 0
+        dropped = int(_truthy_series(df, "invalid_status_flag").sum()) if df is not None and "invalid_status_flag" in df.columns else 0
+        clean = max(0, processed - dropped)
+        quality = round(float(pd.to_numeric(df["data_quality_score"], errors="coerce").mean()), 1) if df is not None and "data_quality_score" in df.columns and len(df) else _kpi_stats(df)["quality"]
+        st.markdown(f"""
+<div class="cn-card">
+  <div class="sec-label">ETL Quality Panel</div>
+  <table class="sales-mini-table">
+    <tbody>
+      <tr><td>Records processed</td><td style="text-align:right;">{processed:,}</td></tr>
+      <tr><td>Records cleaned</td><td style="text-align:right;">{clean:,}</td></tr>
+      <tr><td>Records dropped / excluded</td><td style="text-align:right;">{dropped:,}</td></tr>
+      <tr><td>Bot/Crawler Traffic Excluded</td><td style="text-align:right;">{bot_count:,}</td></tr>
+      <tr><td>Data quality percentage</td><td style="text-align:right;">{quality}%</td></tr>
+    </tbody>
+  </table>
+</div>""", unsafe_allow_html=True)
+    with c2:
+        if df is None or df.empty or not {"country", "segment"}.issubset(df.columns):
+            st.markdown('<div class="cn-card"><div class="sec-label">Country By Segment</div><div style="font-size:11px;color:#6B7FA3;">Country and segment fields are not available in this filtered view.</div></div>', unsafe_allow_html=True)
+        else:
+            pivot = pd.crosstab(df["country"], df["segment"]).reset_index().head(10)
+            st.markdown('<div class="cn-card"><div class="sec-label">Country By Segment</div>', unsafe_allow_html=True)
+            st.dataframe(pivot, use_container_width=True, hide_index=True, height=220)
+            st.markdown('</div>', unsafe_allow_html=True)
+
+    if df is None or df.empty or not {"country", "service_name"}.issubset(df.columns):
+        st.info("Descriptive statistics are unavailable because country or service fields are missing.")
+        return
+    stat_col = "estimated_deal_value" if "estimated_deal_value" in df.columns else "response_time_ms" if "response_time_ms" in df.columns else None
+    if stat_col is None:
+        st.info("Descriptive statistics are unavailable because no numeric value column was found.")
+        return
+    desc = df.copy()
+    desc["_stat_value"] = pd.to_numeric(desc[stat_col], errors="coerce")
+    stats_tbl = (
+        desc.groupby(["country", "service_name"])["_stat_value"]
+        .agg(mean="mean", median="median", std="std", count="count")
+        .reset_index()
+        .sort_values("count", ascending=False)
+        .head(12)
+    )
+    for col in ["mean", "median", "std"]:
+        stats_tbl[col] = stats_tbl[col].round(2)
+    with st.expander("Descriptive Statistics by Country and Service", expanded=False):
+        st.dataframe(stats_tbl, use_container_width=True, hide_index=True)
 
 def _sales_kpis(df):
     # Derive all values from today's live stream; filters do not apply to KPI cards.
@@ -1431,27 +1847,28 @@ def _sales_kpis(df):
     iso = iso_map.get(top_market, "za")
     flag_img = f'<img src="https://flagcdn.com/20x15/{iso}.png" alt="{top_market}" style="height:16px;width:auto;border-radius:2px;margin-right:5px;vertical-align:middle;" />'
 
-    pipeline_pct = min(99, int(pot_rev_m / 95 * 100)) if pot_rev_m else 87
-    base_pipeline = min(99, int(float(baseline.get("opportunity", 0) or 0) / 1e6 / 95 * 100)) if baseline else 0
+    target_m = 95
+    pipeline_pct = min(99, int(pot_rev_m / target_m * 100)) if pot_rev_m else 0
+    base_pipeline = min(99, int(float(baseline.get("opportunity", 0) or 0) / 1e6 / target_m * 100)) if baseline else 0
     pipeline_delta, pipeline_cls = _metric_delta({"pipeline": pipeline_pct}, {"pipeline": base_pipeline}, "pipeline", "rate")
     potential_delta, potential_cls = _metric_delta(stats, baseline, "potential")
     demo_delta, demo_cls = _metric_delta(stats, baseline, "demos")
     opp_delta, opp_cls = _metric_delta(stats, baseline, "opportunity")
 
     kpis = [
-        ("Pipeline Target Attainment", f"{pipeline_pct}%", f"P{pot_rev_m}M / P95M target", pipeline_delta, pipeline_cls, "anchor"),
-        ("Potential Customers", f"{pot_cust:,}", f"today vs {baseline_label}", potential_delta, potential_cls, ""),
-        ("Demo Requests", f"{demo_req:,}", f"today vs {baseline_label}", demo_delta, demo_cls, ""),
-        ("Potential Opportunity Value", f"P{pot_rev_m}M", f"modelled; today vs {baseline_label}", opp_delta, opp_cls, ""),
-        ("Top Sales Market", f"{flag_img}{top_market}", f"{top_pct}% of today's potential", "", "", ""),
+        ("People Waiting for a Demo", f"{demo_req:,}", "Follow these up first", demo_delta, demo_cls, "anchor", "Immediate action queue: schedule calls before reviewing lower-intent activity."),
+        ("Potential Customers Today", f"{pot_cust:,}", "Showed strong buying signals", potential_delta, potential_cls, "", "Filtered visitors with stronger buying behaviour than general browsing."),
+        ("Sales Progress This Month", f"{pipeline_pct}%", f"P{pot_rev_m}M of P{target_m}M target", pipeline_delta, pipeline_cls, "", "Estimated progress against the monthly opportunity target."),
+        ("Estimated Revenue if Leads Convert", f"P{pot_rev_m}M", "Estimated value, not booked sales", opp_delta, opp_cls, "", "Potential value if current filtered leads move through the funnel."),
+        ("Hottest Market Right Now", f"{flag_img}{top_market}", f"{top_pct}% contribution", "", "", "", "Best region for immediate follow-up under the active filters."),
     ]
     cols = st.columns(5, gap="small")
     cls_map = {"up":"delta-up","watch":"delta-watch","down":"delta-down"}
-    for col, (lbl, val, sub, chg, cls, extra) in zip(cols, kpis):
+    for col, (lbl, val, sub, chg, cls, extra, insight) in zip(cols, kpis):
         with col:
             delta = f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else '<div style="height:20px;"></div>'
-            anchor_style = "border-color:rgba(34,211,238,0.45);box-shadow:0 0 22px rgba(34,211,238,0.15);" if extra == "anchor" else ""
-            st.markdown(f'<div class="kpi-card" style="{anchor_style}"><div class="kpi-label">{lbl}</div><div class="kpi-value live-count">{val}</div>{delta}<div class="kpi-sub">{sub}</div></div>', unsafe_allow_html=True)
+            anchor_style = "border-color:rgba(74,222,128,0.55);box-shadow:0 0 24px rgba(74,222,128,0.16), inset 0 1px 0 rgba(255,255,255,0.04);" if extra == "anchor" else ""
+            st.markdown(f'<div class="kpi-card" style="{anchor_style};min-height:78px;display:flex;flex-direction:column;justify-content:space-between;"><div class="kpi-label">{lbl}</div><div class="kpi-value live-count">{val}</div>{delta}<div class="kpi-sub">{sub}</div><div class="kpi-hover-insight">{insight}</div></div>', unsafe_allow_html=True)
 
 def render_sales_overview(df):
     st.session_state["_sales_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
@@ -1467,26 +1884,34 @@ def render_sales_overview(df):
         _live_sales_kpis()
     except Exception:
         _sales_kpis(df)
-    st.markdown('<div style="height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.18),rgba(34,211,238,0.06),transparent);margin:20px 0;"></div>', unsafe_allow_html=True)
+    st.markdown('<div style="height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.18),rgba(34,211,238,0.06),transparent);margin:8px 0;"></div>', unsafe_allow_html=True)
+    _sales_next_action(df)
 
     # ── Row 2: Map (left 55%) | 2×2 chart grid (right 45%) ──
-    col_map, col_right = st.columns([1.2, 1.0], gap="small")
+    st.markdown('<div class="sales-overview-safe">', unsafe_allow_html=True)
+    col_map, col_board_trend, col_other = st.columns([1.1, 0.9, 1.0], gap="small")
     with col_map:
-        render_sadc_map("sales", 400)
-    with col_right:
-        r1a, r1b = st.columns(2, gap="small")
-        with r1a:
-            try:
-                @st.fragment(run_every=1)
-                def _live_sales_leaderboard():
-                    _live_country_leaderboard(_live_today_df(st.session_state.get("_sales_df_cache"), "sales_regional_leaderboard"))
-                _live_sales_leaderboard()
-            except Exception:
-                _live_country_leaderboard(df)
-        with r1b: _sales_growth(df)
-        r2a, r2b = st.columns(2, gap="small")
-        with r2a: _pipeline_funnel(df)
-        with r2b: _service_donut(df)
+        try:
+            @st.fragment(run_every=1)
+            def _live_sales_mini_map():
+                _compact_regional_opportunity_map(_live_today_df(st.session_state.get("_sales_df_cache"), "sales_regional_mini_map"))
+            _live_sales_mini_map()
+        except Exception:
+            _compact_regional_opportunity_map(df)
+    with col_board_trend:
+        try:
+            @st.fragment(run_every=1)
+            def _live_regional_board():
+                _regional_opportunity_board(_live_today_df(st.session_state.get("_sales_df_cache"), "sales_regional_board"))
+            _live_regional_board()
+        except Exception:
+            _regional_opportunity_board(df)
+        _sales_growth(df)
+    with col_other:
+        st.markdown('<div style="height:10px;"></div>', unsafe_allow_html=True)
+        _pipeline_funnel(df)
+        _service_donut(df)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # MARKETING OVERVIEW
@@ -1504,22 +1929,118 @@ def _opportunity_matrix():
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
+def _marketing_entry_page(df):
+    human = _human_df(df)
+    for col in ["landing_page", "entry_page", "page_title", "path", "url_path", "service_name"]:
+        value = _top_value(human, col, "")
+        if value:
+            return value
+    return "General Website"
+
+def _marketing_country_summary(df):
+    human = _human_df(df)
+    if human.empty or "country" not in human.columns:
+        return pd.DataFrame(
+            [("Botswana", 59, 55.7, 18), ("South Africa", 48, 51.2, 15), ("Zambia", 34, 44.8, 9), ("Zimbabwe", 28, 42.5, 8), ("Mozambique", 22, 38.4, 6)],
+            columns=["country", "visitors", "engagement_rate", "opportunity"],
+        )
+    work = human.copy()
+    work["_engaged"] = _truthy_series(work, "is_engaged_session")
+    work["_potential"] = _truthy_series(work, "potential_customer_signal")
+    work["_demo"] = _truthy_series(work, "has_demo_request")
+    summary = work.groupby("country").agg(
+        visitors=("country", "size"),
+        engaged=("_engaged", "sum"),
+        potential=("_potential", "sum"),
+        demos=("_demo", "sum"),
+    ).reset_index()
+    summary["engagement_rate"] = (summary["engaged"] / summary["visitors"].replace(0, np.nan) * 100).fillna(0)
+    summary["opportunity"] = (summary["potential"] * 2 + summary["demos"] * 4 + summary["engaged"] * 0.35).round(1)
+    return summary.sort_values(["opportunity", "engagement_rate", "visitors"], ascending=False).head(5)
+
+def _marketing_action_label(row):
+    engagement = float(row.get("engagement_rate", 0) or 0)
+    opportunity = float(row.get("opportunity", 0) or 0)
+    if engagement >= 45 or opportunity >= 15:
+        return "Prioritise"
+    if engagement >= 30:
+        return "Maintain"
+    if opportunity >= 5:
+        return "Watch"
+    return "Low priority"
+
+def _market_priority_table(df):
+    summary = _marketing_country_summary(df)
+    rows = ""
+    for _, row in summary.iterrows():
+        rows += (
+            f'<tr><td><b>{row["country"]}</b></td><td>{int(row["visitors"]):,}</td>'
+            f'<td>{float(row["engagement_rate"]):.1f}%</td><td>{float(row["opportunity"]):.0f}</td>'
+            f'<td><span style="color:#14B8A6;font-weight:800;">{_marketing_action_label(row)}</span></td></tr>'
+        )
+    body = rows or '<tr><td colspan="5">No country data is available for this filtered view.</td></tr>'
+    st.markdown(f"""
+<div class="cn-card">
+  <div class="sec-label">Market Priority Table</div>
+  <table class="mkt-mini-table">
+    <thead><tr><th>Country</th><th>Visitors</th><th>Engagement Rate</th><th>Opportunity</th><th>Recommended Action</th></tr></thead>
+    <tbody>{body}</tbody>
+  </table>
+</div>""", unsafe_allow_html=True)
+
+def _visitors_vs_engagement(df):
+    summary = _marketing_country_summary(df).sort_values("visitors", ascending=True)
+    if summary.empty:
+        st.markdown('<div class="cn-card"><div class="sec-label">Visitors vs Engagement by Market</div><div class="mkt-callout-sub">No country data is available for this filtered view.</div></div>', unsafe_allow_html=True)
+        return
+    fig = go.Figure()
+    fig.add_trace(go.Bar(y=summary["country"], x=summary["visitors"], orientation="h", name="Visitors", marker_color="rgba(20,184,166,.72)", hovertemplate="<b>%{y}</b><br>Visitors: %{x:,}<extra></extra>"))
+    fig.add_trace(go.Scatter(y=summary["country"], x=summary["engagement_rate"], mode="markers+lines", name="Engagement rate %", xaxis="x2", marker=dict(size=9, color="#FBBF24"), line=dict(color="#FBBF24", width=2), hovertemplate="<b>%{y}</b><br>Engagement: %{x:.1f}%<extra></extra>"))
+    _cl(fig, 158)
+    fig.update_layout(
+        margin=dict(l=82, r=38, t=16, b=42),
+        xaxis=dict(title="Visitors", automargin=True),
+        xaxis2=dict(title="Engagement %", overlaying="x", side="top", range=[0, max(60, float(summary["engagement_rate"].max()) + 10)], color="#FBBF24", automargin=True),
+        yaxis=dict(automargin=True),
+        legend=dict(orientation="h", y=-0.34, x=0),
+    )
+    st.markdown('<div class="cn-card"><div class="sec-label">Visitors vs Engagement by Market</div>', unsafe_allow_html=True)
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
+    st.markdown('</div>', unsafe_allow_html=True)
+
 def _promo_gap():
     svcs=["AI Solutions","Cybersecurity","Cloud & Data","Advisory","Other"]
     fig=go.Figure()
     fig.add_trace(go.Bar(x=svcs,y=[35,28,22,10,5],name="Visit Share %",marker_color="#3A4A5E",hovertemplate="<b>%{x}</b><br>Visit Share: %{y}%<extra></extra>"))
     fig.add_trace(go.Bar(x=svcs,y=[42,24,18,12,4],name="Conversion Share %",marker_color="#22D3EE",hovertemplate="<b>%{x}</b><br>Conversion: %{y}%<extra></extra>"))
-    _cl(fig,145); fig.update_layout(barmode="group",bargap=0.28)
-    st.markdown(f'<div class="cn-card"><div class="sec-label">Service Promotion Gap</div><div style="font-size:9px;color:#FBBF24;margin-bottom:6px;display:flex;align-items:center;gap:6px;">{svg_icon("alert", 13, "#FBBF24")} Cybersecurity: high conversion, low visit share to under-promoted</div>', unsafe_allow_html=True)
+    _cl(fig,158)
+    fig.update_layout(
+        barmode="group", bargap=0.24,
+        margin=dict(l=38, r=14, t=16, b=46),
+        xaxis=dict(tickangle=0, tickfont=dict(size=9), automargin=True),
+        yaxis=dict(title="Share %", automargin=True),
+    )
+    st.markdown('<div class="cn-card"><div class="sec-label">Service Promotion Gap</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
 
-def _content_funnel():
-    fig=go.Figure(go.Funnel(y=["Landing Page","Service Page","AI/Contact Interest","Demo / Event Action"],x=[8500,3800,1640,520],
+def _content_funnel(df=None):
+    human = _human_df(df)
+    total = len(human)
+    landing = total if total else 8500
+    service = int((_num_series(human, "distinct_pages_session") >= 2).sum()) if total and "distinct_pages_session" in human.columns else int(landing * 0.45)
+    ai_contact = int((_truthy_series(human, "has_ai_interest") | _truthy_series(human, "potential_customer_signal")).sum()) if total else int(service * 0.43)
+    demo_event = int((_truthy_series(human, "has_demo_request") | _truthy_series(human, "has_event_signup")).sum()) if total else int(ai_contact * 0.32)
+    labels = ["Landing Page", "Service Page", "AI/Contact Interest", "Demo/Event Action"]
+    vals = [landing, min(service, landing), min(ai_contact, service), min(demo_event, ai_contact)]
+    drops = [0 if a <= 0 else max(0, (a - b) / a * 100) for a, b in zip(vals, vals[1:])]
+    largest_idx = int(np.argmax(drops)) if drops else 0
+    largest = f"{labels[largest_idx]} to {labels[largest_idx + 1]}" if len(labels) > largest_idx + 1 else "No strong drop-off"
+    fig=go.Figure(go.Funnel(y=labels,x=vals,
         textinfo="none",
         marker=dict(color=["#38BDF8","#2DD4BF","#7C6EE6","#4ADE80"],line=dict(color="rgba(5,12,18,0.78)",width=1.5)),
         hovertemplate="<b>%{y}</b><br>%{x:,}<br>%{percentInitial:.1%}<extra></extra>"))
-    fig.update_layout(height=145,margin=dict(l=100,r=18,t=8,b=10),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#CBD5E1",size=11),yaxis=dict(tickfont=dict(color="#CBD5E1",size=10),automargin=True))
+    fig.update_layout(height=154,margin=dict(l=106,r=12,t=4,b=4),paper_bgcolor="rgba(0,0,0,0)",plot_bgcolor="rgba(0,0,0,0)",font=dict(color="#CBD5E1",size=10),yaxis=dict(tickfont=dict(color="#CBD5E1",size=9),automargin=True))
     st.markdown('<div class="cn-card"><div class="sec-label">Content Journey Funnel</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
@@ -1535,6 +2056,60 @@ def _activity_heatmap():
     st.markdown('<div class="cn-card"><div class="sec-label">Human Activity Timing</div><div style="font-size:9px;color:#6B7FA3;margin-bottom:6px;">Best: Tue–Thu, 09:00–17:00</div>', unsafe_allow_html=True)
     st.plotly_chart(fig,use_container_width=True,config={"displayModeBar": True})
     st.markdown('</div>', unsafe_allow_html=True)
+
+def _best_time_campaigns(df=None):
+    human = _human_df(df)
+    window = "Tue-Thu, 09:00-17:00"
+    if not human.empty and "timestamp" in human.columns:
+        ts = pd.to_datetime(human["timestamp"], errors="coerce")
+        if ts.notna().any():
+            work = human.loc[ts.notna()].copy()
+            work["_dow"] = ts.loc[ts.notna()].dt.day_name().str.slice(0, 3)
+            work["_hour"] = ts.loc[ts.notna()].dt.hour
+            if not work.empty:
+                hour = int(work["_hour"].mode().iloc[0])
+                day = str(work["_dow"].mode().iloc[0])
+                window = f"{day}, {hour:02d}:00-{min(23, hour + 3):02d}:00"
+    st.markdown(f"""
+<div class="cn-card">
+  <div class="sec-label">Best Time to Run Campaigns</div>
+  <div class="mkt-callout-main">Best campaign window: {window}</div>
+</div>""", unsafe_allow_html=True)
+
+def _campaign_insight(df):
+    human = _human_df(df)
+    if human.empty:
+        text = "Campaign activity is being monitored. No strong recommendation available yet."
+    else:
+        stats = _kpi_stats(human)
+        top_market = stats.get("top_market") or "the top market"
+        entry_page = _marketing_entry_page(human)
+        text = f"{top_market} has the strongest engagement right now - prioritise campaigns there."
+        if "service_name" in human.columns and len(human):
+            work = human.copy()
+            work["_action"] = _truthy_series(work, "potential_customer_signal") | _truthy_series(work, "has_demo_request")
+            svc = work.groupby("service_name").agg(visits=("service_name", "size"), actions=("_action", "sum")).reset_index()
+            svc["action_rate"] = (svc["actions"] / svc["visits"].replace(0, np.nan) * 100).fillna(0)
+            svc["visit_share"] = (svc["visits"] / max(1, len(work)) * 100).fillna(0)
+            candidates = svc[(svc["action_rate"] >= svc["action_rate"].median()) & (svc["visit_share"] <= svc["visit_share"].median())]
+            if not candidates.empty:
+                row = candidates.sort_values(["action_rate", "actions"], ascending=False).iloc[0]
+                text = f"{row['service_name']} is converting well but has lower visit share - promote it more this week."
+            elif entry_page != "--":
+                text = f"Most visitors enter through {entry_page} - guide them faster to service pages."
+    st.markdown(f'<div class="mkt-insight-action"><div class="title">Campaign Insight</div><div class="text">{text}</div></div>', unsafe_allow_html=True)
+
+def _recommended_campaign_actions(df):
+    stats = _kpi_stats(_human_df(df))
+    top_market = stats.get("top_market", "the strongest market")
+    top_service = stats.get("top_service", "the strongest service")
+    actions = [
+        f"Prioritise {top_market} campaigns.",
+        f"Promote {top_service} more this week.",
+        "Improve service-page calls to action.",
+    ]
+    rows = "".join(f'<div class="mkt-action-line">{svg_icon("check", 13, "#4ADE80")}<span>{action}</span></div>' for action in actions)
+    st.markdown(f'<div class="cn-card"><div class="sec-label">Recommended Campaign Actions</div><div class="mkt-action-list">{rows}</div></div>', unsafe_allow_html=True)
 
 def _mkt_right():
     st.markdown("""
@@ -1562,23 +2137,26 @@ def _mkt_kpis(df=None):
     engaged_delta, engaged_cls = _metric_delta(stats, baseline, "engaged")
     engagement_delta, engagement_cls = _metric_delta(stats, baseline, "engagement_rate", "rate")
     quality_delta, quality_cls = _metric_delta(stats, baseline, "quality", "rate")
+    visitors_sub = "lower than yesterday" if engaged_cls == "down" and engaged_delta else f"today vs {baseline_label}"
     kpis=[
-        ("Engaged Visitors", f"{stats['engaged']:,}", f"today vs {baseline_label}", engaged_delta, engaged_cls),
-        ("Engagement Rate", f"{stats['engagement_rate']:.1f}%", f"today vs {baseline_label}", engagement_delta, engagement_cls),
-        ("Best Campaign Market", stats["top_market"], "highest current volume", "", ""),
-        ("Best Landing Page", stats["top_service"], "top service demand", "", ""),
-        ("Audience Quality", f"{stats['quality']}%", f"today vs {baseline_label}", quality_delta, quality_cls),
+        ("Meaningful Actions Taken Today", f"{stats['engagement_rate']:.1f}%", "Visitors did something valuable", engagement_delta, engagement_cls, "anchor", "This is the primary campaign signal: it measures visitors who took a valuable action, not just page views."),
+        ("Audience Quality Score", f"{stats['quality']}%", "How relevant our traffic is", quality_delta, quality_cls, "", "Higher quality means less bot/noise traffic and a better audience fit for campaigns."),
+        ("Best Market to Target Now", stats["top_market"], "Highest current campaign opportunity", "", "", "", "Use this market first when choosing campaign geography for the active filters."),
+        ("Visitors Today", f"{stats['engaged']:,}", visitors_sub, engaged_delta, engaged_cls, "", "This is the current engaged visitor volume under the selected filters."),
+        ("Best Entry Page", _marketing_entry_page(live_today), "Where visitors start most often", "", "", "", "Campaign traffic should guide visitors from this entry point into service and contact actions."),
     ]
     cols=st.columns(5,gap="small")
     cls_map={"up":"delta-up","watch":"delta-watch","down":"delta-down"}
-    for col,(lbl,val,sub,chg,cls) in zip(cols,kpis):
+    for col,(lbl,val,sub,chg,cls,extra,insight) in zip(cols,kpis):
         with col:
             delta=f'<div class="kpi-delta {cls_map.get(cls,"")}">{chg}</div>' if chg else '<div style="height:20px;"></div>'
-            st.markdown(f'<div class="kpi-card marketing-kpi-card"><div class="kpi-label" title="{lbl}">{lbl}</div><div class="kpi-value live-count" title="{val}" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub" title="{sub}">{sub}</div></div>', unsafe_allow_html=True)
+            anchor = " marketing-kpi-anchor" if extra == "anchor" else ""
+            st.markdown(f'<div class="kpi-card marketing-kpi-card{anchor}"><div class="kpi-label" title="{lbl}">{lbl}</div><div class="kpi-value live-count" title="{val}" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub" title="{sub}">{sub}</div><div class="kpi-hover-insight">{insight}</div></div>', unsafe_allow_html=True)
 
 def render_marketing_overview(df):
     st.session_state["_marketing_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
     st.markdown('<div class="marketing-overview-tight-start"></div>', unsafe_allow_html=True)
+    st.markdown('<div class="marketing-overview-safe">', unsafe_allow_html=True)
 
     # ── Row 1: KPI cards + live pulse (side by side) ──
     try:
@@ -1588,19 +2166,20 @@ def render_marketing_overview(df):
         _live_marketing_kpis()
     except Exception:
         _mkt_kpis(df)
-    st.markdown('<div style="height:1px;background:linear-gradient(90deg,rgba(34,211,238,0.18),rgba(34,211,238,0.06),transparent);margin:20px 0;"></div>', unsafe_allow_html=True)
+    _campaign_insight(df)
 
     # ── Row 2: Map (left 55%) | 2×2 chart grid (right 45%) ──
-    col_map, col_right = st.columns([1.0, 1.15], gap="small")
-    with col_map:
-        render_sadc_map("marketing", 400)
-    with col_right:
-        r1a, r1b = st.columns(2, gap="small")
-        with r1a: _opportunity_matrix()
-        with r1b: _promo_gap()
-        r2a, r2b = st.columns(2, gap="small")
-        with r2a: _content_funnel()
-        with r2b: _activity_heatmap()
+    left, center, right = st.columns([1.0, 1.12, 1.0], gap="small")
+    with left:
+        _market_priority_table(df)
+        _best_time_campaigns(df)
+    with center:
+        _visitors_vs_engagement(df)
+        _content_funnel(df)
+    with right:
+        _promo_gap()
+        _recommended_campaign_actions(df)
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # EXECUTIVE OVERVIEW
@@ -1816,6 +2395,20 @@ def main():
                 st.toast("Using mock data - CSV not found")
                 df = mock_data()
 
+        live_rows = pd.DataFrame()
+        try:
+            if not LIVE_QUEUE_PATH.exists():
+                st.warning("Live stream queue not found. Generate live data first.")
+            else:
+                live_rows = _release_live_rows()
+                combined = _combine_historical_live(df, live_rows)
+                if combined is not None and not combined.empty:
+                    df = combined
+                _maybe_autorefresh_live()
+        except Exception as live_err:
+            live_rows = pd.DataFrame()
+            st.warning(f"Live feed paused safely: {live_err}")
+
         st.session_state["_live_unfiltered_df"] = df
 
         # Apply date filter
@@ -1871,6 +2464,11 @@ def main():
             elif outcome == "Bounce" and "distinct_pages_session" in df_f.columns:
                 df_f = df_f[_num_series(df_f, "distinct_pages_session") <= 1]
 
+        status_filter = st.session_state.get("status_filter", "All Status Codes")
+        if status_filter != "All Status Codes" and "status_code" in df_f.columns:
+            status_num = pd.to_numeric(df_f["status_code"], errors="coerce")
+            df_f = df_f[status_num == int(status_filter)]
+
         render_chips(df_f)
 
         dash = st.session_state.active_dashboard
@@ -1894,6 +2492,7 @@ def main():
         elif selected_tab == "Analytics":
             if dash=="Sales" and _SALES_VIEWS_OK:
                 render_sales_analytics(df_f)
+                _sales_srs_evidence_panels(df_f)
             elif dash=="Marketing" and _MARKETING_VIEWS_OK:
                 render_marketing_analytics(df_f)
             elif dash=="Executive" and _EXECUTIVE_VIEWS_OK:
@@ -1913,6 +2512,7 @@ def main():
             d_start = st.session_state.get("date_start")
             d_end = st.session_state.get("date_end")
             if dash=="Sales" and _SALES_VIEWS_OK:
+                _sales_srs_evidence_panels(df_f)
                 render_sales_data(df_f)
             elif dash=="Marketing" and _MARKETING_VIEWS_OK:
                 render_marketing_data(df_f, d_start, d_end)

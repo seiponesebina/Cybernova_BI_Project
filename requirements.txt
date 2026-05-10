@@ -3,6 +3,7 @@ numpy
 faker
 pyyaml
 streamlit>=1.37.0
+streamlit-autorefresh
 matplotlib
 seaborn
 openpyxl

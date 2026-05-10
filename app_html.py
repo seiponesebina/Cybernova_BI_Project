@@ -3583,8 +3583,9 @@ div[data-testid="stSelectbox"] > div > div {
   color: #B0C4D8 !important;
 }
 div[data-testid="stTextInputRootElement"] input {
-  background: rgba(10,22,40,0.90) !important;
-  color: #B0C4D8 !important;
+  background: #FFFFFF !important;
+  color: #0B1620 !important;
+  -webkit-text-fill-color: #0B1620 !important;
   border-radius: 11px !important; border: 1.5px solid rgba(0,212,255,.25) !important;
 }
 [data-baseweb="menu"] { background: #0A1628 !important; }
