@@ -1,0 +1,33 @@
+Create pytest data quality tests for my Streamlit BI dashboard dataset. 
+Test for missing required values, duplicate records, correct data types, valid numeric ranges, and category consistency. 
+Create a tests/test_data_quality.py file and make the tests produce clear pass/fail output for my school report.
+
+Review my Streamlit dashboard code and identify all KPI formulas. 
+Create pytest tests that independently calculate each KPI from the source dataset and compare it with the dashboard calculation functions. 
+Include edge cases such as empty data, zero values, and filtered data.
+
+Create pipeline validation tests for my BI dashboard. 
+Test that the raw dataset loads correctly, required columns exist, row counts are reconciled before and after cleaning, calculated columns are correct, and grouped dashboard outputs match the source data. 
+Use pytest and pandas.
+
+Create Streamlit AppTest tests for my dashboard. 
+Test that the app loads without exceptions, key widgets are present, KPI elements render, filters can be changed, and empty filter results do not crash the app. 
+Place the tests in tests/test_streamlit_app.py.
+
+Create a Playwright test that opens my locally running Streamlit dashboard, checks that the page title loads, verifies that key dashboard headings are visible, takes screenshots in Chromium, Firefox, and WebKit, and saves the screenshots for my report.
+
+Add simple performance timing tests to my dashboard project. 
+Measure dataset loading time, data transformation time, chart preparation time, and filter response time. 
+Create a small report showing the timing results before and after caching.
+
+Create a usability testing form and results table for my Streamlit BI dashboard using Nielsen’s 10 usability heuristics. 
+Include task-based testing, success rate, time on task, user errors, and improvement recommendations.
+
+Review my Streamlit dashboard for accessibility issues. 
+Check colour contrast, chart readability, keyboard usability, text size, labels, and whether the dashboard relies too much on colour alone. 
+Return a table of issues, severity, and fixes.
+
+Create a regression testing checklist for my Streamlit dashboard. 
+Base it on the existing functional requirements and include tests for filters, KPI cards, charts, downloads, live feed, layout, and browser compatibility.
+
+

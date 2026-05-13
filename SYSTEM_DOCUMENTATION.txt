@@ -1,0 +1,590 @@
+CyberNova Analytics Ltd - Comprehensive System Documentation
+CET333 Product Development
+Student: Seipone Talama Sebina
+Document date: 2026-05-11
+
+===============================================================================
+1. System Overview
+===============================================================================
+
+CyberNova Analytics Ltd is a fictitious Gaborone-based AI cybersecurity start-up
+serving SMEs, financial institutions, and government agencies across Southern
+Africa. The CyberNova BI system analyses synthetic IIS web server logs to show
+how potential customers interact with CyberNova's online products, especially
+the flagship AI Cyber Assistant.
+
+The system is implemented as a Streamlit Business Intelligence portal. It covers
+the full BI workflow:
+
+1. Configure data generation.
+2. Generate synthetic IIS-style web logs.
+3. Enrich logs with countries, services, sessions, campaigns, lead signals, and
+   behavioural segments.
+4. Validate the generated dataset.
+5. Load the dataset into Streamlit.
+6. Apply filters and role-specific analytics.
+7. Present dashboards for Sales, Marketing, and Executive Management.
+8. Export evidence and reports.
+9. Deploy through GitHub and Streamlit.
+
+All data is synthetic. The system does not use real CyberNova customers, real
+server logs, real personal information, or live geolocation services.
+
+
+===============================================================================
+2. Project Objectives
+===============================================================================
+
+The main objective is to build a Product Sales Data Analysis System that helps
+CyberNova understand online product demand and convert digital engagement into
+business decisions.
+
+Specific objectives:
+
+- Identify which countries produce the strongest demand.
+- Measure demand for each CyberNova service.
+- Track interest in the AI Cyber Assistant.
+- Identify high-intent visitors and warm leads.
+- Separate human traffic from bot/crawler traffic.
+- Track demo requests and event signups.
+- Support Sales, Marketing, and Executive decision-making.
+- Provide repeatable monthly reporting from synthetic IIS logs.
+- Demonstrate deployment readiness using GitHub and Streamlit.
+
+
+===============================================================================
+3. Stakeholders and User Roles
+===============================================================================
+
+The system supports four login roles:
+
+- Sales Team Lead.
+  Accesses CyberNova Pulse. Focuses on warm leads, demo requests, conversion
+  signals, lead actions, country opportunities, and service interest.
+
+- Marketing Lead.
+  Accesses CyberNova Reach. Focuses on campaign performance, audience segments,
+  engagement quality, market awareness, service demand, and marketing actions.
+
+- Executive Management.
+  Accesses CyberNova Horizon. Focuses on strategic KPIs, market expansion,
+  service portfolio demand, risk indicators, and high-level forecasting.
+
+- Admin / Lecturer View.
+  Accesses all dashboards for marking, review, and demonstration.
+
+The current authentication model is prototype-level. It is suitable for academic
+demonstration but would require stronger security controls for production use.
+
+
+===============================================================================
+4. High-Level Architecture
+===============================================================================
+
+The system follows this architecture:
+
+config.yaml
+  Defines random seed, date range, country weights, service definitions,
+  campaign windows, anomaly rules, and output file paths.
+
+generate_logs.py
+  Generates synthetic IIS-style logs and enriches them with analytical fields.
+
+data/output/
+  Stores generated raw logs, enriched logs, Excel workbook, and generation
+  summary.
+
+validate_dataset.py
+  Checks dataset completeness, record volume, distribution, status codes,
+  anomalies, and generation quality.
+
+cybernovaapp.py
+  Main Streamlit application. Loads data, caches dataframes, applies filters,
+  manages authentication, combines historical data with live replay rows, and
+  renders dashboard views.
+
+sales_views.py, marketing_views.py, executive_views.py
+  Role-focused dashboard modules.
+
+exports.py
+  Export helpers for CSV, Excel, PDF, and summary reporting.
+
+live_feed.py and data/live_stream_queue.csv
+  Simulated live stream support for operational replay.
+
+requirements.txt
+  Dependency file used for local setup and Streamlit deployment.
+
+
+===============================================================================
+5. Technology Stack
+===============================================================================
+
+Programming language:
+
+- Python 3.x.
+
+Application framework:
+
+- Streamlit.
+
+Data processing:
+
+- pandas.
+- NumPy.
+- PyYAML.
+- Faker.
+
+Visualisation:
+
+- Plotly.
+- Matplotlib.
+- Seaborn.
+
+Reporting/export:
+
+- ReportLab.
+- openpyxl.
+- Kaleido.
+
+Live refresh:
+
+- streamlit-autorefresh.
+
+Version control and deployment:
+
+- Git.
+- GitHub.
+- Streamlit Community Cloud.
+
+
+===============================================================================
+6. Data Generation Design
+===============================================================================
+
+The synthetic data generator is controlled by config.yaml.
+
+Important configuration values:
+
+- random_seed: 333.
+- date range: 2026-01-01 to 2026-06-30.
+- base_daily_requests: 500.
+- monthly_growth_rate: 0.08.
+- bot ratio range: 8% to 12%.
+- Botswana traffic weight: 0.32.
+
+Configured countries:
+
+- Botswana.
+- South Africa.
+- Zambia.
+- Namibia.
+- Zimbabwe.
+- Lesotho.
+- Eswatini.
+- Mozambique.
+- Malawi.
+- Tanzania.
+
+Configured services:
+
+- AI Cyber Assistant.
+- Cybersecurity Monitoring.
+- Automated Risk Assessment.
+- Digital Transformation.
+- Predictive Maintenance.
+- Rapid Prototyping.
+- Events and Promotions.
+
+Configured campaign windows:
+
+- SME Cyber Risk Week.
+- AI Cyber Assistant Launch Push.
+- Government Digital Transformation Expo.
+
+Configured anomalies:
+
+- Suspicious Prototype Bot Spike.
+- Broken AI Campaign Link.
+- Viral AI Assistant Spike.
+
+The generator creates IIS-style records with date, time, IP address, HTTP
+method, URI, status code, user agent, bytes transferred, and response time. It
+then enriches the records with BI fields such as service name, session ID,
+country, campaign, segment, lead score, anomaly status, and recommended action.
+
+
+===============================================================================
+7. Generated Dataset
+===============================================================================
+
+Main generated files:
+
+- data/output/cybernova_iis_raw_logs.csv.
+- data/output/cybernova_enriched_logs.csv.
+- data/output/cybernova_web_logs.xlsx.
+- data/output/cybernova_decision_engine_dataset.xlsx.
+- data/output/generation_summary.csv.
+- data/live_stream_queue.csv.
+
+Current dataset profile:
+
+- Raw IIS-style rows: 60,551.
+- Enriched rows: 60,551.
+- Enriched columns: 133.
+- Daily summary rows: 181.
+- Date range: 2026-01-01 to 2026-06-30.
+- Botswana rows: 19,248.
+- Bot ratio: approximately 9.91%.
+- Warm leads: 3,694.
+- Demo request URI rows: 1,174.
+- Event-related rows: 1,629.
+
+Important dimensions:
+
+- timestamp.
+- date.
+- hour.
+- country.
+- service_name.
+- service_category.
+- request_type.
+- status_code.
+- status_class.
+- user_agent.
+- is_bot.
+- is_warm_lead.
+- has_demo_request.
+- has_event_signup.
+- has_ai_interest.
+- segment.
+- campaign_name.
+- anomaly_name.
+- response_time_ms.
+- bytes_transferred.
+
+
+===============================================================================
+8. ETL Pipeline
+===============================================================================
+
+The ETL process transforms generated web logs into dashboard-ready BI data.
+
+Extract:
+
+- Read enriched CSV from data/output/cybernova_enriched_logs.csv.
+- Use raw CSV and Excel workbook as supporting artefacts.
+- Read live replay rows from data/live_stream_queue.csv when live mode is used.
+
+Transform:
+
+- Parse timestamp and date fields.
+- Cast boolean fields such as is_bot, is_warm_lead, has_demo_request, and
+  has_ai_interest.
+- Normalize live replay column names where required.
+- Derive missing live fields such as service_name, status_class, hour, and
+  engagement flags.
+- Sort rows chronologically.
+- Apply country, service, segment, date, and HTTP status filters.
+- Exclude bot traffic by default when human-market analysis is required.
+
+Load:
+
+- Load filtered dataframes into dashboard views.
+- Cache data using Streamlit caching.
+- Use pickle/parquet cache files when available in cybernovaapp.py.
+- Combine historical data and released live rows for replay dashboards.
+
+Quality controls:
+
+- Fixed random seed for reproducibility.
+- Validation script for generated outputs.
+- Generation summary by day.
+- Invalid status flag support.
+- Data freshness status support.
+- Anomaly labels and recommended action fields.
+
+
+===============================================================================
+9. Behavioural Segmentation
+===============================================================================
+
+The system classifies visitors into four behavioural tiers:
+
+High-intent:
+
+- Visitors interacting with demo, event, contact, or conversion-oriented pages.
+- Used by Sales for follow-up and prioritisation.
+
+Product-curious:
+
+- Visitors interacting with product and service pages, especially AI and
+  cybersecurity pages.
+- Used by Marketing and Sales to understand active service interest.
+
+General browser:
+
+- Visitors using general website pages such as home, about, or lower-intent
+  browsing paths.
+- Used to measure awareness and top-of-funnel traffic.
+
+Bot:
+
+- Crawler or automated traffic detected through generation logic and user-agent
+  behaviour.
+- Excluded from most human-market analytics unless the user includes filtered
+  traffic.
+
+
+===============================================================================
+10. Dashboard Structure
+===============================================================================
+
+The dashboard has three primary role-based areas.
+
+CyberNova Pulse - Sales:
+
+- Warm lead totals.
+- Demo request tracking.
+- AI conversion indicators.
+- Country and service demand.
+- Funnel diagnostics.
+- Action queues.
+- Lead evidence exports.
+
+CyberNova Reach - Marketing:
+
+- Campaign performance.
+- Audience segment mix.
+- Service interest.
+- Engagement quality.
+- Channel and market opportunities.
+- Marketing recommendations.
+
+CyberNova Horizon - Executive:
+
+- Strategic demand KPIs.
+- AI Cyber Assistant traction.
+- Market expansion indicators.
+- Regional performance.
+- Risk and anomaly summaries.
+- Planning-level forecasts.
+
+Common dashboard features:
+
+- Date filter.
+- Market/country filter.
+- Service filter.
+- Segment filter.
+- HTTP status/visit outcome filter.
+- Bot inclusion toggle.
+- Refresh action.
+- CSV/PDF/export support.
+- Context chips showing active filter state.
+
+
+===============================================================================
+11. Analytics and Measures
+===============================================================================
+
+The system supports these measures:
+
+- Total visits.
+- Human visits.
+- Bot visits.
+- Warm leads.
+- Demo requests.
+- Event signups.
+- AI interest rate.
+- Engagement rate.
+- Conversion rate.
+- Estimated opportunity value.
+- Top market.
+- Top service.
+- Active market count.
+- Risk/anomaly count.
+- HTTP status distribution.
+- Response time and service health.
+- Country share versus target.
+- Segment volumes.
+- Campaign lift.
+
+The system supports these analytical views:
+
+- Country ranking.
+- Service ranking.
+- Country-by-service demand.
+- Hourly and daily trends.
+- Campaign-period comparisons.
+- Warm lead funnel.
+- AI product traction.
+- Geographic market performance.
+- Anomaly review.
+- Forecasting from daily aggregates.
+- Exportable evidence tables.
+
+
+===============================================================================
+12. Live Feed Simulation
+===============================================================================
+
+The live feed is a synthetic replay, not a production server listener.
+
+The replay reads rows from data/live_stream_queue.csv, releases a controlled
+number of rows per refresh, and updates timestamps to simulate current activity.
+cybernovaapp.py supports replay speeds:
+
+- Slow.
+- Normal.
+- Fast.
+
+The app can refresh the live view through streamlit-autorefresh. If the refresh
+package is unavailable, the rest of the dashboard still works.
+
+This design is appropriate because the project constraints state that real
+CyberNova server logs are unavailable.
+
+
+===============================================================================
+13. Exports and Reporting
+===============================================================================
+
+The system provides export support for:
+
+- Filtered CSV extracts.
+- Evidence tables.
+- Excel workbooks.
+- PDF reports.
+- Dashboard summaries.
+
+exports.py and Streamlit download buttons support report generation for
+academic evidence, stakeholder communication, and repeatable monthly reporting.
+
+
+===============================================================================
+14. Security and Ethics
+===============================================================================
+
+Ethical controls:
+
+- All data is synthetic.
+- No real customer records are used.
+- No real server logs are used.
+- No real personal data is used.
+- No live geolocation API is used.
+- The project is safe for academic demonstration.
+
+Prototype security:
+
+- Role-based login is implemented for demonstration.
+- Passwords are stored in source code, which is acceptable only for prototype
+  demonstration.
+
+Production security requirements:
+
+- Store credentials as Streamlit secrets or environment variables.
+- Hash passwords.
+- Add proper user management.
+- Add audit logging.
+- Restrict data exports by role.
+- Use HTTPS-only deployment.
+- Review large file and data retention policies.
+
+
+===============================================================================
+15. Validation and Testing
+===============================================================================
+
+Validation activities:
+
+- Generate logs from config.yaml.
+- Run validate_dataset.py.
+- Confirm record count exceeds 1,000 and 50,000-row scalability target.
+- Confirm Botswana share exceeds 30%.
+- Confirm bot ratio falls within 8% to 12%.
+- Confirm status codes are valid.
+- Confirm required fields exist.
+- Confirm all four behavioural segments exist.
+- Confirm dashboard loads locally.
+- Confirm filters work.
+- Confirm role dashboards render.
+- Confirm exports download.
+- Confirm live replay reads data/live_stream_queue.csv.
+
+Suggested final evidence before submission:
+
+- Screenshot of GitHub repository.
+- Screenshot of Streamlit deployed app.
+- Screenshot of each role dashboard.
+- Screenshot of filters.
+- Screenshot of exports.
+- Output from validate_dataset.py.
+- First-load and filter-response timing evidence.
+
+
+===============================================================================
+16. Known Limitations
+===============================================================================
+
+- Live monitoring is simulated through replay.
+- Role authentication is not production-grade.
+- Forecasting is simple and interpretive.
+- Some generated data files are large and may require careful GitHub/Streamlit
+  management.
+- The dashboard is designed for BI demonstration rather than enterprise
+  multi-user operations.
+
+
+===============================================================================
+17. Maintenance Guide
+===============================================================================
+
+Monthly refresh process:
+
+1. Update config.yaml if campaign windows, services, or date ranges change.
+2. Run python generate_logs.py.
+3. Run python validate_dataset.py.
+4. Launch streamlit run cybernovaapp.py.
+5. Review Sales, Marketing, and Executive dashboards.
+6. Export evidence and reports.
+7. Commit updated source and approved data artefacts to GitHub.
+8. Confirm Streamlit deployment still loads.
+
+Change management:
+
+- Keep config changes separate from code changes where possible.
+- Do not commit temporary log files unless needed as evidence.
+- Avoid committing secrets.
+- Keep requirements.txt updated when dependencies change.
+- Retest Streamlit deployment after any dependency or file path change.
+
+
+===============================================================================
+18. Glossary
+===============================================================================
+
+AI Cyber Assistant:
+  CyberNova's flagship AI cybersecurity product.
+
+BI:
+  Business Intelligence.
+
+ETL:
+  Extract, Transform, Load.
+
+IIS:
+  Microsoft Internet Information Services web server.
+
+SRS:
+  Software Requirements Specification.
+
+Warm lead:
+  A visitor who performs high-intent behaviour such as viewing demo, event,
+  contact, or product pages.
+
+W3C log format:
+  A standard web log structure commonly used by IIS.
+
+===============================================================================
+End of system documentation
+===============================================================================

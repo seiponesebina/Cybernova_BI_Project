@@ -641,6 +641,45 @@ def _exec_insight_assistant():
     _card_close()
 
 
+def _revenue_earned_chart(df):
+    work = df if df is not None and not df.empty else _mock_df()
+    human = work[~_truthy_col(work, "is_bot")] if "is_bot" in work.columns else work
+    _card_open("Revenue Earned")
+    if human.empty:
+        st.markdown(
+            f'<div style="font-size:11px;color:{_MUTED};">No revenue data is available for the selected filters.</div>',
+            unsafe_allow_html=True,
+        )
+        _card_close()
+        return
+
+    value_col = "expected_conversion_value" if "expected_conversion_value" in human.columns else "pipeline_value" if "pipeline_value" in human.columns else "estimated_deal_value"
+    human = human.copy()
+    human["_earned_value"] = pd.to_numeric(human.get(value_col, pd.Series(dtype="float64")), errors="coerce").fillna(0)
+    group_col = "country" if "country" in human.columns else "service_name" if "service_name" in human.columns else None
+    earned = human.groupby(group_col)["_earned_value"].sum().sort_values(ascending=False).head(8) if group_col else pd.Series({"Revenue": human["_earned_value"].sum()})
+
+    fig = go.Figure(go.Bar(
+        x=earned.values / 1_000_000,
+        y=earned.index.astype(str),
+        orientation="h",
+        marker=dict(color="#A855F7", line=dict(color="rgba(255,255,255,.16)", width=1)),
+        hovertemplate="<b>%{y}</b><br>Revenue earned: P%{x:.2f}M<extra></extra>",
+    ))
+    _cl(fig, 245)
+    fig.update_layout(
+        xaxis=dict(title="Revenue earned (Pula M)", color="#94A3B8", tickfont=dict(size=10), title_font=dict(size=10)),
+        yaxis=dict(autorange="reversed", color="#CBD5E1", tickfont=dict(size=10), automargin=True),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
+    st.markdown(
+        f'<div style="font-size:10px;color:{_MUTED};margin-top:4px;">Board view of modelled earned revenue using <b>{value_col}</b>.</div>',
+        unsafe_allow_html=True,
+    )
+    _card_close()
+
+
 def render_executive_analytics(df):
     """Render Executive Analytics tab - 6 cards."""
     inject_executive_css()
@@ -655,6 +694,8 @@ def render_executive_analytics(df):
             _market_contribution_chart()
         with c2:
             _ai_by_market_chart()
+
+        _revenue_earned_chart(df)
 
         # Card 4: Risk / Anomaly Trend - full width
         _risk_anomaly_trend()

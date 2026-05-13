@@ -31,3 +31,7 @@ Thumbs.db
 .vscode/
 .idea/
 *.code-workspace
+.streamlit_app_test_tmp/
+pytest-cache-files-*/
+.pytest_cache/
+__pycache__/

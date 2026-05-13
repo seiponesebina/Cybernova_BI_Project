@@ -759,6 +759,44 @@ def _marketing_insight_assistant():
 
 
 # ── Main analytics renderer ───────────────────────────────────────────────────
+def _revenue_earned_chart(df):
+    work = df if df is not None and not df.empty else _mock_df()
+    human = work[~_truthy_col(work, "is_bot")] if "is_bot" in work.columns else work
+    _card_open("Revenue Earned")
+    if human.empty:
+        st.markdown(
+            f'<div style="font-size:11px;color:{_MUTED};">No revenue data is available for the selected filters.</div>',
+            unsafe_allow_html=True,
+        )
+        _card_close()
+        return
+
+    value_col = "expected_conversion_value" if "expected_conversion_value" in human.columns else "pipeline_value" if "pipeline_value" in human.columns else "estimated_deal_value"
+    human = human.copy()
+    human["_earned_value"] = pd.to_numeric(human.get(value_col, pd.Series(dtype="float64")), errors="coerce").fillna(0)
+    group_col = "source_channel" if "source_channel" in human.columns else "service_name" if "service_name" in human.columns else "country"
+    earned = human.groupby(group_col)["_earned_value"].sum().sort_values(ascending=False).head(7)
+
+    fig = go.Figure(go.Bar(
+        x=earned.index.astype(str),
+        y=earned.values / 1_000_000,
+        marker=dict(color="#14B8A6", line=dict(color="rgba(255,255,255,.16)", width=1)),
+        hovertemplate="<b>%{x}</b><br>Revenue earned: P%{y:.2f}M<extra></extra>",
+    ))
+    _cl(fig, 245)
+    fig.update_layout(
+        xaxis=dict(tickangle=-25, color="#CBD5E1", tickfont=dict(size=9), automargin=True),
+        yaxis=dict(title="Revenue earned (Pula M)", color="#94A3B8", tickfont=dict(size=10), title_font=dict(size=10)),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
+    st.markdown(
+        f'<div style="font-size:10px;color:{_MUTED};margin-top:4px;">Revenue earned is grouped by {group_col.replace("_", " ")} using <b>{value_col}</b>.</div>',
+        unsafe_allow_html=True,
+    )
+    _card_close()
+
+
 def render_marketing_analytics(df):
     inject_marketing_css()
     if df is None:
@@ -780,7 +818,9 @@ def render_marketing_analytics(df):
         with c1:
             _service_promotion_gap()
         with c2:
-            _channel_source_quality()
+            _revenue_earned_chart(df)
+
+        _channel_source_quality()
 
         # Row 4 - full width map + ranking
         _sadc_reach_map()

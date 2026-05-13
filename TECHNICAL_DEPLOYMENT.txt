@@ -1,0 +1,443 @@
+CyberNova BI Project - Technical Deployment Guide
+CET333 Product Development
+Student: Seipone Talama Sebina
+Document date: 2026-05-11
+
+===============================================================================
+1. Deployment Summary
+===============================================================================
+
+The CyberNova BI system is deployed using this path:
+
+Local project -> GitHub repository -> Streamlit Community Cloud
+
+Repository:
+
+https://github.com/seiponesebina/Cybernova_BI_Project.git
+
+Primary Streamlit entry file:
+
+cybernovaapp.py
+
+Reference/alternate Streamlit entry file:
+
+app_html.py
+
+Recommended local run command:
+
+streamlit run cybernovaapp.py
+
+Alternate local run command:
+
+streamlit run app_html.py --server.port 8505
+
+
+===============================================================================
+2. Deployment Architecture
+===============================================================================
+
+User browser
+  Opens the Streamlit application URL.
+
+Streamlit Community Cloud
+  Hosts and runs the Python Streamlit app.
+
+GitHub repository
+  Stores the application code, requirements.txt, configuration files, generated
+  data artefacts, and documentation.
+
+Application files
+  cybernovaapp.py loads dashboard modules, generated data, logo assets,
+  stylesheet, live replay data, and export helpers.
+
+Generated data
+  data/output/cybernova_enriched_logs.csv is the primary dashboard dataset.
+  data/live_stream_queue.csv supports live replay.
+
+
+===============================================================================
+3. Required Repository Structure
+===============================================================================
+
+The deployment expects the following important files and folders:
+
+Cybernova_BI_Project/
+  cybernovaapp.py
+  app_html.py
+  sales_views.py
+  marketing_views.py
+  executive_views.py
+  exports.py
+  generate_logs.py
+  validate_dataset.py
+  live_feed.py
+  config.yaml
+  requirements.txt
+  styling.css
+  logo.png
+  cybernova_logo_transparent.svg
+  srs.txt
+  systemevaluation.txt
+  SYSTEM_DOCUMENTATION.txt
+  TECHNICAL_DEPLOYMENT.txt
+  data/
+    live_stream_queue.csv
+    output/
+      cybernova_enriched_logs.csv
+      cybernova_iis_raw_logs.csv
+      cybernova_web_logs.xlsx
+      generation_summary.csv
+
+The current application reads paths relative to the repository root, so the
+data folder must remain in the same relative location unless the path constants
+inside the app are updated.
+
+
+===============================================================================
+4. Local Environment Setup
+===============================================================================
+
+Prerequisites:
+
+- Python 3.10 or later recommended.
+- Git.
+- Internet connection for dependency installation.
+
+Create and activate a virtual environment:
+
+python -m venv .venv
+
+Windows PowerShell:
+
+.venv\Scripts\Activate.ps1
+
+Install dependencies:
+
+pip install -r requirements.txt
+
+Generate data if required:
+
+python generate_logs.py
+
+Validate generated data:
+
+python validate_dataset.py
+
+Run the app locally:
+
+streamlit run cybernovaapp.py
+
+Run on a specific port:
+
+streamlit run cybernovaapp.py --server.port 8505
+
+
+===============================================================================
+5. requirements.txt
+===============================================================================
+
+The current deployment dependencies are:
+
+- pandas.
+- numpy.
+- faker.
+- pyyaml.
+- streamlit>=1.37.0.
+- streamlit-autorefresh.
+- matplotlib.
+- seaborn.
+- openpyxl.
+- plotly.
+- reportlab.
+- kaleido.
+
+Streamlit Community Cloud installs these packages automatically from
+requirements.txt during deployment.
+
+
+===============================================================================
+6. GitHub Deployment Steps
+===============================================================================
+
+1. Confirm Git remote.
+
+git remote -v
+
+Expected remote:
+
+origin  https://seiponesebina@github.com/seiponesebina/Cybernova_BI_Project.git
+
+2. Check working tree.
+
+git status
+
+3. Add updated files.
+
+git add systemevaluation.txt SYSTEM_DOCUMENTATION.txt TECHNICAL_DEPLOYMENT.txt
+
+Also add source/data changes if they are required for the final submission:
+
+git add cybernovaapp.py sales_views.py marketing_views.py executive_views.py exports.py config.yaml requirements.txt data
+
+4. Commit changes.
+
+git commit -m "Update system evaluation and deployment documentation"
+
+5. Push to GitHub.
+
+git push origin main
+
+If the default branch is master instead of main, use:
+
+git push origin master
+
+6. Confirm the files are visible on GitHub.
+
+Open:
+
+https://github.com/seiponesebina/Cybernova_BI_Project
+
+
+===============================================================================
+7. Streamlit Community Cloud Deployment Steps
+===============================================================================
+
+1. Go to Streamlit Community Cloud:
+
+https://share.streamlit.io
+
+2. Sign in with the GitHub account that has access to the repository.
+
+3. Select "New app" or "Create app".
+
+4. Choose the repository:
+
+seiponesebina/Cybernova_BI_Project
+
+5. Choose the branch:
+
+main
+
+Use master if that is the actual GitHub default branch.
+
+6. Set main file path:
+
+cybernovaapp.py
+
+7. Deploy the app.
+
+8. Wait for dependency installation and app build.
+
+9. Open the deployed app URL and test:
+
+- Login page renders.
+- Sales dashboard loads.
+- Marketing dashboard loads.
+- Executive dashboard loads.
+- Date filter works.
+- Country filter works.
+- Service filter works.
+- HTTP status/visit outcome filter works.
+- CSV/PDF export works.
+- Live replay section loads.
+
+10. Copy the final Streamlit app URL into the submission report or README.
+
+
+===============================================================================
+8. Streamlit Cloud Configuration Notes
+===============================================================================
+
+The current project does not require external API keys or private secrets.
+
+If future production credentials are added, they should not be committed to
+GitHub. Use Streamlit secrets instead:
+
+.streamlit/secrets.toml
+
+For production, move role passwords out of source code and into Streamlit
+secrets or a secure authentication provider.
+
+
+===============================================================================
+9. Large File Considerations
+===============================================================================
+
+The generated output files are large. Important examples:
+
+- cybernova_enriched_logs.csv is large because it contains 60,551 rows and 133
+  columns.
+- cybernova_web_logs.xlsx is also large.
+- cache files such as .pkl and .parquet can be regenerated.
+
+Recommended repository policy:
+
+- Keep the primary enriched CSV if Streamlit must load immediately without
+  regeneration.
+- Keep generation_summary.csv because it is small and useful evidence.
+- Keep live_stream_queue.csv if the deployed live replay feature is required.
+- Avoid committing temporary log files.
+- Avoid committing cache files unless Streamlit deployment specifically needs
+  them.
+
+If GitHub rejects large files or Streamlit build becomes slow:
+
+1. Remove regenerated cache files from version control.
+2. Keep only the enriched CSV needed by the app.
+3. Use Git LFS for very large required files, or regenerate data during setup.
+4. Reduce generated rows only if the SRS scalability evidence remains satisfied.
+
+
+===============================================================================
+10. Deployment Verification Checklist
+===============================================================================
+
+Local verification:
+
+[ ] requirements.txt installs successfully.
+[ ] python generate_logs.py completes if data regeneration is required.
+[ ] python validate_dataset.py completes.
+[ ] streamlit run cybernovaapp.py opens locally.
+[ ] Login works for all required roles.
+[ ] Sales dashboard renders.
+[ ] Marketing dashboard renders.
+[ ] Executive dashboard renders.
+[ ] Filters update dashboard values.
+[ ] HTTP status/visit outcome filtering works.
+[ ] Exports download.
+[ ] Live replay reads data/live_stream_queue.csv.
+
+GitHub verification:
+
+[ ] Repository opens at the expected URL.
+[ ] Latest commit is visible.
+[ ] requirements.txt is in the repository root.
+[ ] cybernovaapp.py is in the repository root.
+[ ] data/output/cybernova_enriched_logs.csv is present or generation is clearly
+    documented.
+[ ] Documentation files are present.
+
+Streamlit verification:
+
+[ ] App builds without dependency errors.
+[ ] App URL opens in browser.
+[ ] No missing-file error appears.
+[ ] No module import error appears.
+[ ] Logo and styling load.
+[ ] Dataset loads.
+[ ] Dashboards render.
+[ ] Live replay does not crash if refresh is unavailable.
+[ ] App performance is acceptable.
+
+
+===============================================================================
+11. Common Deployment Errors and Fixes
+===============================================================================
+
+Error: ModuleNotFoundError
+
+Cause:
+  A package is used in code but missing from requirements.txt.
+
+Fix:
+  Add the package to requirements.txt, commit, push, and reboot the Streamlit app.
+
+
+Error: FileNotFoundError for data/output/cybernova_enriched_logs.csv
+
+Cause:
+  The generated data file is not present in the GitHub repository or the path is
+  different from what cybernovaapp.py expects.
+
+Fix:
+  Add the required data file to data/output/ or regenerate the file during
+  deployment. Keep the relative path unchanged.
+
+
+Error: App is slow on first load
+
+Cause:
+  Large CSV and Excel files take time to load on cloud infrastructure.
+
+Fix:
+  Use the enriched CSV as the primary source, keep caching enabled, remove
+  unnecessary cache files from the repository, and avoid loading Excel unless
+  needed as fallback.
+
+
+Error: Streamlit Cloud build fails on kaleido/reporting packages
+
+Cause:
+  Optional image/PDF export dependencies can sometimes be slow or platform
+  sensitive.
+
+Fix:
+  Confirm the package versions in requirements.txt. If exports are not required
+  for the live demo, make export imports fail gracefully in code.
+
+
+Error: Login credentials are visible in source code
+
+Cause:
+  Prototype role passwords are hard-coded.
+
+Fix:
+  Accept for academic prototype. For production, move credentials to Streamlit
+  secrets and hash passwords.
+
+
+===============================================================================
+12. Operational Runbook
+===============================================================================
+
+For a normal demonstration:
+
+1. Open the Streamlit URL.
+2. Log in using the role required for the demonstration.
+3. Select the required date range.
+4. Select market/country and service filters.
+5. Review KPIs and charts.
+6. Export CSV/PDF evidence if required.
+7. Switch to Admin / Lecturer View to demonstrate all dashboards.
+
+For monthly data refresh:
+
+1. Edit config.yaml if dates, campaigns, services, or weights changed.
+2. Run python generate_logs.py.
+3. Run python validate_dataset.py.
+4. Test locally with streamlit run cybernovaapp.py.
+5. Commit and push approved changes.
+6. Reboot Streamlit Cloud app if needed.
+7. Confirm the deployed app reflects the new data.
+
+For emergency rollback:
+
+1. Identify the last working Git commit on GitHub.
+2. Revert or create a fix commit locally.
+3. Push the corrected branch.
+4. Reboot the Streamlit app.
+
+Do not store secrets or private credentials in the repository.
+
+
+===============================================================================
+13. Final Deployment Evidence to Include in Submission
+===============================================================================
+
+Include the following in the final academic submission:
+
+- GitHub repository URL.
+- Streamlit deployed app URL.
+- Screenshot of GitHub repository.
+- Screenshot of Streamlit app login page.
+- Screenshot of Sales dashboard.
+- Screenshot of Marketing dashboard.
+- Screenshot of Executive dashboard.
+- Screenshot showing filters.
+- Screenshot showing export or data evidence.
+- Output summary from validate_dataset.py.
+- Short note that all data is synthetic.
+
+===============================================================================
+End of technical deployment guide
+===============================================================================

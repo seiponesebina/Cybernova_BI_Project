@@ -41,12 +41,15 @@ FAST_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.pkl"
 PARQUET_CACHE_PATH = _BASE / "data" / "output" / "cybernova_enriched_logs.fast.parquet"
 LIVE_QUEUE_PATH = _BASE / "data" / "live_stream_queue.csv"
 LIVE_REPLAY_SPEEDS = {
-    "Slow": {"rows_per_tick": 35},
-    "Normal": {"rows_per_tick": 70},
-    "Fast": {"rows_per_tick": 140},
+    "Slow": {"rows_per_tick": 12},
+    "Normal": {"rows_per_tick": 24},
+    "Fast": {"rows_per_tick": 48},
 }
-LIVE_REPLAY_MAX_VISIBLE_ROWS = 30000
-LIVE_REPLAY_REFRESH_MS = 5000
+LIVE_REPLAY_MAX_VISIBLE_ROWS = 1200
+LIVE_REPLAY_REFRESH_MS = 15000
+LIVE_REFRESH_ENABLED = False
+LIVE_KPI_FRAGMENT_SECONDS = 5
+LIVE_CHART_FRAGMENT_SECONDS = 12
 
 # ── LOGO ──────────────────────────────────────────────────────────────────────
 def _load_logo():
@@ -378,11 +381,42 @@ label,.stSelectbox label,.stTextInput label,.stDateInput label{color:var(--muted
   border-color:#F87171!important;
   box-shadow:0 0 16px rgba(248,113,113,0.2)!important;
 }
+/* Keep the dashboard visually stable during fragment updates. */
+[data-testid="stAppViewContainer"],
+[data-testid="stApp"],
+[data-testid="stMain"],
+section.main,
+div.block-container{
+  opacity:1!important;
+  filter:none!important;
+  transition:none!important;
+}
+[data-testid="stStatusWidget"],
+[data-testid="stSpinner"]{
+  display:none!important;
+}
 </style>""", unsafe_allow_html=True)
     if extra_css:
         st.markdown(f"<style>{extra_css}</style>", unsafe_allow_html=True)
 
 # ── DATA ──────────────────────────────────────────────────────────────────────
+def _optimize_dashboard_frame(df):
+    if df is None or df.empty:
+        return df
+    out = df.copy()
+    for col in ["country", "service_name", "segment", "status_class", "risk_level", "market_status"]:
+        if col in out.columns and out[col].dtype == object:
+            out[col] = out[col].astype("category")
+    for col in [
+        "is_bot", "is_sadc", "is_warm_lead", "potential_customer_signal",
+        "has_demo_request", "has_event_signup", "is_engaged_session",
+        "has_ai_interest", "is_anomaly",
+    ]:
+        if col in out.columns:
+            out[col] = _truthy_series(out, col)
+    return out
+
+
 @st.cache_resource(show_spinner=False)
 def _load_data_cached(csv_mtime, fast_cache_mtime):
     try:
@@ -402,8 +436,7 @@ def _load_data_cached(csv_mtime, fast_cache_mtime):
             df["timestamp"] = pd.to_datetime(df["timestamp"], errors="coerce")
         if "date" in df.columns and not pd.api.types.is_datetime64_any_dtype(df["date"]):
             df["date"] = pd.to_datetime(df["date"], errors="coerce")
-        for c in ["is_bot","is_sadc","is_warm_lead","potential_customer_signal","has_demo_request"]:
-            if c in df.columns: df[c] = df[c].astype(bool, errors="ignore")
+        df = _optimize_dashboard_frame(df)
         if cache_needs_write:
             try:
                 df.to_pickle(FAST_CACHE_PATH)
@@ -523,7 +556,8 @@ def _release_live_rows(queue_df=None):
     st.session_state.live_rows_added_session = max(0, prev)
     st.session_state.live_last_refresh = datetime.datetime.now().strftime("%H:%M:%S")
     try:
-        live = pd.read_csv(LIVE_QUEUE_PATH, nrows=prev, low_memory=False)
+        source = queue_df if queue_df is not None else load_live_queue()
+        live = source.head(prev).copy() if source is not None and not source.empty else pd.DataFrame()
     except Exception:
         st.session_state.live_rows_released = 0
         return pd.DataFrame()
@@ -538,7 +572,22 @@ def _release_live_rows(queue_df=None):
         live["hour"] = live["timestamp"].dt.hour
     return live
 
+
+def _refresh_live_replay_cache():
+    try:
+        live_rows = _release_live_rows()
+        live_norm = _normalize_live_queue(live_rows)
+        if live_norm is not None and not live_norm.empty:
+            st.session_state["_live_replay_df"] = live_norm
+            return live_norm
+    except Exception:
+        return st.session_state.get("_live_replay_df", pd.DataFrame())
+    return st.session_state.get("_live_replay_df", pd.DataFrame())
+
+
 def _maybe_autorefresh_live():
+    if not LIVE_REFRESH_ENABLED:
+        return
     try:
         from streamlit_autorefresh import st_autorefresh
         st_autorefresh(interval=LIVE_REPLAY_REFRESH_MS, key="live_feed_tick")
@@ -779,13 +828,16 @@ def _metric_delta(current, baseline, key, mode="count"):
     base = float(baseline.get(key, 0) or 0) if baseline else 0
     cur = float(current.get(key, 0) or 0)
     if base <= 0:
-        return "starting", "watch"
+        return "", ""
     diff = cur - base
-    cls = "up" if diff >= 0 else "down"
+    if abs(diff) < 1e-9:
+        return "", ""
+    cls = "up" if diff > 0 else "down"
+    anchor = "▲" if diff > 0 else "▼"
     if mode == "rate":
-        return f"{diff:+.1f} pts", cls
+        return f"{anchor} {diff:+.1f} pts", cls
     pct = diff / base * 100
-    return f"{pct:+.1f}%", cls
+    return f"{anchor} {pct:+.1f}%", cls
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # LOGIN PAGE
@@ -1148,7 +1200,7 @@ def render_chips(df):
   <span class="chip">Revenue: estimated opportunity, not booked sales</span>
 </div>""", unsafe_allow_html=True)
 
-@st.fragment(run_every=1)
+@st.fragment(run_every=LIVE_KPI_FRAGMENT_SECONDS)
 def render_live_pulse(compact=False):
     v    = st.session_state
     dash = v.get("active_dashboard","Sales")
@@ -1364,15 +1416,29 @@ def _compact_regional_opportunity_map(df):
 
 def _regional_opportunity_board(df):
     df_m = _live_map_nodes(df)
-    summary = df_m.sort_values(["customers", "demos"], ascending=False).head(5)
+    work = df_m.copy()
+    work["_revenue_num"] = (
+        work["revenue"].astype(str)
+        .str.replace("P", "", regex=False)
+        .str.replace("M", "", regex=False)
+        .str.replace("K", "", regex=False)
+        .astype(float)
+    )
+    summary = (
+        work.groupby("country", as_index=False)
+        .agg(customers=("customers", "sum"), demos=("demos", "sum"), revenue_num=("_revenue_num", "sum"))
+        .sort_values(["customers", "demos"], ascending=False)
+        .head(5)
+    )
     rows = ""
     for _, r in summary.iterrows():
+        revenue = f"P{float(r['revenue_num']):.1f}M"
         rows += f"""
 <tr>
   <td>{r['country']}</td>
   <td style="text-align:right;">{int(r['customers']):,}</td>
   <td style="text-align:right;">{int(r['demos']):,}</td>
-  <td style="text-align:right;">{r['revenue']}</td>
+  <td style="text-align:right;">{revenue}</td>
 </tr>"""
     st.markdown(f"""
 <div class="cn-card sales-overview-contact sales-overview-side-card">
@@ -1871,13 +1937,17 @@ def _sales_kpis(df):
             st.markdown(f'<div class="kpi-card" style="{anchor_style};min-height:78px;display:flex;flex-direction:column;justify-content:space-between;"><div class="kpi-label">{lbl}</div><div class="kpi-value live-count">{val}</div>{delta}<div class="kpi-sub">{sub}</div><div class="kpi-hover-insight">{insight}</div></div>', unsafe_allow_html=True)
 
 def render_sales_overview(df):
-    st.session_state["_sales_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
+    st.session_state["_sales_df_cache"] = st.session_state.get("_live_replay_df") if st.session_state.get("_live_replay_df") is not None else st.session_state.get("_live_unfiltered_df", df)
 
     # ── Row 1: KPI cards ──
     try:
-        @st.fragment(run_every=1)
+        @st.fragment(run_every=LIVE_KPI_FRAGMENT_SECONDS)
         def _live_sales_kpis():
-            _df = st.session_state.get("_sales_df_cache")
+            _df = _refresh_live_replay_cache()
+            if _df is not None and not _df.empty:
+                st.session_state["_sales_df_cache"] = _df
+            else:
+                _df = st.session_state.get("_sales_df_cache")
             if _df is not None:
                 _live_today = _live_today_df(_df, "sales_kpi_cards")
                 _sales_kpis(_live_today)
@@ -1892,17 +1962,23 @@ def render_sales_overview(df):
     col_map, col_board_trend, col_other = st.columns([1.1, 0.9, 1.0], gap="small")
     with col_map:
         try:
-            @st.fragment(run_every=1)
+            @st.fragment(run_every=LIVE_CHART_FRAGMENT_SECONDS)
             def _live_sales_mini_map():
-                _compact_regional_opportunity_map(_live_today_df(st.session_state.get("_sales_df_cache"), "sales_regional_mini_map"))
+                _df = _refresh_live_replay_cache()
+                if _df is None or _df.empty:
+                    _df = st.session_state.get("_sales_df_cache")
+                _compact_regional_opportunity_map(_live_today_df(_df, "sales_regional_mini_map"))
             _live_sales_mini_map()
         except Exception:
             _compact_regional_opportunity_map(df)
     with col_board_trend:
         try:
-            @st.fragment(run_every=1)
+            @st.fragment(run_every=LIVE_CHART_FRAGMENT_SECONDS)
             def _live_regional_board():
-                _regional_opportunity_board(_live_today_df(st.session_state.get("_sales_df_cache"), "sales_regional_board"))
+                _df = _refresh_live_replay_cache()
+                if _df is None or _df.empty:
+                    _df = st.session_state.get("_sales_df_cache")
+                _regional_opportunity_board(_live_today_df(_df, "sales_regional_board"))
             _live_regional_board()
         except Exception:
             _regional_opportunity_board(df)
@@ -2154,14 +2230,17 @@ def _mkt_kpis(df=None):
             st.markdown(f'<div class="kpi-card marketing-kpi-card{anchor}"><div class="kpi-label" title="{lbl}">{lbl}</div><div class="kpi-value live-count" title="{val}" style="color:#14B8A6;">{val}</div>{delta}<div class="kpi-sub" title="{sub}">{sub}</div><div class="kpi-hover-insight">{insight}</div></div>', unsafe_allow_html=True)
 
 def render_marketing_overview(df):
-    st.session_state["_marketing_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
+    st.session_state["_marketing_df_cache"] = st.session_state.get("_live_replay_df") if st.session_state.get("_live_replay_df") is not None else st.session_state.get("_live_unfiltered_df", df)
     st.markdown('<div class="marketing-overview-tight-start"></div>', unsafe_allow_html=True)
     st.markdown('<div class="marketing-overview-safe">', unsafe_allow_html=True)
 
     # ── Row 1: KPI cards + live pulse (side by side) ──
     try:
-        @st.fragment(run_every=1)
+        @st.fragment(run_every=LIVE_KPI_FRAGMENT_SECONDS)
         def _live_marketing_kpis():
+            _df = _refresh_live_replay_cache()
+            if _df is not None and not _df.empty:
+                st.session_state["_marketing_df_cache"] = _df
             _mkt_kpis(st.session_state.get("_marketing_df_cache"))
         _live_marketing_kpis()
     except Exception:
@@ -2276,13 +2355,16 @@ def _exec_kpis(df=None):
 </div>""", unsafe_allow_html=True)
 
 def render_executive_overview(df):
-    st.session_state["_executive_df_cache"] = st.session_state.get("_live_unfiltered_df", df)
+    st.session_state["_executive_df_cache"] = st.session_state.get("_live_replay_df") if st.session_state.get("_live_replay_df") is not None else st.session_state.get("_live_unfiltered_df", df)
     st.markdown('<div class="executive-overview-tight-start"></div>', unsafe_allow_html=True)
 
     # ── Row 1: KPI cards + live pulse (side by side) ──
     try:
-        @st.fragment(run_every=1)
+        @st.fragment(run_every=LIVE_KPI_FRAGMENT_SECONDS)
         def _live_executive_kpis():
+            _df = _refresh_live_replay_cache()
+            if _df is not None and not _df.empty:
+                st.session_state["_executive_df_cache"] = _df
             _exec_kpis(st.session_state.get("_executive_df_cache"))
         _live_executive_kpis()
     except Exception:
@@ -2389,11 +2471,10 @@ def main():
     with main_col:
         render_header()
 
-        with st.spinner(""):
-            df = load_data()
-            if df is None:
-                st.toast("Using mock data - CSV not found")
-                df = mock_data()
+        df = load_data()
+        if df is None:
+            st.toast("Using mock data - CSV not found")
+            df = mock_data()
 
         live_rows = pd.DataFrame()
         try:
@@ -2401,9 +2482,9 @@ def main():
                 st.warning("Live stream queue not found. Generate live data first.")
             else:
                 live_rows = _release_live_rows()
-                combined = _combine_historical_live(df, live_rows)
-                if combined is not None and not combined.empty:
-                    df = combined
+                live_norm = _normalize_live_queue(live_rows)
+                if live_norm is not None and not live_norm.empty:
+                    st.session_state["_live_replay_df"] = live_norm
                 _maybe_autorefresh_live()
         except Exception as live_err:
             live_rows = pd.DataFrame()

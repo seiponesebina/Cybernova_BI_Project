@@ -1,0 +1,917 @@
+CYBERNOVA BI DASHBOARD - KPI, MODEL FORMULAS, AND DESCRIPTIONS
+Generated for project documentation/report evidence.
+
+Source files reviewed:
+- cybernovaapp.py
+- exports.py
+- generate_logs.py
+- tests/test_kpi_formulas.py
+- tests/test_pipeline_validation.py
+
+============================================================
+1. GENERAL DEFINITIONS USED BY DASHBOARD FORMULAS
+============================================================
+
+Truthy value
+Formula:
+    value is true when value is one of: true, 1, yes, y
+Description:
+    Used to count boolean-like fields consistently when values may be stored
+    as booleans, integers, or strings.
+
+Human traffic
+Formula:
+    human_df = df where is_bot is not true
+Description:
+    Removes bot/noise traffic before calculating most sales, marketing, and
+    executive KPIs.
+
+Numeric value
+Formula:
+    numeric_value = pandas.to_numeric(value, errors="coerce").fillna(0)
+Description:
+    Converts numeric fields safely and treats invalid or missing values as 0.
+
+Top value
+Formula:
+    top_value = most frequent non-null value in a column
+Description:
+    Used for top market, top service, and best entry page style indicators.
+
+
+============================================================
+2. CORE DASHBOARD KPI FORMULAS
+============================================================
+
+Rows
+Formula:
+    rows = len(df)
+Description:
+    Total records currently available in the active dashboard dataframe.
+
+Human Visitors / Human Rows
+Formula:
+    human = count rows where is_bot is false
+Description:
+    Count of records after removing bot traffic.
+
+Potential Customers
+Formula:
+    potential = sum(potential_customer_signal) over human rows
+Description:
+    Counts visitors/sessions showing strong buying or lead intent.
+
+Demo Requests
+Formula:
+    demos = sum(has_demo_request) over human rows
+Description:
+    Counts human records associated with demo request activity.
+
+Engaged Visitors
+Formula:
+    engaged = sum(is_engaged_session) over human rows
+Fallback:
+    if is_engaged_session is missing:
+        engaged = int(human_count * 0.28)
+Description:
+    Counts visitors/sessions with meaningful activity.
+
+Engagement Rate
+Formula:
+    engagement_rate = (engaged / human_count) * 100
+    if human_count == 0, engagement_rate = 0
+Description:
+    Percentage of human activity that is engaged.
+
+AI Assistant Traction / AI Rate
+Formula:
+    if has_ai_interest exists:
+        ai_sessions = sum(has_ai_interest) over human rows
+    else:
+        ai_sessions = count rows where service_name contains "AI"
+    ai_rate = (ai_sessions / human_count) * 100
+    if human_count == 0, ai_rate = 0
+Description:
+    Measures share of human activity showing AI assistant/service interest.
+
+Opportunity Value
+Formula:
+    opportunity = sum(estimated_deal_value) over human rows
+Description:
+    Estimated opportunity value represented by current human activity.
+
+Top Market
+Formula:
+    top_market = most frequent country among human rows
+Description:
+    Market contributing the highest current human activity.
+
+Top Service
+Formula:
+    top_service = most frequent service_name among human rows
+Description:
+    Service receiving the highest current human activity.
+
+Audience/Data Quality
+Formula:
+    quality = round((1 - mean(is_bot over all rows)) * 100)
+Description:
+    Higher value means lower bot/noise share in the active dataset.
+
+Active Markets
+Formula:
+    active_markets = number of unique countries among human rows
+Description:
+    Count of markets represented in the current human traffic.
+
+Risk Alerts
+Formula:
+    if risk_score exists:
+        risk_alerts = count human rows where risk_score >= 70
+    else if is_anomaly exists:
+        risk_alerts = sum(is_anomaly) over human rows
+    else:
+        risk_alerts = 0
+Description:
+    Count of high-risk records requiring executive or operations attention.
+
+
+============================================================
+3. SALES DASHBOARD KPI FORMULAS
+============================================================
+
+People Waiting for a Demo
+Formula:
+    demo_req = sum(has_demo_request) over human rows
+Display:
+    formatted with comma separators
+Description:
+    Immediate follow-up queue for the sales team.
+
+Potential Customers Today
+Formula:
+    pot_cust = sum(potential_customer_signal) over human rows
+Display:
+    formatted with comma separators
+Description:
+    Visitors showing strong buying signals.
+
+Estimated Revenue if Leads Convert
+Formula:
+    pot_rev_m = round(sum(estimated_deal_value over human rows) / 1,000,000, 1)
+Display:
+    P{pot_rev_m}M
+Description:
+    Estimated opportunity value if current leads convert. This is modelled
+    opportunity value, not booked revenue.
+
+Sales Progress This Month
+Formula:
+    target_m = 95
+    pipeline_pct = min(99, int(pot_rev_m / target_m * 100))
+    if pot_rev_m == 0, pipeline_pct = 0
+Display:
+    {pipeline_pct}%
+Description:
+    Estimated progress toward a P95M monthly opportunity target.
+
+Hottest Market Right Now
+Formula:
+    top_market = most frequent country among human rows
+    top_pct = int(top_market_count / human_count * 100)
+Fallback:
+    if no country data:
+        top_market = "South Africa"
+        top_pct = 36
+Description:
+    Best region for immediate sales follow-up.
+
+
+============================================================
+4. MARKETING DASHBOARD KPI FORMULAS
+============================================================
+
+Meaningful Actions Taken Today
+Formula:
+    meaningful_actions = engagement_rate
+    engagement_rate = (engaged / human_count) * 100
+Display:
+    one decimal place percentage
+Description:
+    Primary campaign signal. Measures visitors who took valuable actions,
+    not only page views.
+
+Audience Quality Score
+Formula:
+    quality = round((1 - mean(is_bot over all rows)) * 100)
+Display:
+    whole-number percentage
+Description:
+    Indicates how relevant the traffic is by penalising bot/noise traffic.
+
+Best Market to Target Now
+Formula:
+    best_market = most frequent country among human rows
+Description:
+    Highest current campaign opportunity market.
+
+Visitors Today
+Formula:
+    visitors_today = engaged
+Description:
+    Current engaged visitor volume under the selected/live view.
+
+Best Entry Page
+Formula:
+    first available top value from:
+        landing_page, entry_page, page_title, path, url_path, service_name
+Fallback:
+    "General Website"
+Description:
+    Page/source where visitors most often start.
+
+
+============================================================
+5. EXECUTIVE DASHBOARD KPI FORMULAS
+============================================================
+
+Growth Direction
+Formula:
+    growth = min(99, int(potential / max(1, human_count) * 100))
+    if human_count == 0, growth = 0
+Display:
+    +{growth}%
+Description:
+    High-level direction based on the share of human traffic that is potential
+    customer activity.
+
+Potential Customers
+Formula:
+    potential = sum(potential_customer_signal) over human rows
+Description:
+    Total current potential customer signals for executive review.
+
+AI Assistant Traction
+Formula:
+    ai_rate = (ai_sessions / human_count) * 100
+Description:
+    Share of human activity showing AI assistant/service interest.
+
+Active SADC Markets
+Formula:
+    active_markets = number of unique countries among human rows
+Description:
+    Count of active regional markets represented in current traffic.
+
+Strategic Risk Alerts
+Formula:
+    risk_alerts = count human rows where risk_score >= 70
+Description:
+    High-risk records that may require executive attention.
+
+
+============================================================
+6. EXPORT / REPORT KPI FORMULAS
+============================================================
+
+Export Potential Customers
+Formula:
+    Potential Customers = int(sum(potential_customer_signal))
+Fallback:
+    1248 when column is missing or empty fallback is used
+Description:
+    Potential customer count in the exported/filtered dataframe.
+
+Export Demo Requests
+Formula:
+    Demo Requests = int(sum(has_demo_request))
+Fallback:
+    312 when column is missing or empty fallback is used
+Description:
+    Demo request count in the exported/filtered dataframe.
+
+Export Potential Revenue
+Formula:
+    Potential Revenue = sum(estimated_deal_value)
+Display:
+    ${total:,.0f}
+Fallback:
+    $82,600,000 when column is missing or empty fallback is used
+Description:
+    Estimated opportunity value for report output.
+
+Export Top Market
+Formula:
+    Top Market = most frequent country
+Fallback:
+    South Africa
+Description:
+    Highest-volume country in the filtered export data.
+
+Export Data Quality
+Formula:
+    Data Quality = 1.0 - mean(is_bot)
+Display:
+    one decimal place percentage
+Fallback:
+    96.4%
+Description:
+    Export/report-level quality score based on non-bot traffic share.
+
+Records in Filter
+Formula:
+    Records in Filter = len(filtered_dataframe)
+Display:
+    comma-separated integer
+Description:
+    Number of records represented in the current report filter.
+
+Country Summary - Visitors
+Formula:
+    visitors = count rows grouped by country
+Description:
+    Country-level visitor/activity count for reports.
+
+Country Summary - Potential Customers
+Formula:
+    potential_customers = count rows where potential_customer_signal == true,
+    grouped by country
+Fallback:
+    potential_customers = int(visitors * 0.30) if signal column missing
+Description:
+    Country-level potential customer count.
+
+Country Summary - Opportunity Value
+Formula:
+    opportunity_value = sum(estimated_deal_value), grouped by country
+Fallback:
+    opportunity_value = potential_customers * 75,000
+Description:
+    Country-level estimated opportunity value.
+
+
+============================================================
+7. DATA GENERATION AND MODEL FORMULAS
+============================================================
+
+Date and Time Fields
+Formulas:
+    date = timestamp date
+    time = timestamp formatted as HH:MM:SS
+    hour = timestamp hour
+    day_of_week = timestamp day name
+    month_name = timestamp month name
+    week_of_year = ISO week number
+    is_weekend = timestamp weekday >= 5
+Description:
+    Creates time fields used in filtering, charts, and trend analysis.
+
+Session Duration
+Formula:
+    duration_seconds = last_request_ts - first_request_ts
+Description:
+    Length of a visitor session in seconds.
+
+Request Count per Session
+Formula:
+    request_count_session = count(uri) grouped by session_id
+Description:
+    Number of page requests in a session.
+
+Distinct Pages per Session
+Formula:
+    distinct_pages_session = nunique(uri) grouped by session_id
+Description:
+    Number of unique pages visited in a session.
+
+Converted to Lead
+Formula:
+    converted_to_lead = session contains any of:
+        /scheduledemo.php, /event.php, /contact.php
+Description:
+    Session-level conversion flag.
+
+Warm Lead
+Formula:
+    is_warm_lead = uri in:
+        /scheduledemo.php, /event.php, /contact.php
+Description:
+    Row-level high-intent lead action.
+
+Segment
+Formula:
+    if session_is_bot:
+        segment = "Bot"
+    else if has_demo or has_event:
+        segment = "High-intent"
+    else if has_ai_assistant or has_prototype:
+        segment = "Product-curious"
+    else:
+        segment = "General browser"
+Description:
+    Session category used for sales and marketing segmentation.
+
+Business Hours
+Formula:
+    is_business_hours = hour between 8 and 17 inclusive and weekday < 5
+Description:
+    Indicates weekday business-hour activity.
+
+Business Service Name
+Formula:
+    business_service_name = URI_TO_BUSINESS[uri], else "Other"
+Description:
+    Converts technical URL paths into business-friendly service names.
+
+Page Type Flags
+Formulas:
+    business_page_type = PAGE_TYPE_MAP[business_service_name], else "Other"
+    is_service_page = business_page_type == "Service Page"
+    is_landing_page = business_page_type == "Landing Page"
+    is_conversion_page = business_page_type == "Conversion Page"
+    is_ai_assistant_page = business_service_name == "AI Cyber Assistant"
+Description:
+    Classifies pages for funnel, campaign, and AI-interest analysis.
+
+
+============================================================
+8. POTENTIAL CUSTOMER MODEL FORMULAS
+============================================================
+
+Potential Customer Score
+Formula:
+    if session is bot:
+        score = 0
+    else:
+        score = 0
+        +35 if session has demo request
+        +30 if session has contact request
+        +25 if session has event signup
+        +20 if session has AI assistant interest
+        +15 if session has service page visit
+        +10 if distinct pages >= 3
+        +10 if session_number_for_ip > 1
+        +5  if business-hours session
+        -10 if session has HTTP error status >= 400
+        score = clip(score, 0, 100)
+Description:
+    Main heuristic score estimating visitor sales intent.
+
+Potential Customer Signal
+Formula:
+    if session is bot:
+        signal = 0
+    else signal = 1 when any condition is true:
+        has demo request
+        has contact request
+        has event signup
+        converted_to_lead is true
+        is_warm_lead is true
+        segment == "High-intent"
+        has AI interest and distinct pages >= 3
+        has service page visit and distinct pages >= 2
+    otherwise:
+        signal = 0
+Description:
+    Binary flag identifying likely potential customers.
+
+Potential Customer Type
+Formula:
+    if bot: "Filtered Noise"
+    else if demo request: "Demo Interested"
+    else if contact request: "Contact Interested"
+    else if event signup: "Event Interested"
+    else if AI interest: "AI Assistant Interested"
+    else if service interest: "Service Interested"
+    else if segment == "High-intent": "High-Intent Visitor"
+    else: "General Visitor"
+Description:
+    Human-readable reason/category for the potential customer.
+
+Intent Score
+Formula:
+    intent_score =
+        +35 if has demo request
+        +25 if has event signup
+        +20 if has AI interest
+        +30 if has contact interest
+    intent_score = min(100, total)
+Description:
+    Measures direct conversion intent.
+
+Engagement Score
+Formula:
+    engagement_score =
+        distinct_pages_session * 15
+        +10 if repeat visitor/session_number_for_ip > 1
+        +5 if business-hours session
+    engagement_score = min(100, total)
+Description:
+    Measures session depth and repeated activity.
+
+Conversion Score
+Formula:
+    conversion_score =
+        +50 if has demo request
+        +40 if has contact request
+        +30 if has event signup
+    conversion_score = min(100, total)
+Description:
+    Measures closeness to explicit lead conversion.
+
+Service Value Score
+Formula:
+    service_value_score =
+        +30 if has AI interest
+        +20 if has service page visit
+        +10 if distinct_pages_session >= 2
+    service_value_score = min(100, total)
+Description:
+    Measures interest in valuable service areas.
+
+Recency Score
+Formula:
+    recency_score = 50
+Description:
+    Placeholder score because generated data is considered within the active
+    analysis range.
+
+Conversion Stage
+Formula:
+    if uri in /scheduledemo.php, /contact.php, /event.php:
+        "Demo / Event Request"
+    else if uri in /ai-assistant.php, /contact.php:
+        "AI / Contact Interest"
+    else if is_service_page:
+        "Service Interest"
+    else:
+        "Website Visit"
+Description:
+    Funnel stage used for funnel and drop-off views.
+
+Funnel Stage Order
+Formula:
+    Website Visit = 1
+    Service Interest = 2
+    AI / Contact Interest = 3
+    Demo / Event Request = 4
+Description:
+    Numeric order used to sort funnel stages.
+
+Conversion Path
+Formula:
+    starts with "Homepage"
+    add "Service Page" if has_service_interest
+    add "AI Assistant" if has_ai_interest
+    add "Demo Request" if has_demo_request
+    else add "Contact" if has_contact_interest
+    else add "Event Signup" if has_event_signup
+Description:
+    Text path describing the visitor journey.
+
+Dropoff Stage
+Formula:
+    if converted_to_potential_customer:
+        dropoff_stage = "Converted"
+    else:
+        dropoff_stage = conversion_stage
+Description:
+    Identifies where non-converted visitors dropped off.
+
+Engaged Session
+Formula:
+    is_engaged_session =
+        distinct_pages_session >= 3 OR request_count_session >= 4
+Description:
+    Session is engaged if it has enough page depth or request activity.
+
+Session Depth Category
+Formula:
+    if distinct_pages <= 1: "Single page"
+    if distinct_pages == 2: "2 pages"
+    if distinct_pages <= 5: "3-5 pages"
+    else: "6+ pages"
+Description:
+    Friendly bucket for session depth.
+
+Session Duration Category
+Formula:
+    if duration_seconds < 60: "< 1 min"
+    if duration_seconds < 300: "1-5 min"
+    if duration_seconds < 900: "5-15 min"
+    else: "15+ min"
+Description:
+    Friendly bucket for session duration.
+
+Visitor Type
+Formula:
+    if is_bot: "Bot"
+    else if session_number_for_ip == 1: "First-time visitor"
+    else if session_number_for_ip > 3 and potential_customer_score >= 35:
+        "Repeat high-intent visitor"
+    else:
+        "Returning visitor"
+Description:
+    Classifies visitor history and intent.
+
+
+============================================================
+9. MARKETING AND CAMPAIGN MODEL FORMULAS
+============================================================
+
+Campaign Impression Estimate
+Formula:
+    campaign_impression_estimate = int(campaign_cost_estimate / 0.05)
+Description:
+    Estimated impressions from campaign spend assuming 0.05 cost per impression.
+
+Campaign Click Estimate
+Formula:
+    campaign_click_estimate = int(campaign_impression_estimate * 0.035)
+Description:
+    Estimated clicks assuming 3.5% click-through rate.
+
+Campaign ROI Estimate
+Formula:
+    if campaign_cost_estimate > 0:
+        campaign_roi_estimate =
+            (potential_customer_score * 500 - campaign_cost_estimate)
+            / max(campaign_cost_estimate, 1)
+    else:
+        campaign_roi_estimate = 0
+    campaign_roi_estimate rounded to 2 decimals
+Description:
+    Heuristic ROI estimate from potential customer score and campaign spend.
+
+Campaign Quality Score
+Formula:
+    campaign_quality_score = clip(campaign_roi_estimate * 10 + 50, 0, 100)
+    rounded to 1 decimal
+Description:
+    Converts ROI estimate into a 0-100 campaign quality score.
+
+Visit Share
+Formula:
+    visit_share = country_request_count / total_requests
+    rounded to 4 decimals
+Description:
+    Share of all activity coming from each country.
+
+Conversion Share
+Formula:
+    conversion_share = potential_customer_signal / max(total_potential_customer_signals, 1)
+    rounded to 6 decimals
+Description:
+    Row-level contribution to total potential customer signal volume.
+
+Promotion Gap Score
+Formula:
+    if is_service_page and not is_campaign_period:
+        promotion_gap_score = random uniform value from 0.3 to 0.8, rounded to 2 decimals
+    else:
+        promotion_gap_score = 0.0
+Description:
+    Flags service pages that may be under-promoted.
+
+
+============================================================
+10. EXECUTIVE STRATEGY MODEL FORMULAS
+============================================================
+
+Actual Traffic Share
+Formula:
+    actual_traffic_share = country_row_count / total_rows
+Description:
+    Country share of all traffic.
+
+Actual Potential Customer Share
+Formula:
+    actual_potential_customer_share =
+        country_potential_customer_count / max(total_potential_customer_count, 1)
+Description:
+    Country share of potential customer signals.
+
+Traffic Share Variance
+Formula:
+    traffic_share_variance = actual_traffic_share - target_traffic_share
+    rounded to 4 decimals
+Description:
+    Difference between actual traffic and target traffic.
+
+Potential Customer Share Variance
+Formula:
+    potential_customer_share_variance =
+        actual_potential_customer_share - target_potential_customer_share
+    rounded to 4 decimals
+Description:
+    Difference between actual potential customer share and target share.
+
+Potential Customer Target Ratio
+Formula:
+    pc_ratio = actual_potential_customer_share / max(target_potential_customer_share, 0.001)
+Description:
+    Used to classify market status and investment recommendation.
+
+Market Status and Investment Recommendation
+Formula:
+    if pc_ratio >= 1.0:
+        market_status = "Above Target"
+        investment_recommendation = "Invest"
+    else if pc_ratio >= 0.70:
+        market_status = "On Watch"
+        investment_recommendation = "Monitor"
+    else if actual_potential_customer_share > 0.01:
+        market_status = "Below Target"
+        investment_recommendation = "Review"
+    else:
+        market_status = "Below Target"
+        investment_recommendation = "Pause"
+Description:
+    Converts market performance against target into a management action.
+
+Market Growth Rate
+Formula:
+    market_growth_rate = 0.08
+Description:
+    Fixed placeholder growth rate in the generated dataset.
+
+Strategic Score
+Formula:
+    strategic_score = min(100, int(actual_pc_share * 500 + actual_traffic_share * 200))
+Description:
+    Composite score combining potential customer share and traffic share.
+
+
+============================================================
+11. RISK, QUALITY, AND VALUE MODEL FORMULAS
+============================================================
+
+Anomaly Category
+Formula:
+    if is_anomaly and anomaly name contains "bot" or "spike":
+        "Traffic Spike"
+    else if is_anomaly and name contains "broken" or "link":
+        "High Error Rate"
+    else if is_anomaly and name contains "viral":
+        "Traffic Spike"
+    else if is_anomaly:
+        "Suspicious Pattern"
+    else if status_code >= 500:
+        "High Error Rate"
+    else if response_time_ms > 1000:
+        "Slow Response"
+    else if is_bot:
+        "Bot Noise"
+    else:
+        "Normal"
+Description:
+    Categorises operational anomalies and abnormal traffic.
+
+Risk Score
+Formula:
+    risk_score =
+        +40 if is_anomaly
+        +20 if is_bot
+        +25 if status_code >= 500
+        +10 if 400 <= status_code < 500
+        +15 if response_time_ms > 1000
+    risk_score = clip(risk_score, 0, 100)
+Description:
+    Operational risk score for each row.
+
+Risk Level
+Formula:
+    Low:       -1 < risk_score <= 20
+    Medium:    20 < risk_score <= 45
+    High:      45 < risk_score <= 70
+    Critical:  70 < risk_score <= 100
+Description:
+    Human-readable risk category.
+
+Requires Review
+Formula:
+    requires_review = risk_level in ["High", "Critical"]
+Description:
+    Flags records for operations review.
+
+Data Quality Flag
+Formula:
+    data_quality_flag = "Good"
+    if country is missing or blank:
+        data_quality_flag = "Review Needed"
+Description:
+    Row-level quality flag.
+
+Data Quality Score
+Formula:
+    if data_quality_flag == "Good":
+        data_quality_score = 95
+    else:
+        data_quality_score = 70
+Description:
+    Numeric quality score for records.
+
+Missing Required Fields
+Formula:
+    missing_required_fields =
+        country is missing OR uri is missing OR session_id is missing
+Description:
+    Identifies incomplete required data.
+
+Invalid Status Flag
+Formula:
+    invalid_status_flag = status_code not in [200, 304, 404, 500]
+Description:
+    Flags status codes outside the generated expected set.
+
+Duplicate Session Flag
+Formula:
+    duplicate_session_flag =
+        duplicated rows by [session_id, uri, timestamp], keep=False
+Description:
+    Flags duplicate events at the session/page/timestamp level.
+
+Estimated Deal Value
+Formula:
+    value range is selected from SERVICE_VALUE_RANGES by business_service_name
+    if potential_customer_signal == 0:
+        lower and upper range bounds are divided by 4
+    estimated_deal_value = random integer between lower and upper bound
+Description:
+    Modelled opportunity value for the service and lead quality.
+
+Estimated Monthly Value
+Formula:
+    estimated_monthly_value = int(estimated_deal_value / 12)
+Description:
+    Monthly equivalent of estimated deal value.
+
+Expected Conversion Value
+Formula:
+    expected_conversion_value =
+        int(estimated_deal_value * potential_customer_score / 100)
+Description:
+    Opportunity value weighted by potential customer score.
+
+Pipeline Value
+Formula:
+    if potential_customer_signal == 1:
+        pipeline_value = estimated_deal_value
+    else:
+        pipeline_value = 0
+Description:
+    Estimated value counted in the potential customer pipeline.
+
+Service Value Band
+Formula:
+    if estimated_deal_value < 30,000:
+        "Small (<30K)"
+    else if estimated_deal_value < 80,000:
+        "Mid (30K-80K)"
+    else if estimated_deal_value < 150,000:
+        "Large (80K-150K)"
+    else:
+        "Enterprise (150K+)"
+Description:
+    Friendly value bucket for opportunity sizing.
+
+
+============================================================
+12. DELTA / COMPARISON FORMULAS
+============================================================
+
+Count Delta
+Formula:
+    if baseline <= 0:
+        delta_text = "starting"
+        delta_class = "watch"
+    else:
+        diff = current - baseline
+        delta_text = (diff / baseline * 100) formatted as signed percentage
+        delta_class = "up" if diff >= 0 else "down"
+Description:
+    Used for count-based KPI comparisons against yesterday or 7-day average.
+
+Rate Delta
+Formula:
+    if baseline <= 0:
+        delta_text = "starting"
+        delta_class = "watch"
+    else:
+        diff = current_rate - baseline_rate
+        delta_text = diff formatted as signed percentage points
+        delta_class = "up" if diff >= 0 else "down"
+Description:
+    Used for percentage/rate KPI comparisons.
+
+Baseline Selection
+Formula:
+    if yesterday data exists:
+        baseline = yesterday KPI stats
+        label = "yesterday"
+    else:
+        baseline = mean KPI stats for prior 7 days
+        label = "7-day avg"
+Description:
+    Provides comparison values for dashboard KPI deltas.
+

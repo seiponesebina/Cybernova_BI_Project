@@ -1113,6 +1113,47 @@ def _conversion_by_stage():
 
 
 # ── Main analytics renderer ───────────────────────────────────────────────────
+def _revenue_earned_chart(df):
+    work = df if df is not None and not df.empty else pd.DataFrame()
+    human = work[~_truthy_col(work, "is_bot")] if not work.empty and "is_bot" in work.columns else work
+    _card_start("Revenue Earned", "money")
+    if human.empty:
+        st.markdown(
+            '<div style="font-size:11px;color:#8A98A6;">No revenue data is available for the selected filters.</div>',
+            unsafe_allow_html=True,
+        )
+        _card_end()
+        return
+
+    value_col = "expected_conversion_value" if "expected_conversion_value" in human.columns else "pipeline_value" if "pipeline_value" in human.columns else "estimated_deal_value"
+    human = human.copy()
+    human["_earned_value"] = pd.to_numeric(human.get(value_col, pd.Series(dtype="float64")), errors="coerce").fillna(0)
+    if "service_name" in human.columns:
+        earned = human.groupby("service_name")["_earned_value"].sum().sort_values(ascending=False).head(7)
+    else:
+        earned = pd.Series({"Revenue": human["_earned_value"].sum()})
+
+    fig = go.Figure(go.Bar(
+        x=(earned.values / 1_000_000),
+        y=earned.index.astype(str),
+        orientation="h",
+        marker=dict(color="#22D3EE", line=dict(color="rgba(255,255,255,.16)", width=1)),
+        hovertemplate="<b>%{y}</b><br>Revenue earned: P%{x:.2f}M<extra></extra>",
+    ))
+    _chart_layout(fig, h=245)
+    fig.update_layout(
+        xaxis_title="Revenue earned (Pula M)",
+        yaxis=dict(autorange="reversed", color="#CBD5E1", tickfont=dict(size=10), automargin=True),
+        showlegend=False,
+    )
+    st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": True})
+    st.markdown(
+        f'<div style="font-size:10px;color:#8A98A6;margin-top:4px;">Based on <b>{value_col}</b>; values are modelled BI revenue evidence.</div>',
+        unsafe_allow_html=True,
+    )
+    _card_end()
+
+
 def render_sales_analytics(df):
     inject_sales_css()
 
@@ -1134,7 +1175,9 @@ def render_sales_analytics(df):
         with c2: _demo_intent_heatmap()
         with c3: _conversion_by_stage()
 
-        _customers_by_country()
+        c1, c2 = st.columns([1.05, 1], gap="medium")
+        with c1: _revenue_earned_chart(df)
+        with c2: _customers_by_country()
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
